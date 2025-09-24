@@ -52,9 +52,3 @@
     max-width: 1400px;
   }
 }
-
-@utility button {
-  @apply px-6 py-2 rounded-full bg-primary text-primary-foreground font-medium
-  transition-all duration-300 hover:bg-primary/80
-  hover:scale-105 active:scale-95;
-}

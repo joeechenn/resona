@@ -1,10 +1,12 @@
 import cover from "/resonacover.jpg";
 import homepage from "/examplehomepage.png"
 import { Github } from "lucide-react";
+import { useState } from "react";
 
 export const Resona = () => {
-  return (
-  <main className="min-h-screen py-24">
+    const [isOpen, setIsOpen] = useState(false);
+    return (
+    <main className="min-h-screen py-24">
       <div className="container mx-auto px-6 max-w-4xl text-center">
         <h1 className="text-5xl font-extrabold tracking-tight leading-tight mb-4">
           Resona
@@ -53,8 +55,22 @@ export const Resona = () => {
              </p>
              <img 
              src={homepage}
+             alt="Resona homepage"
              className="w-full h-auto rounded-lg mb-2 mt-8"
+             onClick={() => setIsOpen(true)}
              />
+             {isOpen && (
+                <div
+                 className="fixed inset-0 bg-black/80 flex items-center justify-center z-50"
+                 onClick={() => setIsOpen(false)}
+                 >
+                    <img
+                    src={homepage}
+                    alt="Resona homepage zoomed"
+                    className="max-h-[90%] max-w-[90%] rounded-lg shadow-lg"
+                    />
+                </div>
+            )}
             <p className="text-center mt-2 text-xs text-muted-foreground">
                 Idea of homepage made with Figma
             </p>
@@ -79,7 +95,7 @@ export const Resona = () => {
       </div>
       <footer className="py-8">
         <a
-          href="https://github.com/yourusername/resona"
+          href="https://github.com/joeechenn/resona"
           target="_blank"
           rel="noreferrer"
           className="flex justify-center text-muted-foreground hover:text-primary transition-colors"
