@@ -1,0 +1,60 @@
+@import "tailwindcss";
+
+@theme {
+  --color-border: hsl(var(--border));
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+}
+
+@layer base {
+  :root {
+    --background: 0 0% 0%;
+    --foreground: 213 31% 91%;
+    --muted-foreground: 217 19% 55%;
+
+    --primary: 217 91% 60%;
+    --primary-foreground: 213 31% 91%;
+   
+    --border: 217 33% 20%;
+  }
+
+  body {
+    @apply bg-background text-foreground transition-colors duration-300;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@utility container {
+  margin-inline: auto;
+  padding-inline: 2rem;
+
+  @media (width >= 640px) {
+    max-width: 640px;
+  }
+
+  @media (width >= 768px) {
+    max-width: 768px;
+  }
+  
+  @media (width >= 1024px) {
+    max-width: 1024px;
+  }
+
+  @media (width >= 1280px) {
+    max-width: 1280px;
+  }
+
+  @media (width >= 1400px) {
+    max-width: 1400px;
+  }
+}
+
+@utility button {
+  @apply px-6 py-2 rounded-full bg-primary text-primary-foreground font-medium
+  transition-all duration-300 hover:bg-primary/80
+  hover:scale-105 active:scale-95;
+}
