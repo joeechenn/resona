@@ -3,11 +3,16 @@ import { redirect } from 'next/navigation';
 import Dashboard from '@/components/Dashboard';
 
 export default async function HomePage() {
-  const session = await auth();
   
-  if (!session) {
-    redirect('/login');
-  }
+const mockSession = {
+  user: {
+    id: 'fatbeagle_dev',
+    name: 'Joe Chen',
+    email: 'turtlesrlyfenlove@gmail.com',
+    image: null  
+  },
+  expires: '2025-12-31'
+};
   
-  return <Dashboard session={session} />;
+  return <Dashboard session={mockSession} />;
 }
