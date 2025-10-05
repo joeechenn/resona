@@ -1,15 +1,8 @@
 import NextAuth from "next-auth";
-import SpotifyProvider  from "next-auth/providers/spotify";
+import SpotifyProvider from "next-auth/providers/spotify";
+import Google from "next-auth/providers/google";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/prisma";
-
-console.log("=== AUTH.TS LOADED ===");
-console.log("SPOTIFY_CLIENT_ID:", process.env.SPOTIFY_CLIENT_ID ? "EXISTS" : "MISSING");
-console.log("SPOTIFY_CLIENT_SECRET:", process.env.SPOTIFY_CLIENT_SECRET ? "EXISTS" : "MISSING");
-console.log("AUTH_SECRET:", process.env.AUTH_SECRET ? "EXISTS" : "MISSING");
-console.log("AUTH_URL:", process.env.AUTH_URL);
-console.log("NEXTAUTH_URL:", process.env.NEXTAUTH_URL);
-console.log("======================");
 
 export const { auth, signIn, signOut, handlers: { GET, POST } } = NextAuth({
     adapter: PrismaAdapter(prisma),
@@ -19,19 +12,11 @@ export const { auth, signIn, signOut, handlers: { GET, POST } } = NextAuth({
     session: {
         strategy: "database",
     },
-    cookies: {
-        pkceCodeVerifier: {
-            name: "next-auth.pkce.code_verifier",
-            options: {
-                httpOnly: true,
-                sameSite: "lax",
-                path: "/",
-                secure: false,
-                maxAge: 900,
-            },
-        },
-    },
     providers: [
+        Google({
+            clientId: process.env.GOOGLE_CLIENT_ID!,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+        }),
         SpotifyProvider({
             clientId: process.env.SPOTIFY_CLIENT_ID!,
             clientSecret: process.env.SPOTIFY_CLIENT_SECRET!,
@@ -47,7 +32,7 @@ export const { auth, signIn, signOut, handlers: { GET, POST } } = NextAuth({
                         "playlist-read-collaborative",
                         "user-follow-read",
                     ].join(" "),
-                     redirect_uri: "http://127.0.0.1:3000/api/auth/callback/spotify",
+                    redirect_uri: "http://127.0.0.1:3000/api/auth/callback/spotify",
                 },
             },
         }),
@@ -60,4 +45,3 @@ export const { auth, signIn, signOut, handlers: { GET, POST } } = NextAuth({
     },
     debug: true,
 });
- 
