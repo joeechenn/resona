@@ -15,42 +15,48 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  name      String?
-  email     String?  @unique
-  image     String?
-  accounts  Account[]
-  sessions  Session[]
+  id       String    @id @default(cuid())
+  name     String?
+  email    String?   @unique
+  image    String?
+  accounts Account[]
+  sessions Session[]
 
   lists     RankList[]
   follows   UserFollow[] @relation("follower")
   followers UserFollow[] @relation("following")
 
   currentlyPlayingTrackId String?
-  currentlyPlayingTrack   Track? @relation("CurrentlyPlaying", fields: [currentlyPlayingTrackId], references: [id])
+  currentlyPlayingTrack   Track?    @relation("CurrentlyPlaying", fields: [currentlyPlayingTrackId], references: [id])
   lastPlaybackUpdate      DateTime?
-  isListening             Boolean @default(false)
+  isListening             Boolean   @default(false)
 
   trackStats  UserTrackStat[]
   artistStats UserArtistStat[]
   albumStats  UserAlbumStat[]
+
+  posts        Post[]
+  comments     Comment[]
+  postLikes    PostLike[]
+  commentLikes CommentLike[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model Account {
-  id                 String  @id @default(cuid())
-  userId             String
-  type               String
-  provider           String
-  providerAccountId  String
-  refresh_token      String? @db.Text
-  access_token       String? @db.Text
-  expires_at         Int?
-  token_type         String?
-  scope              String?
-  id_token           String? @db.Text
-  session_state      String?
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -67,10 +73,10 @@ model Session {
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([userId])
-
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([userId])
 }
 
 model VerificationToken {
@@ -82,53 +88,58 @@ model VerificationToken {
 }
 
 model Artist {
-  id         String   @id @default(cuid())
-  spotifyId  String   @unique
-  name       String
-  imageUrl   String?
-  popularity Int?
-  tracks     TrackArtist[]
-  albums     Album[]
-  genres     ArtistGenre[]
+  id              String           @id @default(cuid())
+  spotifyId       String           @unique
+  name            String
+  imageUrl        String?
+  popularity      Int?
+  tracks          TrackArtist[]
+  albums          Album[]
+  genres          ArtistGenre[]
   userArtistStats UserArtistStat[] @relation("UserArtistStats")
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  rankItems RankItem[] @relation("RankItemArtist")
+  posts           Post[]           @relation("PostArtist")
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  rankItems       RankItem[]       @relation("RankItemArtist")
 }
 
 model Album {
-  id             String   @id @default(cuid())
-  spotifyId      String   @unique
-  name           String
-  imageUrl       String?
-  releaseDate    DateTime?
+  id              String          @id @default(cuid())
+  spotifyId       String          @unique
+  name            String
+  imageUrl        String?
+  releaseDate     DateTime?
   primaryArtistId String?
-  primaryArtist   Artist? @relation(fields: [primaryArtistId], references: [id])
-  tracks         Track[]
-  popularity     Int?
-  userAlbumStats UserAlbumStat[] @relation("UserAlbumStats")
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  rankItems RankItem[] @relation("RankItemAlbum")
+  primaryArtist   Artist?         @relation(fields: [primaryArtistId], references: [id])
+  tracks          Track[]
+  popularity      Int?
+  userAlbumStats  UserAlbumStat[] @relation("UserAlbumStats")
+  posts           Post[]          @relation("PostAlbum")
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  rankItems       RankItem[]      @relation("RankItemAlbum")
+
   @@index([primaryArtistId])
 }
 
 model Track {
-  id         String   @id @default(cuid())
-  spotifyId  String   @unique
-  isrc       String?  @unique
-  name       String
-  albumId    String?
-  album      Album?   @relation(fields: [albumId], references: [id])
-  durationMs Int
-  explicit   Boolean  @default(false)
-  popularity Int?
-  artists    TrackArtist[]
-  userTrackStats UserTrackStat[] @relation("UserTrackStats")
-  currentListeners User[] @relation("CurrentlyPlaying")
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  rankItems RankItem[] @relation("RankItemTrack")
+  id               String          @id @default(cuid())
+  spotifyId        String          @unique
+  isrc             String?         @unique
+  name             String
+  albumId          String?
+  album            Album?          @relation(fields: [albumId], references: [id])
+  durationMs       Int
+  explicit         Boolean         @default(false)
+  popularity       Int?
+  artists          TrackArtist[]
+  userTrackStats   UserTrackStat[] @relation("UserTrackStats")
+  posts            Post[]          @relation("PostTrack")
+  currentListeners User[]          @relation("CurrentlyPlaying")
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  rankItems        RankItem[]      @relation("RankItemTrack")
+
   @@index([albumId])
 }
 
@@ -137,12 +148,13 @@ model TrackArtist {
   artistId String
   track    Track  @relation(fields: [trackId], references: [id], onDelete: Cascade)
   artist   Artist @relation(fields: [artistId], references: [id], onDelete: Cascade)
+
   @@id([trackId, artistId])
 }
 
 model Genre {
-  id     String  @id @default(cuid())
-  name   String  @unique
+  id      String        @id @default(cuid())
+  name    String        @unique
   artists ArtistGenre[]
 }
 
@@ -151,6 +163,7 @@ model ArtistGenre {
   genreId  String
   artist   Artist @relation(fields: [artistId], references: [id], onDelete: Cascade)
   genre    Genre  @relation(fields: [genreId], references: [id], onDelete: Cascade)
+
   @@id([artistId, genreId])
 }
 
@@ -161,15 +174,16 @@ enum RankKind {
 }
 
 model RankList {
-  id        String   @id @default(cuid())
+  id        String     @id @default(cuid())
   userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   kind      RankKind
   title     String
-  isPublic  Boolean  @default(true)
+  isPublic  Boolean    @default(true)
   items     RankItem[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
   @@index([userId, kind])
   @@index([userId, createdAt])
 }
@@ -183,9 +197,10 @@ model RankItem {
   trackId  String?
   albumId  String?
   artistId String?
-  track    Track?  @relation("RankItemTrack", fields: [trackId], references: [id])
-  album    Album?  @relation("RankItemAlbum", fields: [albumId], references: [id])
-  artist   Artist? @relation("RankItemArtist", fields: [artistId], references: [id])
+  track    Track?   @relation("RankItemTrack", fields: [trackId], references: [id])
+  album    Album?   @relation("RankItemAlbum", fields: [albumId], references: [id])
+  artist   Artist?  @relation("RankItemArtist", fields: [artistId], references: [id])
+
   @@unique([listId, position])
   @@unique([listId, trackId])
   @@unique([listId, albumId])
@@ -196,55 +211,122 @@ model RankItem {
 }
 
 model UserFollow {
-  followerId String
+  followerId  String
   followingId String
-  follower   User @relation("follower",  fields: [followerId], references: [id], onDelete: Cascade)
-  following  User @relation("following", fields: [followingId], references: [id], onDelete: Cascade)
-  createdAt  DateTime @default(now())
+  follower    User     @relation("follower", fields: [followerId], references: [id], onDelete: Cascade)
+  following   User     @relation("following", fields: [followingId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+
   @@id([followerId, followingId])
 }
 
 model UserTrackStat {
-  userId   String
-  trackId  String
-  rating   Int?
-  liked    Boolean  @default(false)
-  playCount Int     @default(0)
+  userId       String
+  trackId      String
+  rating       Int?
+  liked        Boolean   @default(false)
+  playCount    Int       @default(0)
   lastPlayedAt DateTime?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  track   Track @relation("UserTrackStats", fields: [trackId], references: [id], onDelete: Cascade)
-  user    User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  track        Track     @relation("UserTrackStats", fields: [trackId], references: [id], onDelete: Cascade)
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@id([userId, trackId])
   @@index([trackId])
   @@index([userId])
 }
 
 model UserArtistStat {
-  userId  String
-  artistId String
-  rating  Int?
-  liked   Boolean @default(false)
-  follow  Boolean @default(false)
+  userId    String
+  artistId  String
+  rating    Int?
+  liked     Boolean  @default(false)
+  follow    Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  artist Artist @relation("UserArtistStats", fields: [artistId], references: [id], onDelete: Cascade)
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  artist    Artist   @relation("UserArtistStats", fields: [artistId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@id([userId, artistId])
   @@index([artistId])
   @@index([userId])
 }
 
 model UserAlbumStat {
-  userId  String
-  albumId String
-  rating  Int?
-  liked   Boolean @default(false)
+  userId    String
+  albumId   String
+  rating    Int?
+  liked     Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  album Album @relation("UserAlbumStats", fields: [albumId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  album     Album    @relation("UserAlbumStats", fields: [albumId], references: [id], onDelete: Cascade)
+
   @@id([userId, albumId])
   @@index([albumId])
   @@index([userId])
+}
+
+model Post {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  trackId  String?
+  albumId  String?
+  artistId String?
+  track    Track?  @relation("PostTrack", fields: [trackId], references: [id], onDelete: Cascade)
+  album    Album?  @relation("PostAlbum", fields: [albumId], references: [id], onDelete: Cascade)
+  artist   Artist? @relation("PostArtist", fields: [artistId], references: [id], onDelete: Cascade)
+
+  rating  Int?
+  caption String?
+
+  likes    PostLike[]
+  comments Comment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, createdAt])
+  @@index([trackId])
+  @@index([albumId])
+  @@index([artistId])
+}
+
+model Comment {
+  id        String        @id @default(cuid())
+  postId    String
+  post      Post          @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content   String
+  likes     CommentLike[]
+  createdAt DateTime      @default(now())
+
+  @@index([postId])
+  @@index([userId])
+}
+
+model PostLike {
+  userId    String
+  postId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@id([userId, postId])
+  @@index([postId])
+}
+
+model CommentLike {
+  userId    String
+  commentId String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  comment   Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@id([userId, commentId])
+  @@index([commentId])
 }
