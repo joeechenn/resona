@@ -26,6 +26,11 @@ model User {
   follows   UserFollow[] @relation("follower")
   followers UserFollow[] @relation("following")
 
+  currentlyPlayingTrackId String?
+  currentlyPlayingTrack   Track? @relation("CurrentlyPlaying", fields: [currentlyPlayingTrackId], references: [id])
+  lastPlaybackUpdate      DateTime?
+  isListening             Boolean @default(false)
+
   trackStats  UserTrackStat[]
   artistStats UserArtistStat[]
   albumStats  UserAlbumStat[]
@@ -120,6 +125,7 @@ model Track {
   popularity Int?
   artists    TrackArtist[]
   userTrackStats UserTrackStat[] @relation("UserTrackStats")
+  currentListeners User[] @relation("CurrentlyPlaying")
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
   rankItems RankItem[] @relation("RankItemTrack")
@@ -205,6 +211,8 @@ model UserTrackStat {
   liked    Boolean  @default(false)
   playCount Int     @default(0)
   lastPlayedAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   track   Track @relation("UserTrackStats", fields: [trackId], references: [id], onDelete: Cascade)
   user    User  @relation(fields: [userId], references: [id], onDelete: Cascade)
   @@id([userId, trackId])
@@ -218,6 +226,8 @@ model UserArtistStat {
   rating  Int?
   liked   Boolean @default(false)
   follow  Boolean @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   artist Artist @relation("UserArtistStats", fields: [artistId], references: [id], onDelete: Cascade)
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   @@id([userId, artistId])
@@ -230,19 +240,11 @@ model UserAlbumStat {
   albumId String
   rating  Int?
   liked   Boolean @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   album Album @relation("UserAlbumStats", fields: [albumId], references: [id], onDelete: Cascade)
   @@id([userId, albumId])
   @@index([albumId])
   @@index([userId])
-}
-
-model PlayEvent {
-  id         String   @id @default(cuid())
-  userId     String
-  trackId    String
-  playedMs   Int
-  startedAt  DateTime
-  endedAt    DateTime
-  @@index([userId, startedAt])
 }
