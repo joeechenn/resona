@@ -6,7 +6,7 @@ export default async function FriendActivity() {
     const session = await auth();
     
     if (!session?.user?.id) {
-        return null;
+        return <FriendActivitySkeleton />;
     }
 
     const friendsListening = await prisma.user.findUnique({
@@ -84,4 +84,27 @@ export default async function FriendActivity() {
         )}
     </div>
   );
+}
+
+function FriendActivitySkeleton() {
+    return (
+        <div className="bg-neutral-800 rounded-lg p-3">
+            <div className="flex items-center mb-4">
+                <Music className="w-5 h-5 mr-2 text-gray-400" />
+                <h2 className="text-lg font-semibold">Friend Activity</h2>
+            </div>
+            <div className="space-y-3">
+                {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+                    <div key={i} className="flex items-start gap-3 animate-pulse">
+                        <div className="w-10 h-10 rounded-full bg-neutral-700" />
+                        <div className="flex-1 space-y-2">
+                            <div className="h-4 bg-neutral-700 rounded w-24" />
+                            <div className="h-3 bg-neutral-700 rounded w-32" />
+                            <div className="h-3 bg-neutral-700 rounded w-28" />
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
 }

@@ -7,7 +7,7 @@ export default async function YourStatsPanel() {
     const session = await auth();
   
     if (!session?.user?.id) {
-        return null;
+        return <YourStatsSkeleton />;
     }
   
     const { weekStart, weekEnd } = getCurrentWeekBounds();
@@ -66,4 +66,29 @@ export default async function YourStatsPanel() {
         </div>
     </div>
   );
+}
+
+function YourStatsSkeleton() {
+    return (
+        <div className="bg-neutral-800 rounded-lg p-3">
+            <div className="flex items-center mb-4">
+                <TrendingUp className="w-5 h-5 mr-2 text-gray-400" />
+                <h2 className="text-lg font-semibold">Your Stats</h2>
+            </div>
+            <div className="space-y-2">
+                <div className="animate-pulse space-y-2">
+                    <div className="h-4 bg-neutral-700 rounded w-32" />
+                    <div className="h-8 bg-neutral-700 rounded w-16" />
+                </div>
+                <div className="animate-pulse space-y-2">
+                    <div className="h-4 bg-neutral-700 rounded w-28" />
+                    <div className="h-8 bg-neutral-700 rounded w-20" />
+                </div>
+                <div className="animate-pulse space-y-2">
+                    <div className="h-4 bg-neutral-700 rounded w-36" />
+                    <div className="h-8 bg-neutral-700 rounded w-24" />
+                </div>
+            </div>
+        </div>
+    );
 }
