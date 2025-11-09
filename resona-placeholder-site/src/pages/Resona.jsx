@@ -1,5 +1,6 @@
 import cover from "/resonacover.jpg";
 import homepage from "/examplehomepage.png"
+import trackrating from "/examplerating.png"
 import { Github } from "lucide-react";
 import { useState } from "react";
 
@@ -77,7 +78,7 @@ export const Resona = () => {
             <p className="text-left mt-8 space-y-4 max-w-3xl mx-auto text-muted-foreground leading-relaxed">
                 The homepage brings everything together: an 
                 <span className="text-white font-semibold"> Analytics </span> 
-                summary-like sidebar  with insights like your top genre, uniqueness
+                summary-like sidebar with insights like your top genre, uniqueness
                 score, and recent favorites; a central 
                 <span className="text-white font-semibold"> Feed </span> 
                 where you and your friends rank songs, albums, and share hot 
@@ -86,6 +87,46 @@ export const Resona = () => {
                 panel that tracks your weekly activity alongside a 
                 <span className="text-white font-semibold"> Friend Activity </span> 
                 section showing what others are listening to and rating in real time.
+            </p>
+            <img 
+             src={trackrating}
+             alt="Rating tracks"
+             className="w-full h-auto rounded-lg mb-2 mt-8"
+             onClick={() => setIsOpen(true)}
+             />
+             {isOpen && (
+                <div
+                 className="fixed inset-0 bg-black/80 flex items-center justify-center z-50"
+                 onClick={() => setIsOpen(false)}
+                 >
+                    <img
+                    src={trackrating}
+                    alt="Rating track zoomed"
+                    className="max-h-[90%] max-w-[90%] rounded-lg shadow-lg"
+                    />
+                </div>
+            )}
+            <p className="text-center mt-2 text-xs text-muted-foreground">
+                Idea of rating a track made with Figma
+            </p>
+            <p className="text-left mt-8 space-y-4 max-w-3xl mx-auto text-muted-foreground leading-relaxed">
+                Rating tracks is a simple and intuitive design that puts 
+                <span className="text-white font-semibold"> music discovery </span> 
+                music discovery first.  Users can rate tracks on a scale of 0 to 10, with ratings automatically generating 
+                social posts to share with friends. The interface displays three key metrics: a 
+                <span className="text-white font-semibold"> global rating </span>
+                showing the average across all Resona users, a 
+                <span className="text-white font-semibold"> friend rating </span> reflecting 
+                your social circle's collective taste, and your 
+                <span className="text-white font-semibold"> personal rating </span>. 
+                The layout  features album artwork, essential track information 
+                (artist, album, release date, duration), and quick actions including a direct link 
+                to listen on Spotify. Upcoming features will include 
+                <span className="text-white font-semibold"> genre tags </span> for better music 
+                categorization, <span className="text-white font-semibold"> social engagement tools </span> 
+                like commenting and sharing individual ratings, and 
+                <span className="text-white font-semibold"> enhanced friend activity integration </span> 
+                to see real-time reactions to your music takes.
             </p>
             <p className="text-center text-white font-bold mt-16 mb-16 space-y-4 max-w-3xl mx-auto text-muted-foreground leading-relaxed">
                 Upcoming features include deeper analytics, taste-matching with friends and others, and customizable music profiles. 
