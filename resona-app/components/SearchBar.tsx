@@ -77,7 +77,7 @@ export default function SearchBar() {
 
       {results && (
         <div className="absolute top-full mt-2 w-full bg-neutral-800 rounded-lg shadow-lg max-h-96 overflow-y-auto z-50">
-          
+
           {results.tracks?.items && results.tracks.items.length > 0 && (
             <div>
               <div className="px-3 py-2 text-xs font-semibold text-gray-400 uppercase border-b border-gray-700">
@@ -85,12 +85,14 @@ export default function SearchBar() {
               </div>
               {results.tracks.items.slice(0, 3).map((track) => (
                 <Link 
-                  key={track.id} 
-                  href={`/track/${track.id}`}
-                  onClick={handleResultClick}
-                  className="block p-3 hover:bg-neutral-700 cursor-pointer border-b border-gray-700"
+                key={track.id}
+                href={`/track/${track.id}`}
+                onClick={handleResultClick}
+                className="block p-3 hover:bg-neutral-700 cursor-pointer border-b border-gray-700"
                 >
-                  <div className="font-semibold text-white">{track.name}</div>
+                  <div className="font-semibold text-white">
+                    {track.name}
+                  </div>
                   <div className="text-sm text-gray-400">
                     {track.artists.map((a: { name: string }) => a.name).join(', ')} • {track.album.name}
                   </div>
@@ -98,19 +100,26 @@ export default function SearchBar() {
               ))}
             </div>
           )}
-
+          
           {results.artists?.items && results.artists.items.length > 0 && (
             <div>
               <div className="px-3 py-2 text-xs font-semibold text-gray-400 uppercase border-b border-gray-700">
                 Artists
               </div>
-              {results.artists.items.slice(0,1).map((artist) => (
-                <div key={artist.id} className="p-3 hover:bg-neutral-700 cursor-pointer border-b border-gray-700">
-                  <div className="font-semibold text-white">{artist.name}</div>
+              {results.artists.items.slice(0, 1).map((artist) => (
+                <Link 
+                key={artist.id}
+                href={`/artist/${artist.id}`}
+                onClick={handleResultClick}
+                className="block p-3 hover:bg-neutral-700 cursor-pointer border-b border-gray-700"
+                >
+                  <div className="font-semibold text-white">
+                    {artist.name}
+                  </div>
                   <div className="text-sm text-gray-400">
                     Artist
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           )}
@@ -120,17 +129,25 @@ export default function SearchBar() {
               <div className="px-3 py-2 text-xs font-semibold text-gray-400 uppercase border-b border-gray-700">
                 Albums
               </div>
-              {results.albums.items.slice(0,1).map((album) => (
-                <div key={album.id} className="p-3 hover:bg-neutral-700 cursor-pointer border-b border-gray-700">
-                  <div className="font-semibold text-white">{album.name}</div>
+              {results.albums.items.slice(0, 1).map((album) => (
+                <Link
+                key={album.id}
+                href={`/album/${album.id}`}
+                onClick={handleResultClick}
+                className="block p-3 hover:bg-neutral-700 cursor-pointer border-b border-gray-700"
+                >
+                  <div className="font-semibold text-white">
+                    {album.name}
+                  </div>
                   <div className="text-sm text-gray-400">
                     {album.artists.map((a: { name: string }) => a.name).join(', ')}
                     {album.release_date && ` • ${album.release_date.split('-')[0]}`}
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           )}
+          
         </div>
       )}
     </div>

@@ -36,6 +36,39 @@ interface SpotifyTrack {
   };
 }
 
+interface SpotifyArtist {
+  id: string;
+  name: string;
+  uri: string;
+  external_urls: {
+    spotify: string;
+  };
+  followers: {
+    total: number;
+  };
+  images: Array<{
+    url: string;
+  }>;
+}
+
+interface SpotifyAlbum {
+  id: string;
+  name: string;
+  uri: string;
+  release_date: string;
+  total_tracks: number;
+  external_urls: {
+    spotify: string;
+  };
+  images: Array<{
+    url: string;
+  }>;
+  artists: Array<{
+    id: string;
+    name: string;
+  }>;
+}
+
 export async function getTrack(trackId: string): Promise<SpotifyTrack> {
   const token = await getSpotifyAccessToken();
   
@@ -50,6 +83,44 @@ export async function getTrack(trackId: string): Promise<SpotifyTrack> {
 
   if (!response.ok) {
     throw new Error('Failed to fetch track');
+  }
+
+  return response.json();
+}
+
+export async function getArtist(artistId: string): Promise<SpotifyArtist> {
+  const token = await getSpotifyAccessToken();
+  
+  const response = await fetch(
+    `https://api.spotify.com/v1/artists/${artistId}`,
+    {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch artist');
+  }
+
+  return response.json();
+}
+
+export async function getAlbum(albumId: string): Promise<SpotifyAlbum> {
+  const token = await getSpotifyAccessToken();
+  
+  const response = await fetch(
+    `https://api.spotify.com/v1/albums/${albumId}`,
+    {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch album');
   }
 
   return response.json();

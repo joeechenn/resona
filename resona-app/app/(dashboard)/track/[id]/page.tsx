@@ -2,25 +2,26 @@ import { getTrack } from '@/lib/spotify';
 import Image from 'next/image';
 import Link from 'next/link';
 
-export default async function TrackPage({ params }: { params: { id: string } }) {
-  const track = await getTrack(params.id);
-  
-  const formatDuration = (ms: number) => {
-    const minutes = Math.floor(ms / 60000);
-    const seconds = Math.floor((ms % 60000) / 1000);
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-  };
-
-  const albumArt = track.album.images[0]?.url;
-  const artistNames = track.artists.map(artist => artist.name).join(', ');
-
-  return (
-     <div className="flex-1 bg-neutral-800 rounded-lg p-8 flex flex-col overflow-y-auto">
+export default async function TrackPage({ params }: { params: Promise<{ id: string }> }) {
+    const { id } = await params;
+    const track = await getTrack(id);
+    
+    const formatDuration = (ms: number) => {
+        const minutes = Math.floor(ms / 60000);
+        const seconds = Math.floor((ms % 60000) / 1000);
+        return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    };
+    
+    const trackArt = track.album.images[0]?.url;
+    const artistNames = track.artists.map(artist => artist.name).join(', ');
+    
+    return (
+    <div className="flex-1 bg-neutral-800 rounded-lg p-8 flex flex-col overflow-y-auto">
         <div className="flex gap-8">
             <div className="flex-shrink-0">
-                {albumArt && (
+                {trackArt && (
                     <Image
-                    src={albumArt}
+                    src={trackArt}
                     alt={`${track.name} album art`}
                     width={272}
                     height={272}
