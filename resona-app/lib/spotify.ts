@@ -15,7 +15,28 @@ export async function getSpotifyAccessToken() {
   return data.access_token;
 }
 
-export async function getTrack(trackId: string) {
+interface SpotifyTrack {
+  id: string;
+  name: string;
+  artists: Array<{
+    id: string;
+    name: string;
+  }>;
+  album: {
+    id: string;
+    name: string;
+    images: Array<{
+      url: string;
+    }>;
+    release_date: string;
+  };
+  duration_ms: number;
+  external_urls: {
+    spotify: string;
+  };
+}
+
+export async function getTrack(trackId: string): Promise<SpotifyTrack> {
   const token = await getSpotifyAccessToken();
   
   const response = await fetch(

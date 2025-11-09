@@ -4,7 +4,7 @@ import Google from "next-auth/providers/google";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/prisma";
 
-export const { auth, signIn, signOut, handlers: { GET, POST } } = NextAuth({
+export const { auth: _auth, signIn, signOut, handlers: { GET, POST } } = NextAuth({
     adapter: PrismaAdapter(prisma),
     secret: process.env.AUTH_SECRET,
     trustHost: true,
@@ -45,3 +45,18 @@ export const { auth, signIn, signOut, handlers: { GET, POST } } = NextAuth({
     },
     debug: true,
 });
+
+export async function auth() {
+    if (process.env.NODE_ENV === 'development') {
+        return {
+            user: {
+                id: 'dev-user-123',
+                name: 'Joe',
+                email: 'joe@resona.dev',
+                image: 'profile-placeholder.jpg',
+            },
+            expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        };
+    }
+    return await _auth();
+}

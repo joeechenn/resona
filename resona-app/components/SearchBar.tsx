@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react';
 import { Search } from 'lucide-react';
+import Link from 'next/link';
 
 type SearchResults = {
   tracks?: {
@@ -54,7 +55,12 @@ export default function SearchBar() {
     timeoutRef.current = setTimeout(() => {
       handleSearch(value);
     }, 300);
-};
+  };
+  
+  const handleResultClick = () => {
+    setResults(null);
+    setQuery('');
+  };
   
   return (
     <div className="relative flex-1 max-w-xl">
@@ -77,16 +83,22 @@ export default function SearchBar() {
               <div className="px-3 py-2 text-xs font-semibold text-gray-400 uppercase border-b border-gray-700">
                 Tracks
               </div>
-              {results.tracks.items.slice(0,1).map((track) => (
-                <div key={track.id} className="p-3 hover:bg-neutral-700 cursor-pointer border-b border-gray-700">
+              {results.tracks.items.slice(0, 3).map((track) => (
+                <Link 
+                  key={track.id} 
+                  href={`/track/${track.id}`}
+                  onClick={handleResultClick}
+                  className="block p-3 hover:bg-neutral-700 cursor-pointer border-b border-gray-700"
+                >
                   <div className="font-semibold text-white">{track.name}</div>
                   <div className="text-sm text-gray-400">
                     {track.artists.map((a: { name: string }) => a.name).join(', ')} • {track.album.name}
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           )}
+
           {results.artists?.items && results.artists.items.length > 0 && (
             <div>
               <div className="px-3 py-2 text-xs font-semibold text-gray-400 uppercase border-b border-gray-700">
@@ -102,6 +114,7 @@ export default function SearchBar() {
               ))}
             </div>
           )}
+          
           {results.albums?.items && results.albums.items.length > 0 && (
             <div>
               <div className="px-3 py-2 text-xs font-semibold text-gray-400 uppercase border-b border-gray-700">
@@ -118,7 +131,6 @@ export default function SearchBar() {
               ))}
             </div>
           )}
-
         </div>
       )}
     </div>
