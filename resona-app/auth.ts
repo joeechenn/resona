@@ -4,11 +4,9 @@ import Google from "next-auth/providers/google";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/prisma";
 
-export const { auth: _auth, signIn, signOut, handlers: { GET, POST } } = NextAuth({
+export const { auth, signIn, signOut, handlers: { GET, POST } } = NextAuth({
     adapter: PrismaAdapter(prisma),
     secret: process.env.AUTH_SECRET,
-    trustHost: true,
-    basePath: "/api/auth",
     session: {
         strategy: "database",
     },
@@ -32,7 +30,6 @@ export const { auth: _auth, signIn, signOut, handlers: { GET, POST } } = NextAut
                         "playlist-read-collaborative",
                         "user-follow-read",
                     ].join(" "),
-                    redirect_uri: "http://127.0.0.1:3000/api/auth/callback/spotify",
                 },
             },
         }),
@@ -43,20 +40,5 @@ export const { auth: _auth, signIn, signOut, handlers: { GET, POST } } = NextAut
             return session;
         },
     },
-    debug: true,
+    debug: false,
 });
-
-export async function auth() {
-    if (process.env.NODE_ENV === 'development') {
-        return {
-            user: {
-                id: 'dev-user-123',
-                name: 'Joe',
-                email: 'joe@resona.dev',
-                image: 'profile-placeholder.jpg',
-            },
-            expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-        };
-    }
-    return await _auth();
-}

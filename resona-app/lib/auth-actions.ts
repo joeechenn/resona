@@ -3,13 +3,13 @@
 import { signIn, signOut } from "@/auth";
 
 export const loginWithGoogle = async () => {
-    await signIn("google", { redirectTo: "/dashboard" });
+    await signIn("google", { redirectTo: "/" });
 }
 
 export const loginWithSpotify = async () => {
-    await signIn("spotify", { redirectTo: "/dashboard" });
+    await signIn("spotify", { redirectTo: "/" });
 }
 
 export const logout = async () => {
-    await signOut({ redirectTo: "/" });
+    await signOut({ redirectTo: "/login" });
 }
