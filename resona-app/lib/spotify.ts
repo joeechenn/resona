@@ -2,6 +2,10 @@ export async function getSpotifyAccessToken() {
   const clientId = process.env.SPOTIFY_CLIENT_ID;
   const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
 
+  if (!clientId || !clientSecret) {
+    throw new Error("Missing Spotify client credentials");
+  }
+
   const response = await fetch('https://accounts.spotify.com/api/token', {
     method: 'POST',
     headers: {
@@ -11,7 +15,15 @@ export async function getSpotifyAccessToken() {
     body: 'grant_type=client_credentials'
   });
 
+  if (!response.ok) {
+    throw new Error(`Failed to fetch Spotify access token (${response.status})`);
+  }
+
   const data = await response.json();
+  if (!data?.access_token) {
+    throw new Error("Spotify access token missing in response");
+  }
+
   return data.access_token;
 }
 
