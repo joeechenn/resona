@@ -1,11 +1,12 @@
 import cover from "/resonacover.jpg";
-import homepage from "/examplehomepage.png"
-import trackrating from "/examplerating.png"
+import homepage from "/examplehomepage.png";
+import trackrating from "/examplerating.png";
+import rating from "/ratingfunction.png";
 import { Github } from "lucide-react";
 import { useState } from "react";
 
 export const Resona = () => {
-    const [isOpen, setIsOpen] = useState(false);
+    const [openImage, setOpenImage] = useState(null);
     return (
     <main className="min-h-screen py-24">
       <div className="container mx-auto px-6 max-w-4xl text-center">
@@ -57,21 +58,9 @@ export const Resona = () => {
              <img 
              src={homepage}
              alt="Resona homepage"
-             className="w-full h-auto rounded-lg mb-2 mt-8"
-             onClick={() => setIsOpen(true)}
+             className="w-full h-auto rounded-lg mb-2 mt-8 cursor-pointer"
+             onClick={() => setOpenImage(homepage)}
              />
-             {isOpen && (
-                <div
-                 className="fixed inset-0 bg-black/80 flex items-center justify-center z-50"
-                 onClick={() => setIsOpen(false)}
-                 >
-                    <img
-                    src={homepage}
-                    alt="Resona homepage zoomed"
-                    className="max-h-[90%] max-w-[90%] rounded-lg shadow-lg"
-                    />
-                </div>
-            )}
             <p className="text-center mt-2 text-xs text-muted-foreground">
                 Idea of homepage made with Figma
             </p>
@@ -89,23 +78,17 @@ export const Resona = () => {
                 section showing what others are listening to and rating in real time.
             </p>
             <img 
-             src={trackrating}
-             alt="Rating tracks"
-             className="w-full h-auto rounded-lg mb-2 mt-8"
-             onClick={() => setIsOpen(true)}
-             />
-             {isOpen && (
-                <div
-                 className="fixed inset-0 bg-black/80 flex items-center justify-center z-50"
-                 onClick={() => setIsOpen(false)}
-                 >
-                    <img
-                    src={trackrating}
-                    alt="Rating track zoomed"
-                    className="max-h-[90%] max-w-[90%] rounded-lg shadow-lg"
-                    />
-                </div>
-            )}
+            src={trackrating}
+            alt="Rating tracks"
+            className="w-full h-auto rounded-lg mb-2 mt-8 cursor-pointer"
+            onClick={() => setOpenImage(trackrating)}
+            />
+            <img 
+            src={rating}
+            alt="Rating tracks"
+            className="w-full h-auto rounded-lg mb-2 mt-8 cursor-pointer"
+            onClick={() => setOpenImage(rating)}
+            />
             <p className="text-center mt-2 text-xs text-muted-foreground">
                 Idea of rating a track made with Figma
             </p>
@@ -132,6 +115,18 @@ export const Resona = () => {
                 Upcoming features include deeper analytics, taste-matching with friends and others, and customizable music profiles. 
                 More details and information coming soon…
             </p>
+            {openImage && (
+                <div
+                className="fixed inset-0 bg-black/80 flex items-center justify-center z-50"
+                onClick={() => setOpenImage(null)}
+                >
+                    <img
+                    src={openImage}
+                    alt="Zoomed view"
+                    className="max-h-[90%] max-w-[90%] rounded-lg shadow-lg"
+                    />
+                    </div>
+                )}
         </section>
       </div>
       <footer className="py-8">
