@@ -43,9 +43,6 @@ interface SpotifyArtist {
   external_urls: {
     spotify: string;
   };
-  followers: {
-    total: number;
-  };
   images: Array<{
     url: string;
   }>;

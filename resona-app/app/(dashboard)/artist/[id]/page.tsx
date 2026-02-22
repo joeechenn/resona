@@ -34,9 +34,6 @@ export default async function ArtistPage({ params }: { params: Promise<{ id: str
                     <h1 className="text-4xl font-bold text-white mt-2">
                         {artist.name}
                     </h1>
-                    <p className="text-xl text-gray-300 mt-2">
-                        {formatFollowers(artist.followers.total)} followers
-                    </p>
                 </div>
                 <div className="flex gap-4 mt-4">
                     <button className="bg-white text-black px-6 py-2 rounded-full font-semibold hover:bg-gray-200">
