@@ -17,19 +17,19 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
     }
 
-  const parsedBody = body as { type?: unknown; spotifyId?: unknown; rating?: unknown };
+    const parsedBody = body as { type?: unknown; spotifyId?: unknown; rating?: unknown };
 
-  const type = parsedBody.type;
-  const spotifyId = typeof parsedBody.spotifyId === "string" ? parsedBody.spotifyId.trim() : "";
-  const rating = parsedBody.rating;
+    const type = parsedBody.type;
+    const spotifyId = typeof parsedBody.spotifyId === "string" ? parsedBody.spotifyId.trim() : "";
+    const rating = parsedBody.rating;
 
-  if (type !== "track" && type !== "artist" && type !== "album") {
-    return NextResponse.json({ error: "Invalid ranking type" }, { status: 400 });
-  }
+    if (type !== "track" && type !== "artist" && type !== "album") {
+        return NextResponse.json({ error: "Invalid ranking type" }, { status: 400 });
+    }
 
-  if (typeof rating !== "number" || !Number.isInteger(rating) || rating < 0 || rating > 10) {
-    return NextResponse.json({ error: "Rating must be an integer between 0 and 10" }, { status: 400 });
-  }
+    if (typeof rating !== "number" || !Number.isInteger(rating) || rating < 0 || rating > 10) {
+        return NextResponse.json({ error: "Rating must be an integer between 0 and 10" }, { status: 400 });
+    }
 
     if (!spotifyId) {
         return NextResponse.json({ error: "Spotify ID is required" }, { status: 400 });
@@ -57,7 +57,7 @@ export async function POST(request: Request) {
                             durationMs: spotifyTrack.duration_ms,
                         }
                     });
-                // if the track creation fails, try to find it again in case it was created by a concurrent request
+                    // if the track creation fails, try to find it again in case it was created by a concurrent request
                 } catch (error) {
                     track = await prisma.track.findUnique({
                         where: { spotifyId: spotifyId }
@@ -74,6 +74,14 @@ export async function POST(request: Request) {
                 update: { rating: rating },
                 create: { userId: session.user.id, trackId: track.id, rating: rating }
             });
+
+            // create or update the user's post for this track to reflect the new rating 
+            // if the user has already posted about this track, we update the rating in their post instead of creating a new post
+            await prisma.post.upsert({
+                where: { userId_trackId: { userId: session.user.id, trackId: track.id } },
+                update: { rating: rating },
+                create: { userId: session.user.id, trackId: track.id, rating: rating }
+            })
         }
 
         // handle artist rating logic
@@ -96,7 +104,7 @@ export async function POST(request: Request) {
                             name: spotifyArtist.name,
                         }
                     });
-                // if the artist creation fails, try to find it again in case it was created by a concurrent request
+                    // if the artist creation fails, try to find it again in case it was created by a concurrent request
                 } catch (error) {
                     artist = await prisma.artist.findUnique({
                         where: { spotifyId: spotifyId }
@@ -113,6 +121,14 @@ export async function POST(request: Request) {
                 update: { rating: rating },
                 create: { userId: session.user.id, artistId: artist.id, rating: rating }
             });
+
+            // create or update the user's post for this artist to reflect the new rating 
+            // if the user has already posted about this artist, we update the rating in their post instead of creating a new post
+            await prisma.post.upsert({
+                where: { userId_artistId: { userId: session.user.id, artistId: artist.id } },
+                update: { rating: rating },
+                create: { userId: session.user.id, artistId: artist.id, rating: rating }
+            })
         }
 
         // handle album rating logic
@@ -136,7 +152,7 @@ export async function POST(request: Request) {
                             name: spotifyAlbum.name,
                         }
                     });
-                // if the album creation fails, try to find it again in case it was created by a concurrent request
+                    // if the album creation fails, try to find it again in case it was created by a concurrent request
                 } catch (error) {
                     album = await prisma.album.findUnique({
                         where: { spotifyId: spotifyId }
@@ -153,11 +169,19 @@ export async function POST(request: Request) {
                 update: { rating: rating },
                 create: { userId: session.user.id, albumId: album.id, rating: rating }
             });
+
+            // create or update the user's post for this album to reflect the new rating 
+            // if the user has already posted about this album, we update the rating in their post instead of creating a new post
+            await prisma.post.upsert({
+                where: { userId_albumId: { userId: session.user.id, albumId: album.id } },
+                update: { rating: rating },
+                create: { userId: session.user.id, albumId: album.id, rating: rating }
+            })
         }
 
-        return NextResponse.json({ message: "Rating saved successfully" });
+        return NextResponse.json({ message: "Rating and post saved successfully" });
 
-    // differentiate errors from Spotify API calls and database operations
+        // differentiate errors from Spotify API calls and database operations
     } catch (error) {
         if (error instanceof Error && error.message.includes("Failed to fetch")) {
             return NextResponse.json({ error: "Spotify entity not found" }, { status: 404 });

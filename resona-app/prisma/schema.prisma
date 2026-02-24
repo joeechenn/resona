@@ -14,13 +14,13 @@ datasource db {
 }
 
 model User {
-  id       String    @id @default(cuid())
-  name     String?
-  email    String?   @unique
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
   emailVerified DateTime?
-  image    String?
-  accounts Account[]
-  sessions Session[]
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
 
   lists     RankList[]
   follows   UserFollow[] @relation("follower")
@@ -296,6 +296,9 @@ model Post {
   @@index([trackId])
   @@index([albumId])
   @@index([artistId])
+  @@unique([userId, trackId])
+  @@unique([userId, albumId])
+  @@unique([userId, artistId])
 }
 
 model Comment {
