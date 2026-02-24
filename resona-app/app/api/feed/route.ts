@@ -22,6 +22,17 @@ export async function GET(request: Request) {
                         include: {
                             artist: true
                         }
+                    },
+                    album: {
+                        select: {
+                            imageUrl: true,
+                            name: true,
+                            _count: {
+                                select: {
+                                    tracks: true
+                                }
+                            }
+                        }
                     }
                 }
             },
