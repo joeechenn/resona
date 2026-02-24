@@ -17,10 +17,10 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
     }
 
-  const parsedBody = body as { type?: unknown; entityID?: unknown; rating?: unknown };
+  const parsedBody = body as { type?: unknown; spotifyId?: unknown; rating?: unknown };
 
   const type = parsedBody.type;
-  const entityID = typeof parsedBody.entityID === "string" ? parsedBody.entityID.trim() : "";
+  const spotifyId = typeof parsedBody.spotifyId === "string" ? parsedBody.spotifyId.trim() : "";
   const rating = parsedBody.rating;
 
   if (type !== "track" && type !== "artist" && type !== "album") {
@@ -31,8 +31,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Rating must be an integer between 0 and 10" }, { status: 400 });
   }
 
-    if (!entityID) {
-        return NextResponse.json({ error: "Entity ID is required" }, { status: 400 });
+    if (!spotifyId) {
+        return NextResponse.json({ error: "Spotify ID is required" }, { status: 400 });
     }
 
     try {
@@ -42,12 +42,12 @@ export async function POST(request: Request) {
         // if it doesn't, create a new rating entry
         if (type === "track") {
             let track = await prisma.track.findUnique({
-                where: { spotifyId: entityID }
+                where: { spotifyId }
             });
 
             // create track in database if it doesn't exist
             if (!track) {
-                const spotifyTrack = await getTrack(entityID);
+                const spotifyTrack = await getTrack(spotifyId);
                 // try-catch block to handle race condition where multiple requests try to create the same track at the same time
                 try {
                     track = await prisma.track.create({
@@ -60,7 +60,7 @@ export async function POST(request: Request) {
                 // if the track creation fails, try to find it again in case it was created by a concurrent request
                 } catch (error) {
                     track = await prisma.track.findUnique({
-                        where: { spotifyId: entityID }
+                        where: { spotifyId: spotifyId }
                     });
                     if (!track) {
                         throw new Error("Failed to create or load track");
@@ -82,12 +82,12 @@ export async function POST(request: Request) {
         // if it doesn't, create a new rating entry
         else if (type === "artist") {
             let artist = await prisma.artist.findUnique({
-                where: { spotifyId: entityID }
+                where: { spotifyId: spotifyId }
             })
 
             // create artist in database if it doesn't exist
             if (!artist) {
-                const spotifyArtist = await getArtist(entityID);
+                const spotifyArtist = await getArtist(spotifyId);
                 // try-catch block to handle race condition where multiple requests try to create the same artist at the same time
                 try {
                     artist = await prisma.artist.create({
@@ -99,7 +99,7 @@ export async function POST(request: Request) {
                 // if the artist creation fails, try to find it again in case it was created by a concurrent request
                 } catch (error) {
                     artist = await prisma.artist.findUnique({
-                        where: { spotifyId: entityID }
+                        where: { spotifyId: spotifyId }
                     });
                     if (!artist) {
                         throw new Error("Failed to create or load artist");
@@ -122,12 +122,12 @@ export async function POST(request: Request) {
         else if (type === "album") {
 
             let album = await prisma.album.findUnique({
-                where: { spotifyId: entityID }
+                where: { spotifyId: spotifyId }
             })
 
             // create album in database if it doesn't exist
             if (!album) {
-                const spotifyAlbum = await getAlbum(entityID);
+                const spotifyAlbum = await getAlbum(spotifyId);
                 // try-catch block to handle race condition where multiple requests try to create the same album at the same time
                 try {
                     album = await prisma.album.create({
@@ -139,7 +139,7 @@ export async function POST(request: Request) {
                 // if the album creation fails, try to find it again in case it was created by a concurrent request
                 } catch (error) {
                     album = await prisma.album.findUnique({
-                        where: { spotifyId: entityID }
+                        where: { spotifyId: spotifyId }
                     });
                     if (!album) {
                         throw new Error("Failed to create or load album");
