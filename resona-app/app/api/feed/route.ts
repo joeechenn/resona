@@ -16,8 +16,25 @@ export async function GET(request: Request) {
                     image: true
                 }
             },
-            track: true,
-            album: true,
+            track: {
+                include: {
+                    artists: {
+                        include: {
+                            artist: true
+                        }
+                    }
+                }
+            },
+            album: {
+                include: {
+                    primaryArtist: true,
+                    _count: {
+                        select: {
+                            tracks: true
+                        }
+                    }
+                }
+            },
             artist: true,
         },
         take: 20
