@@ -14,16 +14,25 @@ type SearchResults = {
     }>;
   };
   artists?: {
-    items: Array<any>;
+    items: Array<{
+      id: string;
+      name: string;
+    }>;
   };
   albums?: {
-    items: Array<any>;
+    items: Array<{
+      id: string;
+      name: string;
+      artists: Array<{ name: string }>;
+      release_date?: string;
+    }>;
   };
 };
 
 export default function SearchBar() {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResults | null>(null);
+  const [searchError, setSearchError] = useState<string | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleSearch = async (searchQuery: string) => {
@@ -31,16 +40,27 @@ export default function SearchBar() {
     
     if (!searchQuery.trim()) {
       setResults(null);
+      setSearchError(null);
       return;
     }
 
     try {
       const response = await fetch(`/api/search?q=${encodeURIComponent(searchQuery)}&type=track,artist,album`);
       const data = await response.json();
+
+      if (!response.ok) {
+        setResults(null);
+        setSearchError(typeof data?.error === 'string' ? data.error : 'Search failed. Please try again.');
+        return;
+      }
+
       console.log('Search results:', data);
       setResults(data);
+      setSearchError(null);
     } catch (error) {
       console.error('Search error:', error);
+      setResults(null);
+      setSearchError('Network error while searching.');
     }
 };
 
@@ -149,6 +169,10 @@ export default function SearchBar() {
           )}
           
         </div>
+      )}
+
+      {searchError && (
+        <p className="mt-2 text-xs text-red-400">{searchError}</p>
       )}
     </div>
   );
