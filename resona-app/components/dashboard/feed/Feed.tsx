@@ -59,7 +59,7 @@ export default function Feed() {
     }, [fetchFeed]);
 
     return (
-        <div className="flex-1 bg-neutral-800 rounded-lg p-6 flex flex-col">
+        <div className="flex-1 bg-neutral-800 rounded-lg p-6 flex flex-col min-h-0">
             <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold text-white">Your Feed</h2>
                 <button
@@ -104,7 +104,7 @@ export default function Feed() {
             )}
 
             {!loading && !errorMessage && posts.length > 0 && (
-                <div className="space-y-3 overflow-y-auto pr-1">
+                <div className="space-y-3 overflow-y-auto pr-1 flex-1">
                     {posts.map((post) => (
                         <PostCard key={post.id} {...post} />
                     ))}

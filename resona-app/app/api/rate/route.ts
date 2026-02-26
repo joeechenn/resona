@@ -146,7 +146,17 @@ export async function POST(request: Request) {
                 artist = await findOrCreate(prisma.artist, spotifyId, {
                     spotifyId: spotifyArtist.id,
                     name: spotifyArtist.name,
+                    imageUrl: spotifyArtist.images[0]?.url || null,
                 }, "artist");
+            }
+
+            // if artist exists but has no image (created through a track/album rating), fetch and update it
+            if (artist && !artist.imageUrl) {
+                const spotifyArtist = await getArtist(spotifyId);
+                artist = await prisma.artist.update({
+                    where: { id: artist.id },
+                    data: { imageUrl: spotifyArtist.images[0]?.url || null }
+                });
             }
 
             if (!artist) {
