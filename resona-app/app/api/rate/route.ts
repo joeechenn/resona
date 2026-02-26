@@ -56,6 +56,7 @@ export async function POST(request: Request) {
                     name: spotifyTrack.album.name,
                     imageUrl: spotifyTrack.album.images[0]?.url || null,
                     releaseDate: spotifyTrack.album.release_date ? new Date(spotifyTrack.album.release_date) : null,
+                    totalTracks: spotifyTrack.album.total_tracks,
                 }, "album");
 
                 // ensure each track artist exists in the database for feed rendering (artist name)
@@ -67,7 +68,7 @@ export async function POST(request: Request) {
                     }, "artist");
                     createdArtists.push(artist);
                 }
-                
+
                 // create the track, linked to its album
                 track = await findOrCreate(prisma.track, spotifyTrack.id, {
                     spotifyId: spotifyTrack.id,
@@ -187,7 +188,49 @@ export async function POST(request: Request) {
                     name: spotifyAlbum.name,
                     imageUrl: spotifyAlbum.images[0]?.url || null,
                     releaseDate: spotifyAlbum.release_date ? new Date(spotifyAlbum.release_date) : null,
+                    totalTracks: spotifyAlbum.total_tracks,
                 }, "album");
+
+                // ensure each album artist exists in the database for feed rendering (artist name)
+                const createdArtists = [];
+                for (const spotifyArtist of spotifyAlbum.artists) {
+                    const artist = await findOrCreate(prisma.artist, spotifyArtist.id, {
+                        spotifyId: spotifyArtist.id,
+                        name: spotifyArtist.name,
+                    }, "artist");
+                    createdArtists.push(artist);
+                }
+                if (!album) {
+                    throw new Error("Failed to create or find album");
+                }
+
+                // link album to artists in the join table
+                for (const artist of createdArtists) {
+                    try {
+                        await prisma.albumArtist.create({
+                            data: {
+                                albumId: album.id,
+                                artistId: artist.id
+                            }
+                        });
+                    } catch (error) {
+                        // if the album-artist relation creation fails, check if it already exists in case it was created by a concurrent request
+                        const existingRelation = await prisma.albumArtist.findUnique({
+                            where: {
+                                albumId_artistId: {
+                                    albumId: album.id,
+                                    artistId: artist.id
+                                }
+                            }
+                        });
+                        if (!existingRelation) {
+                            throw error;
+                        }
+                    }
+                }
+
+                // at this point, album and all album artists are guaranteed to exist
+                // albumArtist rows are now created (or confirmed to already exist from concurrent requests)
             }
 
             if (!album) {

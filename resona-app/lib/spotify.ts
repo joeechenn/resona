@@ -41,6 +41,7 @@ interface SpotifyTrack {
       url: string;
     }>;
     release_date: string;
+    total_tracks: number;
   };
   duration_ms: number;
   external_urls: {

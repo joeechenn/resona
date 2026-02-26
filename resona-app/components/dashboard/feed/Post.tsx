@@ -2,7 +2,7 @@
 
 import { Heart, MessageCircle, Share2 } from 'lucide-react';
 
-interface PostProps {
+export interface PostProps {
     id: string;
     userId: string;
     user: {
@@ -37,13 +37,13 @@ interface PostProps {
         spotifyId: string;
         imageUrl: string | null;
         releaseDate: string | null;
-        primaryArtist: {
-            id: string;
-            name: string;
-        } | null;
-        _count: {
-            tracks: number;
-        };
+        totalTracks: number | null;
+        artists: Array<{
+            artist: {
+                id: string;
+                name: string;
+            };
+        }>;
     } | null;
 
     artist: {
@@ -100,7 +100,7 @@ export default function PostCard({ user, track, album, artist, rating, createdAt
     const albumYear = album ? getYear(album.releaseDate) : null;
 
     return (
-        <article className="rounded-2xl border border-neutral-700/70 bg-neutral-900/60 px-4 py-3">
+        <article className="rounded-2xl border border-neutral-700/60 bg-neutral-800/35 px-4 py-3">
             {/* top section */}
             <div className="mb-3 flex items-center gap-3">
                 {/* user avatar */}
@@ -117,41 +117,36 @@ export default function PostCard({ user, track, album, artist, rating, createdAt
                 )}
 
                 <div className="text-sm text-neutral-300">
-                    <span className="font-semibold text-white">{userDisplayName}</span>
+                    <span className="font-bold text-white">{userDisplayName}</span>
                     <span className="mx-1 text-neutral-400">ranked</span>
-                    <span className="font-semibold text-white">{entityName}</span>
+                    <span className="font-bold text-white">{entityName}</span>
                     <span className="mx-2 text-neutral-500">•</span>
                     <span className="text-neutral-400">{relativeTime}</span>
                 </div>
             </div>
 
             {/* middle section (varies by entity type) */}
-            <div className="mb-3 flex items-center justify-between rounded-xl bg-neutral-700/40 px-3 py-3">
+            <div className="mb-3 flex items-center justify-between rounded-xl bg-neutral-700/65 px-3 py-3 ml-10">
                 <div className="min-w-0 flex items-center gap-3">
                     {/* artwork */}
                     {(track?.album?.imageUrl || album?.imageUrl || artist?.imageUrl) ? (
                         <img
                             src={track?.album?.imageUrl || album?.imageUrl || artist?.imageUrl || ''}
                             alt={entityName}
-                            className={`h-14 w-14 object-cover ${artist ? 'rounded-full' : 'rounded-md'}`}
+                            className={`h-15 w-15 object-cover ${artist ? 'rounded-full' : 'rounded-md'}`}
                         />
                     ) : (
-                        <div className={`h-14 w-14 bg-neutral-700 ${artist ? 'rounded-full' : 'rounded-md'}`} />
+                        <div className={`h-15 w-15 bg-neutral-700 ${artist ? 'rounded-full' : 'rounded-md'}`} />
                     )}
 
                     {/* details */}
                     <div className="min-w-0">
                         {track && (
                             <>
-                                <p className="truncate text-2xl font-semibold text-white leading-tight">{track.name}</p>
-                                <p className="truncate text-lg text-neutral-300">{trackArtistNames || 'Unknown artist'}</p>
+                                <p className="truncate text-l font-extrabold text-white leading-tight">{track.name}</p>
+                                <p className="truncate text-sm text-neutral-400">{trackArtistNames || 'Unknown artist'}</p>
                                 {/* tags */}
                                 <div className="mt-2 flex flex-wrap gap-2">
-                                    {track.album?._count?.tracks !== undefined && (
-                                        <span className="rounded-md bg-black px-2 py-1 text-xs font-semibold text-white">
-                                            {track.album._count.tracks} songs
-                                        </span>
-                                    )}
                                     <span className="rounded-md bg-black px-2 py-1 text-xs font-semibold text-white">
                                         {formatDuration(track.durationMs)}
                                     </span>
@@ -161,8 +156,8 @@ export default function PostCard({ user, track, album, artist, rating, createdAt
 
                         {album && (
                             <>
-                                <p className="truncate text-2xl font-semibold text-white leading-tight">{album.name}</p>
-                                <p className="truncate text-lg text-neutral-300">{album.primaryArtist?.name || 'Unknown artist'}</p>
+                                <p className="truncate text-l font-extrabold text-white leading-tight">{album.name}</p>
+                                <p className="truncate text-sm text-neutral-400">{album.artists.map((a) => a.artist.name).join(', ') || 'Unknown artist'}</p>
                                 {/* tags */}
                                 <div className="mt-2 flex flex-wrap gap-2">
                                     {albumYear && (
@@ -171,7 +166,7 @@ export default function PostCard({ user, track, album, artist, rating, createdAt
                                         </span>
                                     )}
                                     <span className="rounded-md bg-black px-2 py-1 text-xs font-semibold text-white">
-                                        {album._count.tracks} songs
+                                        {album.totalTracks} songs
                                     </span>
                                 </div>
                             </>
@@ -179,16 +174,16 @@ export default function PostCard({ user, track, album, artist, rating, createdAt
 
                         {artist && (
                             <>
-                                <p className="truncate text-2xl font-semibold text-white leading-tight">{artist.name}</p>
-                                <p className="truncate text-lg text-neutral-300">Artist</p>
+                                <p className="truncate text-l font-extrabold text-white leading-tight">{artist.name}</p>
+                                <p className="truncate text-sm text-neutral-400">Artist</p>
                             </>
                         )}
                     </div>
                 </div>
 
                 {/* rating circle */}
-                <div className="ml-4 flex h-14 w-14 items-center justify-center rounded-full border-2 border-neutral-400">
-                    <span className={`text-3xl font-bold ${ratingColorClass(rating)}`}>{ratingDisplay}</span>
+                <div className="ml-4 flex h-12 w-12 items-center justify-center rounded-full border-2 border-neutral-400">
+                    <span className={`text-2xl font-bold ${ratingColorClass(rating)}`}>{ratingDisplay}</span>
                 </div>
             </div>
 
@@ -210,4 +205,3 @@ export default function PostCard({ user, track, album, artist, rating, createdAt
         </article>
     );
 }
-

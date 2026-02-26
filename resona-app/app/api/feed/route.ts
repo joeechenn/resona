@@ -40,10 +40,9 @@ export async function GET(request: Request) {
             },
             album: {
                 include: {
-                    primaryArtist: true,
-                    _count: {
-                        select: {
-                            tracks: true
+                    artists: {
+                        include: {
+                            artist: true
                         }
                     }
                 }

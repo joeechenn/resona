@@ -94,7 +94,7 @@ model Artist {
   imageUrl        String?
   popularity      Int?
   tracks          TrackArtist[]
-  albums          Album[]
+  albumArtists    AlbumArtist[]
   genres          ArtistGenre[]
   userArtistStats UserArtistStat[] @relation("UserArtistStats")
   posts           Post[]           @relation("PostArtist")
@@ -109,17 +109,15 @@ model Album {
   name            String
   imageUrl        String?
   releaseDate     DateTime?
-  primaryArtistId String?
-  primaryArtist   Artist?         @relation(fields: [primaryArtistId], references: [id])
   tracks          Track[]
+  totalTracks     Int?
+  artists        AlbumArtist[]
   popularity      Int?
   userAlbumStats  UserAlbumStat[] @relation("UserAlbumStats")
   posts           Post[]          @relation("PostAlbum")
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
   rankItems       RankItem[]      @relation("RankItemAlbum")
-
-  @@index([primaryArtistId])
 }
 
 model Track {
@@ -150,6 +148,17 @@ model TrackArtist {
   artist   Artist @relation(fields: [artistId], references: [id], onDelete: Cascade)
 
   @@id([trackId, artistId])
+  @@index([artistId])
+}
+
+model AlbumArtist {
+  albumId  String
+  artistId String
+  album    Album  @relation(fields: [albumId], references: [id], onDelete: Cascade)
+  artist   Artist @relation(fields: [artistId], references: [id], onDelete: Cascade)
+
+  @@id([albumId, artistId])
+  @@index([artistId])
 }
 
 model Genre {
