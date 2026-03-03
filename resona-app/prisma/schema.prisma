@@ -104,20 +104,20 @@ model Artist {
 }
 
 model Album {
-  id              String          @id @default(cuid())
-  spotifyId       String          @unique
-  name            String
-  imageUrl        String?
-  releaseDate     DateTime?
-  tracks          Track[]
-  totalTracks     Int?
+  id             String          @id @default(cuid())
+  spotifyId      String          @unique
+  name           String
+  imageUrl       String?
+  releaseDate    DateTime?
+  tracks         Track[]
+  totalTracks    Int?
   artists        AlbumArtist[]
-  popularity      Int?
-  userAlbumStats  UserAlbumStat[] @relation("UserAlbumStats")
-  posts           Post[]          @relation("PostAlbum")
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
-  rankItems       RankItem[]      @relation("RankItemAlbum")
+  popularity     Int?
+  userAlbumStats UserAlbumStat[] @relation("UserAlbumStats")
+  posts          Post[]          @relation("PostAlbum")
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  rankItems      RankItem[]      @relation("RankItemAlbum")
 }
 
 model Track {
@@ -301,13 +301,13 @@ model Post {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@unique([userId, trackId])
+  @@unique([userId, albumId])
+  @@unique([userId, artistId])
   @@index([userId, createdAt])
   @@index([trackId])
   @@index([albumId])
   @@index([artistId])
-  @@unique([userId, trackId])
-  @@unique([userId, albumId])
-  @@unique([userId, artistId])
 }
 
 model Comment {
