@@ -25,3 +25,5 @@ To learn more about the vision, visit [this](https://joeechenn.github.io/resona/
 
 ## Tech Stack
 Next.js, TypeScript, Prisma ORM, PostgreSQL (NeonDB), TailwindCSS
+
+*Resona is currently in active development as a portfolio project.*
