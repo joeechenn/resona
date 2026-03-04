@@ -1,6 +1,7 @@
 ﻿'use client';
 
 import { Heart, MessageCircle, Share2 } from 'lucide-react';
+import { useState } from 'react';
 
 export interface PostProps {
     id: string;
@@ -53,6 +54,15 @@ export interface PostProps {
         imageUrl: string | null;
     } | null;
 
+    _count:  {
+        likes: number;
+    };
+
+    likes: Array<{
+        userId: string;
+        postId: string;
+    }>;
+
     rating: number | null;
     createdAt: string;
 }
@@ -89,7 +99,7 @@ function ratingColorClass(rating: number | null): string {
     return 'text-green-400';
 }
 
-export default function PostCard({ user, track, album, artist, rating, createdAt }: PostProps) {
+export default function PostCard({ id, user, track, album, artist, _count, likes, rating, createdAt }: PostProps) {
     const entityName = track?.name || album?.name || artist?.name || 'Unknown';
     const userDisplayName = user.name || 'Anonymous';
     const userInitial = userDisplayName.charAt(0).toUpperCase();
@@ -98,6 +108,41 @@ export default function PostCard({ user, track, album, artist, rating, createdAt
 
     const trackArtistNames = track?.artists.map((ta) => ta.artist.name).join(', ') || null;
     const albumYear = album ? getYear(album.releaseDate) : null;
+
+    const [isLiked, setIsLiked] = useState(likes.length > 0);
+    const [likeCount, setLikeCount] = useState(_count.likes);
+    const [isLikeLoading, setIsLikeLoading] = useState(false);
+
+    const handleLikeToggle = async () => {
+        if (isLikeLoading) return;
+
+        const previousIsLiked = isLiked;
+        const previousLikeCount = likeCount;
+        const nextIsLiked = !isLiked;
+        const nextLikeCount = Math.max(0, likeCount + (nextIsLiked ? 1 : -1));
+
+        setIsLiked(nextIsLiked);
+        setLikeCount(nextLikeCount);
+        setIsLikeLoading(true);
+
+        try {
+            const response = await fetch(`/api/post/${id}/like`, {
+                method: 'POST',
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to toggle like');
+            }
+
+        } catch (error) {
+            console.error('Failed to toggle like:', error);
+            // rollback only on failure
+            setIsLiked(previousIsLiked);
+            setLikeCount(previousLikeCount);
+        } finally {
+            setIsLikeLoading(false);
+        }
+    };
 
     return (
         <article className="rounded-2xl border border-neutral-700/60 bg-neutral-800/35 px-4 py-3">
@@ -190,10 +235,14 @@ export default function PostCard({ user, track, album, artist, rating, createdAt
             {/* bottom section */}
             <div className="flex items-center gap-7 pl-12 text-sm">
                 {/* TODO: wire up like/comment counts and actions */}
-                <div className="flex items-center gap-2 text-pink-400">
-                    <Heart size={18} />
-                    <span className="font-semibold text-white">0</span>
-                </div>
+                <button
+                    onClick={handleLikeToggle}
+                    disabled={isLikeLoading}
+                    className={`flex items-center gap-2 ${isLiked ? 'text-pink-400' : 'text-neutral-300 hover:text-pink-400'} disabled:opacity-60`}
+                >
+                    <Heart size={18} fill={isLiked ? 'currentColor' : 'none'} />
+                    <span className="font-semibold text-white">{likeCount}</span>
+                </button>
                 <div className="flex items-center gap-2 text-neutral-300">
                     <MessageCircle size={18} />
                     <span className="font-semibold text-white">0</span>

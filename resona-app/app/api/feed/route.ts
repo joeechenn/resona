@@ -1,10 +1,16 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { Prisma } from "@/app/generated/prisma";
+import { auth } from '@/auth';
 
 export async function GET(request: Request) {
-    try {
+    const session = await auth();
 
+    if (!session?.user?.id) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    try {
     // query the 20 most recent posts, including related user, track, album, and artist data for feed rendering
     const allPosts = await prisma.post.findMany({
         orderBy: {
@@ -48,6 +54,16 @@ export async function GET(request: Request) {
                 }
             },
             artist: true,
+            _count: {
+                select: {
+                    likes: true
+                }
+            },
+            likes: {
+                where: {
+                    userId: session.user.id
+                }
+            }
         },
         take: 20
     });
