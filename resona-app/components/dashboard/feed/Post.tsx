@@ -2,6 +2,7 @@
 
 import { Heart, MessageCircle, Share2 } from 'lucide-react';
 import { useState } from 'react';
+import { formatRelativeTime, formatDuration, getYear } from '@/lib/utils/timeUtils';
 
 export interface PostProps {
     id: string;
@@ -65,31 +66,6 @@ export interface PostProps {
 
     rating: number | null;
     createdAt: string;
-}
-
-function formatDuration(ms: number): string {
-    const minutes = Math.floor(ms / 60000);
-    const seconds = Math.floor((ms % 60000) / 1000);
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-}
-
-function getYear(dateString: string | null): string | null {
-    if (!dateString) return null;
-    return new Date(dateString).getFullYear().toString();
-}
-
-function formatRelativeTime(dateString: string): string {
-    const now = Date.now();
-    const created = new Date(dateString).getTime();
-    const diffMinutes = Math.floor((now - created) / (1000 * 60));
-
-    if (diffMinutes < 60) return `${Math.max(1, diffMinutes)}m ago`;
-
-    const diffHours = Math.floor(diffMinutes / 60);
-    if (diffHours < 24) return `${diffHours} hours ago`;
-
-    const diffDays = Math.floor(diffHours / 24);
-    return `${diffDays}d ago`;
 }
 
 function ratingColorClass(rating: number | null): string {
