@@ -11,65 +11,65 @@ export async function GET(request: Request) {
     }
 
     try {
-    // query the 20 most recent posts, including related user, track, album, and artist data for feed rendering
-    const allPosts = await prisma.post.findMany({
-        orderBy: {
-            createdAt: 'desc',
-        },
-        include: {
-            user: {
-                select: {
-                    id: true,
-                    name: true,
-                    image: true
-                }
+        // query the 20 most recent posts, including related user, track, album, and artist data for feed rendering
+        const allPosts = await prisma.post.findMany({
+            orderBy: {
+                createdAt: 'desc',
             },
-            track: {
-                include: {
-                    artists: {
-                        include: {
-                            artist: true
-                        }
-                    },
-                    album: {
-                        select: {
-                            imageUrl: true,
-                            name: true,
-                            _count: {
-                                select: {
-                                    tracks: true
+            include: {
+                user: {
+                    select: {
+                        id: true,
+                        name: true,
+                        image: true
+                    }
+                },
+                track: {
+                    include: {
+                        artists: {
+                            include: {
+                                artist: true
+                            }
+                        },
+                        album: {
+                            select: {
+                                imageUrl: true,
+                                name: true,
+                                _count: {
+                                    select: {
+                                        tracks: true
+                                    }
                                 }
                             }
                         }
                     }
-                }
-            },
-            album: {
-                include: {
-                    artists: {
-                        include: {
-                            artist: true
+                },
+                album: {
+                    include: {
+                        artists: {
+                            include: {
+                                artist: true
+                            }
                         }
+                    }
+                },
+                artist: true,
+                _count: {
+                    select: {
+                        likes: true
+                    }
+                },
+                likes: {
+                    where: {
+                        userId: session.user.id
                     }
                 }
             },
-            artist: true,
-            _count: {
-                select: {
-                    likes: true
-                }
-            },
-            likes: {
-                where: {
-                    userId: session.user.id
-                }
-            }
-        },
-        take: 20
-    });
+            take: 20
+        });
 
-    // implicit 200 status because empty array is a valid response (no posts)
-    return NextResponse.json(allPosts);
+        // implicit 200 status because empty array is a valid response (no posts)
+        return NextResponse.json(allPosts);
     } catch (error) {
         // log error server-side for debugging
         console.error('Error fetching feed:', error);

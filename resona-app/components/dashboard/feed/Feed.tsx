@@ -24,9 +24,9 @@ export default function Feed() {
 
             if (!response.ok) {
                 const fallback =
-                    response.status === 503 
-                    ? 'Feed is temporarily unavailable. Please try again.'
-                    : 'Failed to load feed. Please try again.';
+                    response.status === 503
+                        ? 'Feed is temporarily unavailable. Please try again.'
+                        : 'Failed to load feed. Please try again.';
                 setErrorMessage(
                     typeof data === 'object' && data && 'error' in data && data.error ? data.error : fallback
                 );
@@ -42,8 +42,8 @@ export default function Feed() {
             // response was ok but invalid format
             setErrorMessage('Unexpected response format from feed API.');
 
-        // if canceled request, silent exit
-        // otherwise, show error message
+            // if canceled request, silent exit
+            // otherwise, show error message
         } catch (error) {
             if (error instanceof DOMException && error.name === 'AbortError') return;
             setErrorMessage('Network error while loading feed.');

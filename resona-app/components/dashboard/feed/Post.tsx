@@ -3,6 +3,7 @@
 import { Heart, MessageCircle, Share2 } from 'lucide-react';
 import { useState } from 'react';
 import { formatRelativeTime, formatDuration, getYear } from '@/lib/utils/timeUtils';
+import CommentSection from './CommentSection';
 
 export interface PostProps {
     id: string;
@@ -55,7 +56,7 @@ export interface PostProps {
         imageUrl: string | null;
     } | null;
 
-    _count:  {
+    _count: {
         likes: number;
     };
 
@@ -88,6 +89,7 @@ export default function PostCard({ id, user, track, album, artist, _count, likes
     const [isLiked, setIsLiked] = useState(likes.length > 0);
     const [likeCount, setLikeCount] = useState(_count.likes);
     const [isLikeLoading, setIsLikeLoading] = useState(false);
+    const [isCommentsOpen, setIsCommentsOpen] = useState(false);
 
     const handleLikeToggle = async () => {
         if (isLikeLoading) return;
@@ -210,7 +212,6 @@ export default function PostCard({ id, user, track, album, artist, _count, likes
 
             {/* bottom section */}
             <div className="flex items-center gap-7 pl-12 text-sm">
-                {/* TODO: wire up like/comment counts and actions */}
                 <button
                     onClick={handleLikeToggle}
                     disabled={isLikeLoading}
@@ -219,14 +220,19 @@ export default function PostCard({ id, user, track, album, artist, _count, likes
                     <Heart size={18} fill={isLiked ? 'currentColor' : 'none'} />
                     <span className="font-semibold text-white">{likeCount}</span>
                 </button>
-                <div className="flex items-center gap-2 text-neutral-300">
+                <button
+                    onClick={() => setIsCommentsOpen((prev) => !prev)}
+                    className="flex items-center gap-2 text-neutral-300 hover:text-white"
+                >
                     <MessageCircle size={18} />
-                    <span className="font-semibold text-white">0</span>
-                </div>
+                    <span className="font-semibold text-white">Comment</span>
+                </button>
                 <button className="text-neutral-300 hover:text-white">
                     <Share2 size={18} />
                 </button>
             </div>
+
+            {isCommentsOpen && <CommentSection postId={id} />}
         </article>
     );
 }
