@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { formatRelativeTime } from '@/lib/utils/timeUtils';
 import { Heart } from 'lucide-react';
 
@@ -30,28 +30,55 @@ export default function CommentSection({ postId, onCommentAdded }: { postId: str
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-    useEffect(() => {
-        const fetchComments = async () => {
-            setIsCommentLoading(true);
-            setErrorMessage(null);
-            try {
-                const response = await fetch(`/api/post/${postId}/comment`);
-                const data = await response.json();
-                if (response.ok) {
-                    setComments(data.comments);
-                } else {
-                    setErrorMessage(data?.error ?? 'Failed to fetch comments');
-                }
-            } catch (error) {
-                console.error('Failed to fetch comments:', error);
-                setErrorMessage('Failed to fetch comments');
-            } finally {
-                setIsCommentLoading(false);
-            }
-        };
+    const fetchComments = useCallback(async (signal?: AbortSignal) => {
+        setIsCommentLoading(true);
+        setErrorMessage(null);
 
-        fetchComments();
+        try {
+            const response = await fetch(`/api/post/${postId}/comment`, { signal });
+            let data: { comments?: CommentProps[]; error?: string } = {};
+
+            try {
+                data = await response.json();
+            } catch {
+                // keep fallback message below when JSON parsing fails
+            }
+
+            if (!response.ok) {
+                const fallback =
+                    response.status === 503
+                        ? 'Comments are temporarily unavailable. Please try again.'
+                        : 'Failed to load comments. Please try again.';
+                setErrorMessage(
+                    typeof data === 'object' && data && 'error' in data && data.error ? data.error : fallback
+                );
+                return;
+            }
+
+            // validate that data contains comments array before setting state
+            if (Array.isArray(data.comments)) {
+                setComments(data.comments);
+                return;
+            }
+
+            // response was ok but invalid format
+            setErrorMessage('Unexpected response format from comments API.');
+
+            // if canceled request, silent exit
+            // otherwise, show error message
+        } catch (error) {
+            if (error instanceof DOMException && error.name === 'AbortError') return;
+            setErrorMessage('Network error while loading comments.');
+        } finally {
+            setIsCommentLoading(false);
+        }
     }, [postId]);
+
+    useEffect(() => {
+        const controller = new AbortController();
+        fetchComments(controller.signal);
+        return () => controller.abort();
+    }, [fetchComments]);
 
     const handleSubmit = async () => {
         const trimmedInput = input.trim();
