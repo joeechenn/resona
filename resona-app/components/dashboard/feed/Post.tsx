@@ -58,6 +58,7 @@ export interface PostProps {
 
     _count: {
         likes: number;
+        comments: number;
     };
 
     likes: Array<{
@@ -90,6 +91,7 @@ export default function PostCard({ id, user, track, album, artist, _count, likes
     const [likeCount, setLikeCount] = useState(_count.likes);
     const [isLikeLoading, setIsLikeLoading] = useState(false);
     const [isCommentsOpen, setIsCommentsOpen] = useState(false);
+    const [commentCount, setCommentCount] = useState(_count.comments);
 
     const handleLikeToggle = async () => {
         if (isLikeLoading) return;
@@ -225,14 +227,14 @@ export default function PostCard({ id, user, track, album, artist, _count, likes
                     className="flex items-center gap-2 text-neutral-300 hover:text-white"
                 >
                     <MessageCircle size={18} />
-                    <span className="font-semibold text-white">Comment</span>
+                    <span className="font-semibold text-white">{commentCount}</span>
                 </button>
                 <button className="text-neutral-300 hover:text-white">
                     <Share2 size={18} />
                 </button>
             </div>
 
-            {isCommentsOpen && <CommentSection postId={id} />}
+            {isCommentsOpen && <CommentSection postId={id} onCommentAdded={() => setCommentCount(prev => prev + 1)} />}
         </article>
     );
 }

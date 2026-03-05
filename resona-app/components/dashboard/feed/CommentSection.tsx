@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { formatRelativeTime } from '@/lib/utils/timeUtils';
+import { Heart } from 'lucide-react';
 
 export interface CommentProps {
     id: string;
@@ -13,9 +14,16 @@ export interface CommentProps {
     };
     content: string;
     createdAt: string;
+    _count: {
+        likes: number;
+    };
+    likes: Array<{
+        userId: string;
+        commentId: string;
+    }>;
 }
 
-export default function CommentSection({ postId }: { postId: string }) {
+export default function CommentSection({ postId, onCommentAdded }: { postId: string; onCommentAdded?: () => void }) {
     const [comments, setComments] = useState<CommentProps[]>([]);
     const [input, setInput] = useState('');
     const [isCommentLoading, setIsCommentLoading] = useState(false);
@@ -71,12 +79,73 @@ export default function CommentSection({ postId }: { postId: string }) {
             if (data?.newComment) {
                 setComments((prev) => [...prev, data.newComment as CommentProps]);
                 setInput('');
+                onCommentAdded?.();
             }
         } catch (error) {
             console.error('Failed to add comment:', error);
             setErrorMessage('Failed to add comment');
         } finally {
             setIsSubmitting(false);
+        }
+    };
+
+    const handleLikeToggle = async (commentId: string) => {
+        const comment = comments.find(c => c.id === commentId);
+        if (!comment) return;
+
+        const previousIsLiked = (comment.likes?.length ?? 0) > 0;
+        const previousLikeCount = comment._count?.likes ?? 0;
+
+        setComments((prev) =>
+            prev.map((comment) => {
+                if (comment.id !== commentId) return comment;
+
+                const isLiked = (comment.likes?.length ?? 0) > 0;
+                const nextIsLiked = !isLiked;
+                const nextLikeCount = Math.max(0, (comment._count?.likes ?? 0) + (nextIsLiked ? 1 : -1));
+
+                return {
+                    ...comment,
+                    _count: {
+                        ...(comment._count ?? { likes: 0 }),
+                        likes: nextLikeCount,
+                    },
+                    likes: nextIsLiked ? [{} as { userId: string; commentId: string }] : [],
+                };
+            })
+        );
+
+        try {
+            const response = await fetch(`/api/comment/${commentId}/like`, {
+                method: 'POST',
+            });
+
+            if (!response.ok) throw new Error('Failed to toggle comment like');
+
+            const data = await response.json();
+
+            setComments((prev) =>
+                prev.map((c) => {
+                    if (c.id !== commentId) return c;
+                    return {
+                        ...c,
+                        _count: { likes: data.likeCount },
+                        likes: data.liked ? [{} as { userId: string; commentId: string }] : [],
+                    };
+                })
+            );
+        } catch (error) {
+            console.error('Failed to toggle comment like:', error);
+            setComments((prev) =>
+                prev.map((c) => {
+                    if (c.id !== commentId) return c;
+                    return {
+                        ...c,
+                        _count: { likes: previousLikeCount },
+                        likes: previousIsLiked ? [{} as { userId: string; commentId: string }] : [],
+                    };
+                })
+            );
         }
     };
 
@@ -100,6 +169,15 @@ export default function CommentSection({ postId }: { postId: string }) {
                             </p>
                         </div>
                         <p className="text-sm text-neutral-200 mt-1 break-words">{comment.content}</p>
+                        <div className="mt-2">
+                            <button
+                                onClick={() => handleLikeToggle(comment.id)}
+                                className={`flex items-center gap-1 text-xs ${(comment.likes?.length ?? 0) > 0 ? 'text-pink-400' : 'text-neutral-400 hover:text-pink-400'}`}
+                            >
+                                <Heart size={14} fill={(comment.likes?.length ?? 0) > 0 ? 'currentColor' : 'none'} />
+                                <span>{comment._count?.likes ?? 0}</span>
+                            </button>
+                        </div>
                     </div>
                 ))}
             </div>

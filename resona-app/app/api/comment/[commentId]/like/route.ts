@@ -2,22 +2,23 @@ import { auth } from "@/auth";
 import { NextResponse } from 'next/server';
 import { prisma } from "@/lib/prisma";
 
-export async function POST(request: Request, { params }: { params: Promise<{ postId: string }> }) {
-    const { postId } = await params;
+export async function POST(request: Request, { params }: { params: Promise<{ commentId: string }> }) {
+    const { commentId } = await params;
     const session = await auth();
 
     if (!session?.user?.id) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+
     try {
-        const post = await prisma.post.findUnique({
-            where: { id: postId },
+        const comment = await prisma.comment.findUnique({
+            where: { id: commentId },
             select: { id: true },
         });
 
-        if (!post) {
-            return NextResponse.json({ error: "Post not found" }, { status: 404 });
+        if (!comment) {
+            return NextResponse.json({ error: "Comment not found" }, { status: 404 });
         }
 
     } catch (error) {
@@ -26,39 +27,39 @@ export async function POST(request: Request, { params }: { params: Promise<{ pos
     }
 
     try {
-        const existingLike = await prisma.postLike.findUnique({
+        const existingLike = await prisma.commentLike.findUnique({
             where: {
-                userId_postId: {
+                userId_commentId: {
                     userId: session.user.id,
-                    postId: postId,
+                    commentId: commentId,
 
                 },
             },
         });
 
         if (existingLike) {
-            await prisma.postLike.delete({
+            await prisma.commentLike.delete({
                 where: {
-                    userId_postId: {
+                    userId_commentId: {
                         userId: session.user.id,
-                        postId: postId,
+                        commentId: commentId,
                     },
                 }
             });
         }
 
         else {
-            await prisma.postLike.create({
+            await prisma.commentLike.create({
                 data: {
                     userId: session.user.id,
-                    postId: postId,
+                    commentId: commentId,
                 },
             });
         }
 
-        const likeCount = await prisma.postLike.count({
+        const likeCount = await prisma.commentLike.count({
             where: {
-                postId: postId
+                commentId: commentId
             }
         })
 

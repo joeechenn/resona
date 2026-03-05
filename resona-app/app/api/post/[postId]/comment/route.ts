@@ -52,6 +52,16 @@ export async function POST(request: Request, { params }: { params: Promise<{ pos
                         name: true,
                         image: true,
                     }
+                },
+                _count: {
+                    select: {
+                        likes: true,
+                    }
+                },
+                likes: {
+                    where: {
+                        userId: session.user.id
+                    }
                 }
             }
         });
@@ -102,6 +112,16 @@ export async function GET(request: Request, { params }: { params: Promise<{ post
                         id: true,
                         name: true,
                         image: true,
+                    }
+                },
+                _count: {
+                    select: {
+                        likes: true,
+                    }
+                },
+                likes: {
+                    where: {
+                        userId: session.user.id
                     }
                 }
             }

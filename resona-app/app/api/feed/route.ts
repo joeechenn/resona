@@ -56,7 +56,8 @@ export async function GET(request: Request) {
                 artist: true,
                 _count: {
                     select: {
-                        likes: true
+                        likes: true,
+                        comments: true
                     }
                 },
                 likes: {
