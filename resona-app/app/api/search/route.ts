@@ -23,6 +23,7 @@ export async function GET(request: NextRequest) {
     );
   }
 
+  // make request to Spotify API
   try {
     const token = await getSpotifyAccessToken();
     

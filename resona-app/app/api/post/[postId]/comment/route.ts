@@ -6,11 +6,12 @@ export async function POST(request: Request, { params }: { params: Promise<{ pos
     const { postId } = await params;
     const session = await auth();
 
+    // check if user is authenticated
     if (!session?.user?.id) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-
+    // check if the post exists
     try {
         const post = await prisma.post.findUnique({
             where: { id: postId },
@@ -26,6 +27,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ pos
         return NextResponse.json({ error: "Failed to add comment" }, { status: 500 });
     }
 
+    // validate comment content
     let content: unknown;
     try {
         const body: unknown = await request.json();
@@ -38,6 +40,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ pos
         return NextResponse.json({ error: "Comment content cannot be empty" }, { status: 400 });
     }
 
+    // create the comment
     try {
         const newComment = await prisma.comment.create({
             data: {
@@ -78,10 +81,12 @@ export async function GET(request: Request, { params }: { params: Promise<{ post
     const { postId } = await params;
     const session = await auth();
 
+    // check if user is authenticated
     if (!session?.user?.id) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // check if the post exists
     try {
         const post = await prisma.post.findUnique({
             where: { id: postId },
@@ -98,6 +103,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ post
     }
 
 
+    // fetch comments for the post
     try {
         const allComments = await prisma.comment.findMany({
             orderBy: {

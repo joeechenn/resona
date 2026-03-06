@@ -6,10 +6,12 @@ export async function POST(request: Request, { params }: { params: Promise<{ pos
     const { postId } = await params;
     const session = await auth();
 
+    // check if user is authenticated
     if (!session?.user?.id) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // check if the post exists
     try {
         const post = await prisma.post.findUnique({
             where: { id: postId },
@@ -25,6 +27,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ pos
         return NextResponse.json({ error: "Failed to update like status" }, { status: 500 });
     }
 
+    // toggle like status
     try {
         const existingLike = await prisma.postLike.findUnique({
             where: {

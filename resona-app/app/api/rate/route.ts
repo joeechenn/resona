@@ -7,10 +7,12 @@ import { findOrCreate } from "@/lib/dbHelpers";
 export async function POST(request: Request) {
     const session = await auth();
 
+    // check if user is authenticated
     if (!session?.user?.id) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    // validate request body
     let body: unknown;
     try {
         body = await request.json();

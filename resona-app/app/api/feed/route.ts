@@ -6,6 +6,7 @@ import { auth } from '@/auth';
 export async function GET(request: Request) {
     const session = await auth();
 
+    // check if user is authenticated
     if (!session?.user?.id) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }

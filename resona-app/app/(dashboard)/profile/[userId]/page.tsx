@@ -150,7 +150,7 @@ export default function ProfilePage() {
     const actionLabel = isOwnProfile ? 'Edit Profile' : isFollowing ? 'Following' : 'Follow';
 
     return (
-        <div className="flex-1 bg-neutral-800 rounded-lg p-6 flex flex-col min-h-0">
+        <div className="flex-1 bg-neutral-800 rounded-lg p-6 overflow-y-auto">
             <section className="rounded-2xl border border-neutral-700/60 bg-neutral-900/60 p-6">
                 <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
                     <div className="flex items-center gap-4">
@@ -195,28 +195,30 @@ export default function ProfilePage() {
                 </div>
             </section>
 
-            <section className="mt-6 flex-1 min-h-0 flex flex-col">
-                <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-xl font-bold text-white">Posts</h2>
-                    <p className="text-sm text-neutral-400">
-                        {posts.length} {posts.length === 1 ? 'post' : 'posts'}
-                    </p>
-                </div>
-
-                {posts.length === 0 ? (
-                    <div className="flex-1 flex flex-col items-center justify-center text-center px-6 rounded-2xl border border-neutral-700/60 bg-neutral-900/60">
-                        <p className="text-white font-semibold text-lg">No posts yet</p>
-                        <p className="text-neutral-400 mt-2 max-w-md">
-                            Rate a track, album, or artist to start building this profile.
+            <section className="mt-4">
+                <div className="rounded-2xl border border-neutral-700/60 bg-neutral-900/60 p-6">
+                    <div className="flex items-center justify-between mb-4">
+                        <h2 className="text-xl font-bold text-white">Posts</h2>
+                        <p className="text-sm text-neutral-400">
+                            {posts.length} {posts.length === 1 ? 'post' : 'posts'}
                         </p>
                     </div>
-                ) : (
-                    <div className="space-y-3 overflow-y-auto pr-1 flex-1">
-                        {posts.map((post) => (
-                            <PostCard key={post.id} {...post} />
-                        ))}
-                    </div>
-                )}
+
+                    {posts.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center text-center px-6 py-6">
+                            <p className="text-white font-semibold text-lg">No posts yet</p>
+                            <p className="text-neutral-400 mt-2 max-w-md">
+                                Rate a track, album, or artist to start building this profile.
+                            </p>
+                        </div>
+                    ) : (
+                        <div className="space-y-3">
+                            {posts.map((post) => (
+                                <PostCard key={post.id} {...post} />
+                            ))}
+                        </div>
+                    )}
+                </div>
             </section>
         </div>
     );

@@ -6,16 +6,19 @@ import { Prisma } from "@/app/generated/prisma";
 export async function GET(request: Request, { params }: { params: Promise<{ userId: string }> }) {
     const { userId } = await params;
 
+    // validate userId
     if (!userId || typeof userId !== 'string' || userId.trim().length === 0) {
-        return NextResponse.json({ error: "User ID cannot be empty" }, { status: 400 });
+        return NextResponse.json({ error: "Profile content cannot be empty" }, { status: 400 });
     }
 
     const session = await auth();
 
+    // check if user is authenticated
     if (!session?.user?.id) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // fetch user profile with posts, followers, and following counts
     try {
         const user = await prisma.user.findUnique({
             where: { id: userId },
