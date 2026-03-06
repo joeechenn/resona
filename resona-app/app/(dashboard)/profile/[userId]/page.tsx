@@ -18,11 +18,18 @@ type ProfileResponse = {
     posts: PostProps[];
 };
 
+type FollowToggleResponse = {
+    followed: boolean;
+    followerCount: number;
+    error?: string;
+};
+
 export default function ProfilePage() {
     const { userId } = useParams<{ userId: string }>();
     const [profileData, setProfileData] = useState<ProfileResponse | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [isFollowLoading, setIsFollowLoading] = useState(false);
 
     const fetchProfileData = useCallback(async (signal?: AbortSignal) => {
         setIsLoading(true);
@@ -93,6 +100,84 @@ export default function ProfilePage() {
             month: 'long',
             year: 'numeric',
         });
+
+    // optimistically update the local follow state, then roll back to the previous values if the API call fails
+    // only patch isFollowing and followerCount so the rest of the profile data stays unchanged
+    const handleFollowToggle = async () => {
+        if (!profileData || profileData.isOwnProfile || isFollowLoading) return;
+
+        const previousIsFollowing = profileData.isFollowing;
+        const previousFollowerCount = profileData.followerCount;
+        const nextIsFollowing = !previousIsFollowing;
+        const nextFollowerCount = Math.max(0, previousFollowerCount + (nextIsFollowing ? 1 : -1));
+
+        setProfileData({
+            ...profileData,
+            isFollowing: nextIsFollowing,
+            followerCount: nextFollowerCount,
+        });
+        setIsFollowLoading(true);
+
+        try {
+            const response = await fetch(`/api/profile/${userId}/follow`, {
+                method: 'POST',
+            });
+
+            let data: FollowToggleResponse | { error?: string } = {};
+
+            try {
+                data = await response.json();
+            } catch {
+                // keep rollback below when JSON parsing fails
+            }
+
+            if (!response.ok) {
+                throw new Error(
+                    typeof data === 'object' && data && 'error' in data && data.error
+                        ? data.error
+                        : 'Failed to update follow status'
+                );
+            }
+
+            // validate that data contains expected follow toggle fields before updating state
+            if (
+                data &&
+                typeof data === 'object' &&
+                'followed' in data &&
+                'followerCount' in data
+            ) {
+                setProfileData((current) =>
+                    current
+                        ? {
+                            ...current,
+                            isFollowing: data.followed,
+                            followerCount: data.followerCount,
+                        }
+                        : current
+                );
+                return;
+            }
+
+            // response was ok but invalid format
+            throw new Error('Unexpected response format from follow API.');
+
+            // if canceled request, silent exit
+            // otherwise, show error message and roll back optimistic update
+        } catch (error) {
+            console.error('Failed to toggle follow:', error);
+            setProfileData((current) =>
+                current
+                    ? {
+                        ...current,
+                        isFollowing: previousIsFollowing,
+                        followerCount: previousFollowerCount,
+                    }
+                    : current
+            );
+        } finally {
+            setIsFollowLoading(false);
+        }
+    };
 
     if (isLoading) {
         return (
@@ -181,13 +266,14 @@ export default function ProfilePage() {
                     </div>
 
                     <button
-                        disabled
-                        title={isOwnProfile ? 'Profile editing is not implemented yet' : 'Follow actions are not implemented yet'}
-                        className={`rounded-full px-5 py-2 text-sm font-semibold transition-colors cursor-not-allowed ${isOwnProfile
-                                ? 'bg-white text-black opacity-80'
-                                : isFollowing
-                                    ? 'border border-neutral-600 bg-neutral-800 text-white opacity-80'
-                                    : 'bg-white text-black opacity-80'
+                        onClick={handleFollowToggle}
+                        disabled={isOwnProfile || isFollowLoading}
+                        title={isOwnProfile ? 'Profile editing is not implemented yet' : undefined}
+                        className={`rounded-full px-5 py-2 text-sm font-semibold transition-colors ${isOwnProfile || isFollowLoading ? 'cursor-not-allowed' : 'cursor-pointer'} ${isOwnProfile
+                            ? 'bg-white text-black opacity-80'
+                            : isFollowing
+                                ? 'border border-neutral-600 bg-neutral-800 text-white hover:bg-neutral-700'
+                                : 'bg-white text-black hover:bg-gray-200'
                             }`}
                     >
                         {actionLabel}
