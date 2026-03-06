@@ -1,6 +1,7 @@
 ﻿'use client';
 
 import { Heart, MessageCircle, Share2 } from 'lucide-react';
+import Link from 'next/link';
 import { useState } from 'react';
 import { formatRelativeTime, formatDuration, getYear } from '@/lib/utils/timeUtils';
 import CommentSection from './CommentSection';
@@ -30,6 +31,7 @@ export interface PostProps {
             artist: {
                 id: string;
                 name: string;
+                spotifyId: string;
             };
         }>;
     } | null;
@@ -45,6 +47,7 @@ export interface PostProps {
             artist: {
                 id: string;
                 name: string;
+                spotifyId: string;
             };
         }>;
     } | null;
@@ -78,13 +81,10 @@ function ratingColorClass(rating: number | null): string {
 }
 
 export default function PostCard({ id, user, track, album, artist, _count, likes, rating, createdAt }: PostProps) {
-    const entityName = track?.name || album?.name || artist?.name || 'Unknown';
     const userDisplayName = user.name || 'Anonymous';
     const userInitial = userDisplayName.charAt(0).toUpperCase();
     const relativeTime = formatRelativeTime(createdAt);
     const ratingDisplay = rating === null ? '-' : `${rating}`;
-
-    const trackArtistNames = track?.artists.map((ta) => ta.artist.name).join(', ') || null;
     const albumYear = album ? getYear(album.releaseDate) : null;
 
     const [isLiked, setIsLiked] = useState(likes.length > 0);
@@ -128,23 +128,41 @@ export default function PostCard({ id, user, track, album, artist, _count, likes
         <article className="rounded-2xl border border-neutral-700/60 bg-neutral-800/35 px-4 py-3">
             {/* top section */}
             <div className="mb-3 flex items-center gap-3">
-                {/* user avatar */}
-                {user.image ? (
-                    <img
-                        src={user.image}
-                        alt={userDisplayName}
-                        className="h-9 w-9 rounded-full object-cover"
-                    />
-                ) : (
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-neutral-700 text-sm font-semibold text-white">
-                        {userInitial}
-                    </div>
-                )}
+                <Link href={`/profile/${user.id}`} className="shrink-0">
+                    {/* user avatar */}
+                    {user.image ? (
+                        <img
+                            src={user.image}
+                            alt={userDisplayName}
+                            className="h-9 w-9 rounded-full object-cover"
+                        />
+                    ) : (
+                        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-neutral-700 text-sm font-semibold text-white">
+                            {userInitial}
+                        </div>
+                    )}
+                </Link>
 
-                <div className="text-sm text-neutral-300">
-                    <span className="font-bold text-white">{userDisplayName}</span>
+                <div className="text-sm text-neutral-300 min-w-0">
+                    <Link href={`/profile/${user.id}`} className="font-bold text-white hover:underline">
+                        {userDisplayName}
+                    </Link>
                     <span className="mx-1 text-neutral-400">ranked</span>
-                    <span className="font-bold text-white">{entityName}</span>
+                    {track && (
+                        <Link href={`/track/${track.spotifyId}`} className="font-bold text-white hover:underline">
+                            {track.name}
+                        </Link>
+                    )}
+                    {album && (
+                        <Link href={`/album/${album.spotifyId}`} className="font-bold text-white hover:underline">
+                            {album.name}
+                        </Link>
+                    )}
+                    {artist && (
+                        <Link href={`/artist/${artist.spotifyId}`} className="font-bold text-white hover:underline">
+                            {artist.name}
+                        </Link>
+                    )}
                     <span className="mx-2 text-neutral-500">•</span>
                     <span className="text-neutral-400">{relativeTime}</span>
                 </div>
@@ -157,7 +175,7 @@ export default function PostCard({ id, user, track, album, artist, _count, likes
                     {(track?.album?.imageUrl || album?.imageUrl || artist?.imageUrl) ? (
                         <img
                             src={track?.album?.imageUrl || album?.imageUrl || artist?.imageUrl || ''}
-                            alt={entityName}
+                            alt={track?.name || album?.name || artist?.name || 'Unknown'}
                             className={`h-15 w-15 object-cover ${artist ? 'rounded-full' : 'rounded-md'}`}
                         />
                     ) : (
@@ -168,8 +186,25 @@ export default function PostCard({ id, user, track, album, artist, _count, likes
                     <div className="min-w-0">
                         {track && (
                             <>
-                                <p className="truncate text-l font-extrabold text-white leading-tight">{track.name}</p>
-                                <p className="truncate text-sm text-neutral-400">{trackArtistNames || 'Unknown artist'}</p>
+                                <p className="truncate text-l font-extrabold text-white leading-tight">
+                                    <Link href={`/track/${track.spotifyId}`} className="hover:underline">
+                                        {track.name}
+                                    </Link>
+                                </p>
+                                <p className="truncate text-sm text-neutral-400">
+                                    {track.artists.length > 0 ? (
+                                        track.artists.map((ta, index) => (
+                                            <span key={ta.artist.id}>
+                                                {index > 0 && ', '}
+                                                <Link href={`/artist/${ta.artist.spotifyId}`} className="hover:text-white hover:underline">
+                                                    {ta.artist.name}
+                                                </Link>
+                                            </span>
+                                        ))
+                                    ) : (
+                                        'Unknown artist'
+                                    )}
+                                </p>
                                 {/* tags */}
                                 <div className="mt-2 flex flex-wrap gap-2">
                                     <span className="rounded-md bg-black px-2 py-1 text-xs font-semibold text-white">
@@ -181,8 +216,25 @@ export default function PostCard({ id, user, track, album, artist, _count, likes
 
                         {album && (
                             <>
-                                <p className="truncate text-l font-extrabold text-white leading-tight">{album.name}</p>
-                                <p className="truncate text-sm text-neutral-400">{album.artists.map((a) => a.artist.name).join(', ') || 'Unknown artist'}</p>
+                                <p className="truncate text-l font-extrabold text-white leading-tight">
+                                    <Link href={`/album/${album.spotifyId}`} className="hover:underline">
+                                        {album.name}
+                                    </Link>
+                                </p>
+                                <p className="truncate text-sm text-neutral-400">
+                                    {album.artists.length > 0 ? (
+                                        album.artists.map((a, index) => (
+                                            <span key={a.artist.id}>
+                                                {index > 0 && ', '}
+                                                <Link href={`/artist/${a.artist.spotifyId}`} className="hover:text-white hover:underline">
+                                                    {a.artist.name}
+                                                </Link>
+                                            </span>
+                                        ))
+                                    ) : (
+                                        'Unknown artist'
+                                    )}
+                                </p>
                                 {/* tags */}
                                 <div className="mt-2 flex flex-wrap gap-2">
                                     {albumYear && (
@@ -199,7 +251,11 @@ export default function PostCard({ id, user, track, album, artist, _count, likes
 
                         {artist && (
                             <>
-                                <p className="truncate text-l font-extrabold text-white leading-tight">{artist.name}</p>
+                                <p className="truncate text-l font-extrabold text-white leading-tight">
+                                    <Link href={`/artist/${artist.spotifyId}`} className="hover:underline">
+                                        {artist.name}
+                                    </Link>
+                                </p>
                                 <p className="truncate text-sm text-neutral-400">Artist</p>
                             </>
                         )}

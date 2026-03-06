@@ -29,7 +29,13 @@ export async function GET(request: Request) {
                     include: {
                         artists: {
                             include: {
-                                artist: true
+                                artist: {
+                                    select: {
+                                        id: true,
+                                        name: true,
+                                        spotifyId: true
+                                    }
+                                }
                             }
                         },
                         album: {
@@ -49,7 +55,13 @@ export async function GET(request: Request) {
                     include: {
                         artists: {
                             include: {
-                                artist: true
+                                artist: {
+                                    select: {
+                                        id: true,
+                                        name: true,
+                                        spotifyId: true
+                                    }
+                                }
                             }
                         }
                     }
