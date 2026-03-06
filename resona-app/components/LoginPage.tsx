@@ -1,10 +1,11 @@
 import AnimatedContent from './AnimatedContent'
+import ChangelogModal from './ChangelogModal'
 import { loginWithGoogle, loginWithSpotify } from "@/lib/auth-actions";
 import Image from 'next/image';
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center">
+    <div className="min-h-screen flex flex-col items-center justify-center relative">
         <AnimatedContent
         distance={80}
         direction="vertical"
@@ -120,6 +121,10 @@ export default function LoginPage() {
                     What&apos;s Resona?
                     </a>
             </AnimatedContent>
+        </div>
+        <div className="absolute bottom-5 left-5 sm:bottom-6 sm:left-6 flex flex-col items-start gap-1 text-sm text-neutral-400">
+            <p className="font-semibold text-neutral-300">v0.1.0 &mdash; Closed Beta</p>
+            <ChangelogModal />
         </div>
     </div>
   );
