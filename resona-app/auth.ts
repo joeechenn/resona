@@ -35,6 +35,13 @@ export const { auth, signIn, signOut, handlers: { GET, POST } } = NextAuth({
         }),
     ],
     callbacks: {
+        async signIn({ user }) {
+            const entry = await prisma.waitlistEntry.findUnique({
+                where: { email: user.email! },
+            });
+            if (!entry?.approved) return false;
+            return true;
+        },
         async session({ session, user }) {
             session.user.id = user.id;
             return session;

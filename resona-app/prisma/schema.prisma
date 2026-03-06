@@ -345,3 +345,9 @@ model CommentLike {
   @@id([userId, commentId])
   @@index([commentId])
 }
+
+model WaitlistEntry {
+  email     String   @id
+  approved  Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
