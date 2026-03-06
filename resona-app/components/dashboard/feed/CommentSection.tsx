@@ -30,6 +30,11 @@ export default function CommentSection({ postId, onCommentAdded }: { postId: str
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+    const getInitial = (name: string | null) => {
+        if (!name) return '?';
+        return name.charAt(0).toUpperCase();
+    };
+
     const fetchComments = useCallback(async (signal?: AbortSignal) => {
         setIsCommentLoading(true);
         setErrorMessage(null);
@@ -187,23 +192,39 @@ export default function CommentSection({ postId, onCommentAdded }: { postId: str
 
                 {!isCommentLoading && comments.map((comment) => (
                     <div key={comment.id} className="rounded-md bg-neutral-800/80 px-3 py-2">
-                        <div className="flex items-center justify-between gap-2">
-                            <p className="text-sm font-semibold text-white truncate">
-                                {comment.user.name || 'Anonymous'}
-                            </p>
-                            <p className="text-xs text-neutral-500">
-                                {formatRelativeTime(comment.createdAt)}
-                            </p>
-                        </div>
-                        <p className="text-sm text-neutral-200 mt-1 break-words">{comment.content}</p>
-                        <div className="mt-2">
-                            <button
-                                onClick={() => handleLikeToggle(comment.id)}
-                                className={`flex items-center gap-1 text-xs ${(comment.likes?.length ?? 0) > 0 ? 'text-pink-400' : 'text-neutral-400 hover:text-pink-400'}`}
-                            >
-                                <Heart size={14} fill={(comment.likes?.length ?? 0) > 0 ? 'currentColor' : 'none'} />
-                                <span>{comment._count?.likes ?? 0}</span>
-                            </button>
+                        <div className="flex items-start gap-3">
+                            {comment.user.image ? (
+                                <img
+                                    src={comment.user.image}
+                                    alt={comment.user.name || 'Anonymous'}
+                                    className="h-8 w-8 rounded-full object-cover"
+                                />
+                            ) : (
+                                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-neutral-700 text-xs font-semibold text-white">
+                                    {getInitial(comment.user.name)}
+                                </div>
+                            )}
+
+                            <div className="flex-1 min-w-0">
+                                <div className="flex items-center justify-between gap-2">
+                                    <p className="text-sm font-semibold text-white truncate">
+                                        {comment.user.name || 'Anonymous'}
+                                    </p>
+                                    <p className="text-xs text-neutral-500">
+                                        {formatRelativeTime(comment.createdAt)}
+                                    </p>
+                                </div>
+                                <p className="text-sm text-neutral-200 mt-1 break-words">{comment.content}</p>
+                                <div className="mt-2">
+                                    <button
+                                        onClick={() => handleLikeToggle(comment.id)}
+                                        className={`flex items-center gap-1 text-xs ${(comment.likes?.length ?? 0) > 0 ? 'text-pink-400' : 'text-neutral-400 hover:text-pink-400'}`}
+                                    >
+                                        <Heart size={14} fill={(comment.likes?.length ?? 0) > 0 ? 'currentColor' : 'none'} />
+                                        <span>{comment._count?.likes ?? 0}</span>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 ))}
