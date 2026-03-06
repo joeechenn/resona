@@ -8,10 +8,6 @@ export default async function ArtistPage({ params }: { params: Promise<{ id: str
     const artist = await getArtist(id);
     const artistImage = artist.images[0]?.url;
 
-    const formatFollowers = (count: number) => {
-        return count.toLocaleString();
-    }
-
     return (
         <div className="flex-1 bg-neutral-800 rounded-lg p-8 flex flex-col overflow-y-auto">
             <div className="flex gap-8">

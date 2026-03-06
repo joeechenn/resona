@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { Prisma } from "@/app/generated/prisma";
 import { auth } from '@/auth';
 
-export async function GET(request: Request) {
+export async function GET(_request: Request) {
     const session = await auth();
 
     // check if user is authenticated

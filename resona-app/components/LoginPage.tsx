@@ -117,7 +117,7 @@ export default function LoginPage() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-white hover:underline">
-                    What's Resona?
+                    What&apos;s Resona?
                     </a>
             </AnimatedContent>
         </div>

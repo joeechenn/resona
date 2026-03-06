@@ -57,7 +57,7 @@ export default async function FriendActivity() {
         
         {activeListeners.length === 0 ? (
             <p className="text-gray-400 text-sm">
-                Add more friends who connected with Spotify to see what they're up to!
+                Add more friends who connected with Spotify to see what they&apos;re up to!
             </p>
             ) : (
             <div className="space-y-3 max-h-64 overflow-y-auto scrollbar-thin scrollbar-thumb-neutral-600 scrollbar-track-neutral-800">

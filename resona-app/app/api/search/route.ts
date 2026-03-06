@@ -58,7 +58,8 @@ export async function GET(request: NextRequest) {
     // success
     return NextResponse.json(data, { status: 200 });
   } catch (error) {
-    // check unexpected internal server errors 
+    // check unexpected internal server errors
+    console.error('Search failed:', error);
     return NextResponse.json({ error: 'Search failed' }, { status: 500 });
   }
 }
