@@ -103,7 +103,6 @@ export async function GET(request: Request, { params }: { params: Promise<{ user
             return NextResponse.json({ error: "User not found" }, { status: 404 });
         }
 
-
         const existingFollow = await prisma.userFollow.findUnique({
             where: {
                 followerId_followingId: {

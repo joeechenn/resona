@@ -46,6 +46,7 @@ export default function Navbar({ session }: { session: Session | null }) {
           <Bell className="w-5 h-5 text-gray-400 hover:text-white cursor-pointer" />
           <Settings className="w-5 h-5 text-gray-400 hover:text-white cursor-pointer" />
           
+          <Link href={`/profile/${session.user.id}`} className="shrink-0">
           {session.user.image ? (
             <img 
               src={session.user.image} 
@@ -57,6 +58,7 @@ export default function Navbar({ session }: { session: Session | null }) {
               {getInitials(session.user.name)}
             </div>
           )}
+          </Link>
         </div>
       </div>
     </nav>
