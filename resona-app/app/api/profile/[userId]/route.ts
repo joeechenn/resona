@@ -118,7 +118,8 @@ export async function GET(request: Request, { params }: { params: Promise<{ user
                 name: user.name,
                 bio: user.bio,
                 image: user.image,
-                createdAt: user.createdAt
+                createdAt: user.createdAt,
+                spotifyId: user.spotifyId,
             },
             followerCount: user._count.followers,
             followingCount: user._count.follows,

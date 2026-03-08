@@ -1,6 +1,6 @@
 import AnimatedContent from './AnimatedContent'
 import ChangelogModal from './ChangelogModal'
-import { loginWithGoogle, loginWithSpotify } from "@/lib/auth-actions";
+import { loginWithGoogle } from "@/lib/auth-actions";
 import Image from 'next/image';
 
 export default function LoginPage() {
@@ -90,29 +90,6 @@ export default function LoginPage() {
             scale={1}
             threshold={0.1}
             delay={3.0}>
-            <button
-            className="flex items-center justify-center bg-transparent hover:bg-neutral-800 text-white w-80 px-6 py-2 rounded-sm cursor-pointer border border-gray-700"
-            onClick={loginWithSpotify}
-            >
-                <Image 
-                src="/spotify.svg" 
-                alt="Google" 
-                width={20} 
-                height={20}
-                className="mr-2"/>
-                Sign in with Spotify
-            </button>
-            </AnimatedContent>
-            <AnimatedContent
-            distance={80}
-            direction="vertical"
-            reverse={false}
-            duration={1.0}
-            initialOpacity={0.0}
-            animateOpacity
-            scale={1}
-            threshold={0.1}
-            delay={3.5}>
                 <a 
                 href="https://joeechenn.github.io/resona/"
                 target="_blank"

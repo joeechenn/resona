@@ -32,6 +32,11 @@ model User {
   follows                 UserFollow[]     @relation("follower")
   followers               UserFollow[]     @relation("following")
   trackStats              UserTrackStat[]
+
+  spotifyId           String?   @unique
+  spotifyAccessToken  String?
+  spotifyRefreshToken String?
+  spotifyTokenExpiry  DateTime?
 }
 
 model Account {
