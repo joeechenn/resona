@@ -15,6 +15,7 @@ type ProfileResponse = {
         bio: string | null;
         image: string | null;
         createdAt: string;
+        spotifyId: string | null;
     };
     followerCount: number;
     followingCount: number;
@@ -364,6 +365,7 @@ export default function ProfilePage() {
                 currentName={user.name}
                 currentBio={user.bio}
                 currentImage={user.image}
+                currentSpotifyId={user.spotifyId}
                 onSave={handleProfileSave}
             />
         </div>

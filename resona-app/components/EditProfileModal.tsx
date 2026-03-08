@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 import { X } from 'lucide-react';
 import { getInitial } from '@/lib/utils/utils';
 
@@ -12,6 +13,7 @@ interface EditProfileModalProps {
     currentName: string | null;
     currentBio: string | null;
     currentImage: string | null;
+    currentSpotifyId: string | null;
     onSave: (updatedUser: {
         id: string;
         name: string | null;
@@ -41,6 +43,7 @@ export default function EditProfileModal({
     currentName,
     currentBio,
     currentImage,
+    currentSpotifyId,
     onSave,
 }: EditProfileModalProps) {
     const [nameInput, setNameInput] = useState('');
@@ -48,6 +51,7 @@ export default function EditProfileModal({
     const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
     const [isSaving, setIsSaving] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const isSpotifyConnected = Boolean(currentSpotifyId);
 
     // reset the form when the modal opens
     useEffect(() => {
@@ -217,6 +221,7 @@ export default function EditProfileModal({
                             </p>
                         )}
                     </div>
+
                 </div>
 
                 {errorMessage && (
@@ -240,6 +245,40 @@ export default function EditProfileModal({
                     >
                         {isSaving ? 'Saving...' : 'Save Changes'}
                     </button>
+                </div>
+
+                <div className="mt-6 flex flex-col items-center text-center">
+                    {isSpotifyConnected ? (
+                        <div className="inline-flex items-center gap-3 rounded-md border border-neutral-700 bg-neutral-900 px-4 py-3 text-sm font-medium text-white">
+                            <Image
+                                src="/spotify.svg"
+                                alt="Spotify"
+                                width={20}
+                                height={20}
+                            />
+                            Spotify Connected
+                        </div>
+                    ) : (
+                        <>
+                            <a
+                                href="/api/spotify/connect"
+                                className="inline-flex items-center gap-3 rounded-md border border-neutral-700 bg-neutral-900 px-4 py-3 text-sm font-medium text-white hover:bg-neutral-800 transition-colors"
+                            >
+                                <Image
+                                    src="/spotify.svg"
+                                    alt="Spotify"
+                                    width={20}
+                                    height={20}
+                                />
+                                Connect with Spotify
+                            </a>
+                            <p className="mt-3 max-w-lg text-xs leading-5 text-neutral-400">
+                                Enhance your experience with more features by connecting your Resona
+                                <br />
+                                account with your Spotify account. Your niche taste stays niche. Probably.
+                            </p>
+                        </>
+                    )}
                 </div>
             </div>
         </div>
