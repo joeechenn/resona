@@ -27,6 +27,18 @@ export async function getSpotifyAccessToken() {
   return data.access_token;
 }
 
+export function getSpotifyRedirectUri() {
+  return `${process.env.AUTH_URL}/api/spotify/callback`;
+}
+
+export const SPOTIFY_SCOPES = [
+  "user-read-email",
+  "user-read-private",
+  "user-top-read",
+  "user-read-recently-played",
+  "user-library-read",
+];
+
 interface SpotifyTrack {
   id: string;
   name: string;
