@@ -1,6 +1,7 @@
 'use client';
 import { useCallback, useEffect, useState } from 'react';
 import { formatRelativeTime } from '@/lib/utils/timeUtils';
+import { getInitial } from '@/lib/utils/utils';
 import { Heart } from 'lucide-react';
 
 export interface CommentProps {
@@ -29,11 +30,6 @@ export default function CommentSection({ postId, onCommentAdded }: { postId: str
     const [isCommentLoading, setIsCommentLoading] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
-    const getInitial = (name: string | null) => {
-        if (!name) return '?';
-        return name.charAt(0).toUpperCase();
-    };
 
     const fetchComments = useCallback(async (signal?: AbortSignal) => {
         setIsCommentLoading(true);
