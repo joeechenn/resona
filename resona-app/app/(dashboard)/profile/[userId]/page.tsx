@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import PostCard, { PostProps } from "@/components/dashboard/feed/Post";
 import UserListModal from "@/components/UserListModal";
+import EditProfileModal from "@/components/EditProfileModal";
 import { getInitial } from "@/lib/utils/utils";
 
 // profile page data returned from the profile api
@@ -11,6 +12,7 @@ type ProfileResponse = {
     user: {
         id: string;
         name: string | null;
+        bio: string | null;
         image: string | null;
         createdAt: string;
     };
@@ -35,6 +37,7 @@ export default function ProfilePage() {
     const [isLoading, setIsLoading] = useState(true);
     const [isFollowLoading, setIsFollowLoading] = useState(false);
     const [activeUserList, setActiveUserList] = useState<'followers' | 'following' | null>(null);
+    const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
 
     // fetch profile data for the current profile page
     const fetchProfileData = useCallback(async (signal?: AbortSignal) => {
@@ -101,6 +104,26 @@ export default function ProfilePage() {
             month: 'long',
             year: 'numeric',
         });
+
+    // update the local profile state after a successful edit
+    const handleProfileSave = (updatedUser: {
+        id: string;
+        name: string | null;
+        bio: string | null;
+        image: string | null;
+    }) => {
+        setProfileData((current) =>
+            current
+                ? {
+                    ...current,
+                    user: {
+                        ...current.user,
+                        ...updatedUser,
+                    },
+                }
+                : current
+        );
+    };
 
     // handle follow/unfollow with optimistic ui
     const handleFollowToggle = async () => {
@@ -236,6 +259,7 @@ export default function ProfilePage() {
 
     const { user, followerCount, followingCount, isOwnProfile, isFollowing, posts } = profileData;
     const actionLabel = isOwnProfile ? 'Edit Profile' : isFollowing ? 'Following' : 'Follow';
+    const isActionDisabled = !isOwnProfile && isFollowLoading;
 
     return (
         <div className="flex-1 bg-neutral-800 rounded-lg p-6 overflow-y-auto">
@@ -258,6 +282,11 @@ export default function ProfilePage() {
                         <div>
                             <h1 className="text-2xl font-bold text-white">{user.name || 'Anonymous'}</h1>
                             <p className="mt-1 text-sm text-neutral-400">Joined {getJoinedDate(user.createdAt)}</p>
+                            {user.bio && (
+                                <p className="mt-2 max-w-md whitespace-pre-line text-sm text-neutral-300">
+                                    {user.bio}
+                                </p>
+                            )}
                             <div className="mt-3 flex flex-wrap gap-4 text-sm text-neutral-300">
                                 <button
                                     type="button"
@@ -278,11 +307,10 @@ export default function ProfilePage() {
                     </div>
 
                     <button
-                        onClick={handleFollowToggle}
-                        disabled={isOwnProfile || isFollowLoading}
-                        title={isOwnProfile ? 'Profile editing is not implemented yet' : undefined}
-                        className={`rounded-full px-5 py-2 text-sm font-semibold transition-colors ${isOwnProfile || isFollowLoading ? 'cursor-not-allowed' : 'cursor-pointer'} ${isOwnProfile
-                            ? 'bg-white text-black opacity-80'
+                        onClick={isOwnProfile ? () => setIsEditProfileOpen(true) : handleFollowToggle}
+                        disabled={isActionDisabled}
+                        className={`rounded-full px-5 py-2 text-sm font-semibold transition-colors ${isActionDisabled ? 'cursor-not-allowed' : 'cursor-pointer'} ${isOwnProfile
+                            ? 'bg-white text-black hover:bg-gray-200'
                             : isFollowing
                                 ? 'border border-neutral-600 bg-neutral-800 text-white hover:bg-neutral-700'
                                 : 'bg-white text-black hover:bg-gray-200'
@@ -326,6 +354,17 @@ export default function ProfilePage() {
                 userId={user.id}
                 isOpen={activeUserList !== null}
                 onClose={() => setActiveUserList(null)}
+            />
+
+            {/* edit profile modal */}
+            <EditProfileModal
+                isOpen={isEditProfileOpen}
+                onClose={() => setIsEditProfileOpen(false)}
+                userId={user.id}
+                currentName={user.name}
+                currentBio={user.bio}
+                currentImage={user.image}
+                onSave={handleProfileSave}
             />
         </div>
     );

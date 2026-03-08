@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
   output   = "../app/generated/prisma"
@@ -14,54 +8,48 @@ datasource db {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  image         String?
-  accounts      Account[]
-  sessions      Session[]
-
-  lists     RankList[]
-  follows   UserFollow[] @relation("follower")
-  followers UserFollow[] @relation("following")
-
+  id                      String           @id @default(cuid())
+  name                    String?
+  email                   String?          @unique
+  image                   String?
+  bio                     String?
+  createdAt               DateTime         @default(now())
+  updatedAt               DateTime         @updatedAt
   currentlyPlayingTrackId String?
-  currentlyPlayingTrack   Track?    @relation("CurrentlyPlaying", fields: [currentlyPlayingTrackId], references: [id])
+  isListening             Boolean          @default(false)
   lastPlaybackUpdate      DateTime?
-  isListening             Boolean   @default(false)
-
-  trackStats  UserTrackStat[]
-  artistStats UserArtistStat[]
-  albumStats  UserAlbumStat[]
-
-  posts        Post[]
-  comments     Comment[]
-  postLikes    PostLike[]
-  commentLikes CommentLike[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  emailVerified           DateTime?
+  accounts                Account[]
+  comments                Comment[]
+  commentLikes            CommentLike[]
+  posts                   Post[]
+  postLikes               PostLike[]
+  lists                   RankList[]
+  sessions                Session[]
+  currentlyPlayingTrack   Track?           @relation("CurrentlyPlaying", fields: [currentlyPlayingTrackId], references: [id])
+  albumStats              UserAlbumStat[]
+  artistStats             UserArtistStat[]
+  follows                 UserFollow[]     @relation("follower")
+  followers               UserFollow[]     @relation("following")
+  trackStats              UserTrackStat[]
 }
 
 model Account {
-  id                String  @id @default(cuid())
+  id                String   @id @default(cuid())
   userId            String
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
+  refresh_token     String?
+  access_token      String?
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? @db.Text
+  id_token          String?
   session_state     String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
@@ -71,10 +59,9 @@ model Session {
   sessionToken String   @unique
   userId       String
   expires      DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 
   @@index([userId])
 }
@@ -93,14 +80,14 @@ model Artist {
   name            String
   imageUrl        String?
   popularity      Int?
-  tracks          TrackArtist[]
-  albumArtists    AlbumArtist[]
-  genres          ArtistGenre[]
-  userArtistStats UserArtistStat[] @relation("UserArtistStats")
-  posts           Post[]           @relation("PostArtist")
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
+  albumArtists    AlbumArtist[]
+  genres          ArtistGenre[]
+  posts           Post[]           @relation("PostArtist")
   rankItems       RankItem[]       @relation("RankItemArtist")
+  tracks          TrackArtist[]
+  userArtistStats UserArtistStat[] @relation("UserArtistStats")
 }
 
 model Album {
@@ -109,15 +96,15 @@ model Album {
   name           String
   imageUrl       String?
   releaseDate    DateTime?
-  tracks         Track[]
-  totalTracks    Int?
-  artists        AlbumArtist[]
   popularity     Int?
-  userAlbumStats UserAlbumStat[] @relation("UserAlbumStats")
-  posts          Post[]          @relation("PostAlbum")
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
+  totalTracks    Int?
+  artists        AlbumArtist[]
+  posts          Post[]          @relation("PostAlbum")
   rankItems      RankItem[]      @relation("RankItemAlbum")
+  tracks         Track[]
+  userAlbumStats UserAlbumStat[] @relation("UserAlbumStats")
 }
 
 model Track {
@@ -126,17 +113,17 @@ model Track {
   isrc             String?         @unique
   name             String
   albumId          String?
-  album            Album?          @relation(fields: [albumId], references: [id])
   durationMs       Int
   explicit         Boolean         @default(false)
   popularity       Int?
-  artists          TrackArtist[]
-  userTrackStats   UserTrackStat[] @relation("UserTrackStats")
-  posts            Post[]          @relation("PostTrack")
-  currentListeners User[]          @relation("CurrentlyPlaying")
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
+  posts            Post[]          @relation("PostTrack")
   rankItems        RankItem[]      @relation("RankItemTrack")
+  album            Album?          @relation(fields: [albumId], references: [id])
+  artists          TrackArtist[]
+  currentListeners User[]          @relation("CurrentlyPlaying")
+  userTrackStats   UserTrackStat[] @relation("UserTrackStats")
 
   @@index([albumId])
 }
@@ -144,8 +131,8 @@ model Track {
 model TrackArtist {
   trackId  String
   artistId String
-  track    Track  @relation(fields: [trackId], references: [id], onDelete: Cascade)
   artist   Artist @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  track    Track  @relation(fields: [trackId], references: [id], onDelete: Cascade)
 
   @@id([trackId, artistId])
   @@index([artistId])
@@ -176,22 +163,16 @@ model ArtistGenre {
   @@id([artistId, genreId])
 }
 
-enum RankKind {
-  TRACK
-  ALBUM
-  ARTIST
-}
-
 model RankList {
   id        String     @id @default(cuid())
   userId    String
-  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   kind      RankKind
   title     String
   isPublic  Boolean    @default(true)
-  items     RankItem[]
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
+  items     RankItem[]
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, kind])
   @@index([userId, createdAt])
@@ -200,15 +181,15 @@ model RankList {
 model RankItem {
   id       String   @id @default(cuid())
   listId   String
-  list     RankList @relation(fields: [listId], references: [id], onDelete: Cascade)
   position Int
   note     String?
   trackId  String?
   albumId  String?
   artistId String?
-  track    Track?   @relation("RankItemTrack", fields: [trackId], references: [id])
   album    Album?   @relation("RankItemAlbum", fields: [albumId], references: [id])
   artist   Artist?  @relation("RankItemArtist", fields: [artistId], references: [id])
+  list     RankList @relation(fields: [listId], references: [id], onDelete: Cascade)
+  track    Track?   @relation("RankItemTrack", fields: [trackId], references: [id])
 
   @@unique([listId, position])
   @@unique([listId, trackId])
@@ -222,9 +203,9 @@ model RankItem {
 model UserFollow {
   followerId  String
   followingId String
+  createdAt   DateTime @default(now())
   follower    User     @relation("follower", fields: [followerId], references: [id], onDelete: Cascade)
   following   User     @relation("following", fields: [followingId], references: [id], onDelete: Cascade)
-  createdAt   DateTime @default(now())
 
   @@id([followerId, followingId])
 }
@@ -271,8 +252,8 @@ model UserAlbumStat {
   liked     Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   album     Album    @relation("UserAlbumStats", fields: [albumId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([userId, albumId])
   @@index([albumId])
@@ -281,25 +262,21 @@ model UserAlbumStat {
 }
 
 model Post {
-  id     String @id @default(cuid())
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  trackId  String?
-  albumId  String?
-  artistId String?
-  track    Track?  @relation("PostTrack", fields: [trackId], references: [id], onDelete: Cascade)
-  album    Album?  @relation("PostAlbum", fields: [albumId], references: [id], onDelete: Cascade)
-  artist   Artist? @relation("PostArtist", fields: [artistId], references: [id], onDelete: Cascade)
-
-  rating  Int?
-  caption String?
-
-  likes    PostLike[]
-  comments Comment[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id        String     @id @default(cuid())
+  userId    String
+  trackId   String?
+  albumId   String?
+  artistId  String?
+  rating    Int?
+  caption   String?
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  comments  Comment[]
+  album     Album?     @relation("PostAlbum", fields: [albumId], references: [id], onDelete: Cascade)
+  artist    Artist?    @relation("PostArtist", fields: [artistId], references: [id], onDelete: Cascade)
+  track     Track?     @relation("PostTrack", fields: [trackId], references: [id], onDelete: Cascade)
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  likes     PostLike[]
 
   @@unique([userId, trackId])
   @@unique([userId, albumId])
@@ -313,12 +290,12 @@ model Post {
 model Comment {
   id        String        @id @default(cuid())
   postId    String
-  post      Post          @relation(fields: [postId], references: [id], onDelete: Cascade)
   userId    String
-  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   content   String
-  likes     CommentLike[]
   createdAt DateTime      @default(now())
+  post      Post          @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  likes     CommentLike[]
 
   @@index([postId])
   @@index([userId])
@@ -327,9 +304,9 @@ model Comment {
 model PostLike {
   userId    String
   postId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([userId, postId])
   @@index([postId])
@@ -338,10 +315,22 @@ model PostLike {
 model CommentLike {
   userId    String
   commentId String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  comment   Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
+  comment   Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([userId, commentId])
   @@index([commentId])
+}
+
+model WaitlistEntry {
+  email     String   @id
+  approved  Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+enum RankKind {
+  TRACK
+  ALBUM
+  ARTIST
 }

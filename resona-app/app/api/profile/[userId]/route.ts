@@ -116,6 +116,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ user
             user: {
                 id: user.id,
                 name: user.name,
+                bio: user.bio,
                 image: user.image,
                 createdAt: user.createdAt
             },

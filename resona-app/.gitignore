@@ -45,3 +45,5 @@ next-env.d.ts
 .codex/
 
 AGENTS.md
+.vercel
+.env*.local
