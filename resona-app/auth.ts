@@ -16,6 +16,16 @@ export const { auth, signIn, signOut, handlers: { GET, POST } } = NextAuth({
         }),
     ],
     callbacks: {
+        async signIn({ user, profile }) {
+            // refresh Google profile image on every sign-in so URL stays current
+            if (profile?.picture && user.email) {
+                await prisma.user.update({
+                    where: { email: user.email },
+                    data: { image: profile.picture }
+                });
+            }
+            return true;
+        },
         async session({ session, user }) {
             session.user.id = user.id;
             return session;
