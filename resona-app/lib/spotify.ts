@@ -1,3 +1,5 @@
+import { prisma } from "@/lib/prisma";
+
 export async function getSpotifyAccessToken() {
   const clientId = process.env.SPOTIFY_CLIENT_ID;
   const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
@@ -25,6 +27,95 @@ export async function getSpotifyAccessToken() {
   }
 
   return data.access_token;
+}
+
+async function refreshSpotifyToken(userId: string): Promise<string | null> {
+  // fetch user's refresh token
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { spotifyRefreshToken: true }
+  });
+
+  // no refresh token, user never linked Spotify
+  if (!user?.spotifyRefreshToken) {
+    return null;
+  }
+
+  const clientId = process.env.SPOTIFY_CLIENT_ID;
+  const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
+
+  if (!clientId || !clientSecret) {
+    throw new Error("Missing Spotify client credentials");
+  }
+
+  // swap refresh token for a new access token
+  const response = await fetch('https://accounts.spotify.com/api/token', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Authorization': 'Basic ' + Buffer.from(clientId + ':' + clientSecret).toString('base64')
+    },
+    body: `grant_type=refresh_token&refresh_token=${user.spotifyRefreshToken}`
+  });
+
+  // refresh failed, clear Spotify fields to reset to unlinked state
+  if (!response.ok) {
+    await prisma.user.update({
+      where: { id: userId },
+      data: {
+        spotifyId: null,
+        spotifyAccessToken: null,
+        spotifyRefreshToken: null,
+        spotifyTokenExpiry: null,
+      }
+    });
+    console.error(`Spotify token refresh failed for user ${userId} (${response.status})`);
+    return null;
+  }
+
+  // parse response, Spotify returns access_token, expires_in, and sometimes a new refresh_token
+  const data = await response.json();
+  if (!data?.access_token) {
+    return null;
+  }
+
+  // persist new tokens, keep old refresh token if Spotify didn't rotate it
+  await prisma.user.update({
+    where: { id: userId },
+    data: {
+      spotifyAccessToken: data.access_token,
+      spotifyRefreshToken: data.refresh_token || user.spotifyRefreshToken,
+      spotifyTokenExpiry: new Date(Date.now() + data.expires_in * 1000),
+    }
+  });
+
+  return data.access_token;
+}
+
+export async function getValidSpotifyToken(userId: string): Promise<string | null> {
+  // fetch user's token fields
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      spotifyAccessToken: true,
+      spotifyRefreshToken: true,
+      spotifyTokenExpiry: true,
+    }
+  });
+
+  // no refresh token, user never linked Spotify
+  if (!user?.spotifyRefreshToken) {
+    return null;
+  }
+
+  // token still valid and not within 5 min expiry buffer
+  const bufferMs = 5 * 60 * 1000;
+  if (user.spotifyTokenExpiry && user.spotifyTokenExpiry.getTime() > Date.now() + bufferMs) {
+    return user.spotifyAccessToken;
+  }
+
+  // expired or within buffer, attempt refresh
+  return await refreshSpotifyToken(userId);
 }
 
 export function getSpotifyRedirectUri() {

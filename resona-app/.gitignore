@@ -42,8 +42,6 @@ next-env.d.ts
 
 /app/generated/prisma
 
-.codex/
-
 AGENTS.md
 .vercel
 .env*.local
