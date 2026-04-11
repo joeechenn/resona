@@ -24,7 +24,6 @@ model User {
   commentLikes            CommentLike[]
   posts                   Post[]
   postLikes               PostLike[]
-  lists                   RankList[]
   sessions                Session[]
   currentlyPlayingTrack   Track?           @relation("CurrentlyPlaying", fields: [currentlyPlayingTrackId], references: [id])
   albumStats              UserAlbumStat[]
@@ -90,7 +89,6 @@ model Artist {
   albumArtists    AlbumArtist[]
   genres          ArtistGenre[]
   posts           Post[]           @relation("PostArtist")
-  rankItems       RankItem[]       @relation("RankItemArtist")
   tracks          TrackArtist[]
   userArtistStats UserArtistStat[] @relation("UserArtistStats")
 }
@@ -107,7 +105,6 @@ model Album {
   totalTracks    Int?
   artists        AlbumArtist[]
   posts          Post[]          @relation("PostAlbum")
-  rankItems      RankItem[]      @relation("RankItemAlbum")
   tracks         Track[]
   userAlbumStats UserAlbumStat[] @relation("UserAlbumStats")
 }
@@ -124,7 +121,6 @@ model Track {
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
   posts            Post[]          @relation("PostTrack")
-  rankItems        RankItem[]      @relation("RankItemTrack")
   album            Album?          @relation(fields: [albumId], references: [id])
   artists          TrackArtist[]
   currentListeners User[]          @relation("CurrentlyPlaying")
@@ -166,43 +162,6 @@ model ArtistGenre {
   genre    Genre  @relation(fields: [genreId], references: [id], onDelete: Cascade)
 
   @@id([artistId, genreId])
-}
-
-model RankList {
-  id        String     @id @default(cuid())
-  userId    String
-  kind      RankKind
-  title     String
-  isPublic  Boolean    @default(true)
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  items     RankItem[]
-  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId, kind])
-  @@index([userId, createdAt])
-}
-
-model RankItem {
-  id       String   @id @default(cuid())
-  listId   String
-  position Int
-  note     String?
-  trackId  String?
-  albumId  String?
-  artistId String?
-  album    Album?   @relation("RankItemAlbum", fields: [albumId], references: [id])
-  artist   Artist?  @relation("RankItemArtist", fields: [artistId], references: [id])
-  list     RankList @relation(fields: [listId], references: [id], onDelete: Cascade)
-  track    Track?   @relation("RankItemTrack", fields: [trackId], references: [id])
-
-  @@unique([listId, position])
-  @@unique([listId, trackId])
-  @@unique([listId, albumId])
-  @@unique([listId, artistId])
-  @@index([trackId])
-  @@index([albumId])
-  @@index([artistId])
 }
 
 model UserFollow {
@@ -332,10 +291,4 @@ model WaitlistEntry {
   email     String   @id
   approved  Boolean  @default(false)
   createdAt DateTime @default(now())
-}
-
-enum RankKind {
-  TRACK
-  ALBUM
-  ARTIST
 }
