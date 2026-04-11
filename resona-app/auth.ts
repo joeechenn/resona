@@ -16,11 +16,20 @@ export const { auth, signIn, signOut, handlers: { GET, POST } } = NextAuth({
         }),
     ],
     callbacks: {
-        async signIn({ user }) {
+        async signIn({ user, profile }) {
+            // waitlist gate
             const entry = await prisma.waitlistEntry.findUnique({
                 where: { email: user.email! },
             });
             if (!entry?.approved) return false;
+
+            // refresh Google profile image on every sign-in so URL stays current
+            if (profile?.picture && user.email) {
+                await prisma.user.update({
+                    where: { email: user.email },
+                    data: { image: profile.picture }
+                });
+            }
             return true;
         },
         async session({ session, user }) {
