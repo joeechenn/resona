@@ -118,6 +118,61 @@ export async function getValidSpotifyToken(userId: string): Promise<string | nul
   return await refreshSpotifyToken(userId);
 }
 
+export async function getTopTracks(userId: string, limit: number = 20): Promise<SpotifyTrack[] | null> {
+  const token = await getValidSpotifyToken(userId);
+  if (!token) return null;
+
+  const response = await fetch(
+    `https://api.spotify.com/v1/me/top/tracks?limit=${limit}&time_range=short_term`,
+    { headers: { 'Authorization': `Bearer ${token}` } }
+  );
+
+  if (!response.ok) {
+    console.error(`Failed to fetch top tracks for user ${userId} (${response.status})`);
+    return null;
+  }
+
+  const data = await response.json();
+  return data.items;
+}
+
+export async function getTopArtists(userId: string, limit: number = 20): Promise<SpotifyArtist[] | null> {
+  const token = await getValidSpotifyToken(userId);
+  if (!token) return null;
+
+  const response = await fetch(
+    `https://api.spotify.com/v1/me/top/artists?limit=${limit}&time_range=short_term`,
+    { headers: { 'Authorization': `Bearer ${token}` } }
+  );
+
+  if (!response.ok) {
+    console.error(`Failed to fetch top artists for user ${userId} (${response.status})`);
+    return null;
+  }
+
+  const data = await response.json();
+  return data.items;
+}
+
+export async function getRecentlyPlayed(userId: string, limit: number = 20): Promise<SpotifyTrack[] | null> {
+  const token = await getValidSpotifyToken(userId);
+  if (!token) return null;
+
+  const response = await fetch(
+    `https://api.spotify.com/v1/me/player/recently-played?limit=${limit}`,
+    { headers: { 'Authorization': `Bearer ${token}` } }
+  );
+
+  if (!response.ok) {
+    console.error(`Failed to fetch recently played for user ${userId} (${response.status})`);
+    return null;
+  }
+
+  // items are PlayHistoryObjects, unwrap .track from each
+  const data = await response.json();
+  return data.items.map((item: { track: SpotifyTrack }) => item.track);
+} 
+
 export function getSpotifyRedirectUri() {
   return `${process.env.AUTH_URL}/api/spotify/callback`;
 }
