@@ -31,6 +31,7 @@ model User {
   follows                 UserFollow[]     @relation("follower")
   followers               UserFollow[]     @relation("following")
   trackStats              UserTrackStat[]
+  profilePrompts          UserProfilePrompt[]
 
   spotifyId           String?   @unique
   spotifyAccessToken  String?
@@ -91,6 +92,7 @@ model Artist {
   posts           Post[]           @relation("PostArtist")
   tracks          TrackArtist[]
   userArtistStats UserArtistStat[] @relation("UserArtistStats")
+  profilePrompts  UserProfilePrompt[] @relation("PromptArtist")
 }
 
 model Album {
@@ -107,6 +109,7 @@ model Album {
   posts          Post[]          @relation("PostAlbum")
   tracks         Track[]
   userAlbumStats UserAlbumStat[] @relation("UserAlbumStats")
+  profilePrompts UserProfilePrompt[] @relation("PromptAlbum")
 }
 
 model Track {
@@ -125,6 +128,7 @@ model Track {
   artists          TrackArtist[]
   currentListeners User[]          @relation("CurrentlyPlaying")
   userTrackStats   UserTrackStat[] @relation("UserTrackStats")
+  profilePrompts   UserProfilePrompt[] @relation("PromptTrack")
 
   @@index([albumId])
 }
@@ -291,4 +295,25 @@ model WaitlistEntry {
   email     String   @id
   approved  Boolean  @default(false)
   createdAt DateTime @default(now())
+}
+
+model UserProfilePrompt {
+  id        String   @id @default(cuid())
+  userId    String
+  prompt    String
+  position  Int
+  trackId   String?
+  albumId   String?
+  artistId  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  track  Track?  @relation("PromptTrack", fields: [trackId], references: [id])
+  album  Album?  @relation("PromptAlbum", fields: [albumId], references: [id])
+  artist Artist? @relation("PromptArtist", fields: [artistId], references: [id])
+
+  @@unique([userId, prompt])
+  @@unique([userId, position])
+  @@index([userId])
 }
