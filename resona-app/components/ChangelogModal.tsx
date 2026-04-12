@@ -36,18 +36,19 @@ export default function ChangelogModal() {
 
                         <div className="pr-8">
                             <h2 className="text-center text-xl font-bold text-white mb-5">
-                                v0.1.0 &mdash; Closed Beta
+                                v0.1.1 &mdash; Closed Beta
                             </h2>
                             <p className="mb-5 text-center text-sm text-neutral-400">
-                                March 6, 2026
+                                April 12, 2026
                             </p>
                             <h2 className="text-md font-semibold text-white mb-5">
-                                Hello! I&apos;m excited to announce the launch of our closed beta, featuring:
+                                Discover yourself and show it off! Here&apos;s what&apos;s new:
                             </h2>
                             <ul className="list-disc space-y-3 pl-5 text-sm text-neutral-300 marker:text-neutral-400">
-                                <li>User profiles with follower/following counts</li>
-                                <li>Follow/unfollow system with optimistic updates</li>
-                                <li>Clickable navigation from posts to profiles and entity pages</li>
+                                <li>Discover page: browse your top tracks, artists, and recently played from Spotify with unrated items surfaced for you to rate</li>
+                                <li>Profile customization: Hinge-style profile prompts where you showcase your music taste with 3 customizable slots. More to come!</li>
+                                <li>Feed: posts now load seamlessly as you scroll instead of all at once</li>
+                                <li>Lots of under-the-hood improvements to make the app faster and more reliable</li>
                             </ul>
                         </div>
                     </div>

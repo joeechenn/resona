@@ -3,20 +3,26 @@ import { prisma } from '@/lib/prisma';
 import { Prisma } from "@/app/generated/prisma";
 import { auth } from '@/auth';
 
-export async function GET(_request: Request) {
+export async function GET(request: Request) {
     const session = await auth();
 
-    // check if user is authenticated
     if (!session?.user?.id) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // optional cursor for pagination — createdAt of the last post from previous page
+    const { searchParams } = new URL(request.url);
+    const cursor = searchParams.get('cursor');
+
     try {
-        // query the 20 most recent posts, including related user, track, album, and artist data for feed rendering
+        // fetch 11 posts (one extra to determine if more pages exist)
+        // if cursor is provided, only fetch posts older than that timestamp
         const allPosts = await prisma.post.findMany({
             orderBy: {
                 createdAt: 'desc',
             },
+            take: 11,
+            ...(cursor ? { where: { createdAt: { lt: new Date(cursor) } } } : {}),
             include: {
                 user: {
                     select: {
@@ -78,20 +84,25 @@ export async function GET(_request: Request) {
                         userId: session.user.id
                     }
                 }
-            },
-            take: 20
+            }
         });
 
-        // implicit 200 status because empty array is a valid response (no posts)
-        return NextResponse.json(allPosts);
+        // if 11 results came back, more pages exist, slice to 10 before returning
+        const hasMore = allPosts.length === 11;
+        const posts = hasMore ? allPosts.slice(0, -1) : allPosts;
+
+        return NextResponse.json({ posts, hasMore });
     } catch (error) {
-        // log error server-side for debugging
         console.error('Error fetching feed:', error);
-        // check if error is relaetd to database connection issue
+
         if (error instanceof Prisma.PrismaClientInitializationError) {
             return NextResponse.json({ error: 'Database connection failed' }, { status: 503 });
         }
-        // return generic error for all other errors
+
+        if (error instanceof Prisma.PrismaClientKnownRequestError) {
+            return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
+        }
+
         return NextResponse.json({ error: 'Failed to fetch feed' }, { status: 500 });
     }
 }

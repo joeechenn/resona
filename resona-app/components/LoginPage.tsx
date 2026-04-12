@@ -100,7 +100,7 @@ export default function LoginPage() {
             </AnimatedContent>
         </div>
         <div className="absolute bottom-5 left-5 sm:bottom-6 sm:left-6 flex flex-col items-start gap-1 text-sm text-neutral-400">
-            <p className="font-semibold text-neutral-300">v0.1.0 &mdash; Closed Beta</p>
+            <p className="font-semibold text-neutral-300">v0.1.1 &mdash; Closed Beta</p>
             <ChangelogModal />
         </div>
     </div>
