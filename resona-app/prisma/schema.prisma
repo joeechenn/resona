@@ -24,7 +24,6 @@ model User {
   commentLikes            CommentLike[]
   posts                   Post[]
   postLikes               PostLike[]
-  lists                   RankList[]
   sessions                Session[]
   currentlyPlayingTrack   Track?           @relation("CurrentlyPlaying", fields: [currentlyPlayingTrackId], references: [id])
   albumStats              UserAlbumStat[]
@@ -32,6 +31,7 @@ model User {
   follows                 UserFollow[]     @relation("follower")
   followers               UserFollow[]     @relation("following")
   trackStats              UserTrackStat[]
+  profilePrompts          UserProfilePrompt[]
 
   spotifyId           String?   @unique
   spotifyAccessToken  String?
@@ -90,9 +90,9 @@ model Artist {
   albumArtists    AlbumArtist[]
   genres          ArtistGenre[]
   posts           Post[]           @relation("PostArtist")
-  rankItems       RankItem[]       @relation("RankItemArtist")
   tracks          TrackArtist[]
   userArtistStats UserArtistStat[] @relation("UserArtistStats")
+  profilePrompts  UserProfilePrompt[] @relation("PromptArtist")
 }
 
 model Album {
@@ -107,9 +107,9 @@ model Album {
   totalTracks    Int?
   artists        AlbumArtist[]
   posts          Post[]          @relation("PostAlbum")
-  rankItems      RankItem[]      @relation("RankItemAlbum")
   tracks         Track[]
   userAlbumStats UserAlbumStat[] @relation("UserAlbumStats")
+  profilePrompts UserProfilePrompt[] @relation("PromptAlbum")
 }
 
 model Track {
@@ -124,11 +124,11 @@ model Track {
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
   posts            Post[]          @relation("PostTrack")
-  rankItems        RankItem[]      @relation("RankItemTrack")
   album            Album?          @relation(fields: [albumId], references: [id])
   artists          TrackArtist[]
   currentListeners User[]          @relation("CurrentlyPlaying")
   userTrackStats   UserTrackStat[] @relation("UserTrackStats")
+  profilePrompts   UserProfilePrompt[] @relation("PromptTrack")
 
   @@index([albumId])
 }
@@ -166,43 +166,6 @@ model ArtistGenre {
   genre    Genre  @relation(fields: [genreId], references: [id], onDelete: Cascade)
 
   @@id([artistId, genreId])
-}
-
-model RankList {
-  id        String     @id @default(cuid())
-  userId    String
-  kind      RankKind
-  title     String
-  isPublic  Boolean    @default(true)
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  items     RankItem[]
-  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId, kind])
-  @@index([userId, createdAt])
-}
-
-model RankItem {
-  id       String   @id @default(cuid())
-  listId   String
-  position Int
-  note     String?
-  trackId  String?
-  albumId  String?
-  artistId String?
-  album    Album?   @relation("RankItemAlbum", fields: [albumId], references: [id])
-  artist   Artist?  @relation("RankItemArtist", fields: [artistId], references: [id])
-  list     RankList @relation(fields: [listId], references: [id], onDelete: Cascade)
-  track    Track?   @relation("RankItemTrack", fields: [trackId], references: [id])
-
-  @@unique([listId, position])
-  @@unique([listId, trackId])
-  @@unique([listId, albumId])
-  @@unique([listId, artistId])
-  @@index([trackId])
-  @@index([albumId])
-  @@index([artistId])
 }
 
 model UserFollow {
@@ -334,8 +297,23 @@ model WaitlistEntry {
   createdAt DateTime @default(now())
 }
 
-enum RankKind {
-  TRACK
-  ALBUM
-  ARTIST
+model UserProfilePrompt {
+  id        String   @id @default(cuid())
+  userId    String
+  prompt    String
+  position  Int
+  trackId   String?
+  albumId   String?
+  artistId  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  track  Track?  @relation("PromptTrack", fields: [trackId], references: [id])
+  album  Album?  @relation("PromptAlbum", fields: [albumId], references: [id])
+  artist Artist? @relation("PromptArtist", fields: [artistId], references: [id])
+
+  @@unique([userId, prompt])
+  @@unique([userId, position])
+  @@index([userId])
 }

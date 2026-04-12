@@ -5,6 +5,8 @@ import { useParams } from "next/navigation";
 import PostCard, { PostProps } from "@/components/dashboard/feed/Post";
 import UserListModal from "@/components/UserListModal";
 import EditProfileModal from "@/components/EditProfileModal";
+import ProfilePrompts, { type ProfilePromptData } from "@/components/profile/ProfilePrompts";
+import PromptPickerModal from "@/components/profile/PromptPickerModal";
 import { getInitial } from "@/lib/utils/utils";
 
 // profile page data returned from the profile api
@@ -22,6 +24,7 @@ type ProfileResponse = {
     isOwnProfile: boolean;
     isFollowing: boolean;
     posts: PostProps[];
+    profilePrompts: ProfilePromptData[];
 };
 
 // follow toggle response from the follow api
@@ -39,6 +42,7 @@ export default function ProfilePage() {
     const [isFollowLoading, setIsFollowLoading] = useState(false);
     const [activeUserList, setActiveUserList] = useState<'followers' | 'following' | null>(null);
     const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
+    const [promptPickerPosition, setPromptPickerPosition] = useState<number | null>(null);
 
     // fetch profile data for the current profile page
     const fetchProfileData = useCallback(async (signal?: AbortSignal) => {
@@ -75,7 +79,8 @@ export default function ProfilePage() {
                 'followerCount' in data &&
                 'followingCount' in data &&
                 'isOwnProfile' in data &&
-                'isFollowing' in data
+                'isFollowing' in data &&
+                'profilePrompts' in data
             ) {
                 setProfileData(data as ProfileResponse);
                 return;
@@ -124,6 +129,25 @@ export default function ProfilePage() {
                 }
                 : current
         );
+    };
+
+    // refetch profile data after prompt save/delete
+    const handlePromptChange = () => {
+        fetchProfileData();
+    };
+
+    // delete a prompt and refetch
+    const handleDeletePrompt = async (promptId: string) => {
+        try {
+            await fetch(`/api/profile/${userId}/prompts`, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ promptId }),
+            });
+            handlePromptChange();
+        } catch (error) {
+            console.error('Failed to delete prompt:', error);
+        }
     };
 
     // handle follow/unfollow with optimistic ui
@@ -258,7 +282,7 @@ export default function ProfilePage() {
         );
     }
 
-    const { user, followerCount, followingCount, isOwnProfile, isFollowing, posts } = profileData;
+    const { user, followerCount, followingCount, isOwnProfile, isFollowing, posts, profilePrompts } = profileData;
     const actionLabel = isOwnProfile ? 'Edit Profile' : isFollowing ? 'Following' : 'Follow';
     const isActionDisabled = !isOwnProfile && isFollowLoading;
 
@@ -322,6 +346,14 @@ export default function ProfilePage() {
                 </div>
             </section>
 
+            {/* taste identity prompts */}
+            <ProfilePrompts
+                prompts={profilePrompts}
+                isOwnProfile={isOwnProfile}
+                onAddPrompt={(position) => setPromptPickerPosition(position)}
+                onDeletePrompt={handleDeletePrompt}
+            />
+
             {/* posts list */}
             <section className="mt-4">
                 <div className="rounded-2xl border border-neutral-700/60 bg-neutral-900/60 p-6">
@@ -367,6 +399,16 @@ export default function ProfilePage() {
                 currentImage={user.image}
                 currentSpotifyId={user.spotifyId}
                 onSave={handleProfileSave}
+            />
+
+            {/* prompt picker modal */}
+            <PromptPickerModal
+                isOpen={promptPickerPosition !== null}
+                onClose={() => setPromptPickerPosition(null)}
+                userId={user.id}
+                position={promptPickerPosition ?? 0}
+                existingPrompts={profilePrompts.map(p => p.prompt)}
+                onSave={handlePromptChange}
             />
         </div>
     );

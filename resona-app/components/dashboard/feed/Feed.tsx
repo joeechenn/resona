@@ -1,20 +1,31 @@
 'use client';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import PostCard from './Post';
 import type { PostProps } from './Post';
 
 export default function Feed() {
     const [posts, setPosts] = useState<PostProps[]>([]);
     const [loading, setLoading] = useState(true);
+    const [loadingMore, setLoadingMore] = useState(false);
+    const [hasMore, setHasMore] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-    const fetchFeed = useCallback(async (signal?: AbortSignal) => {
-        setLoading(true);
+    // ref for the sentinel element at the bottom of the feed
+    const sentinelRef = useRef<HTMLDivElement>(null);
+
+    const fetchFeed = useCallback(async (signal?: AbortSignal, cursor?: string) => {
+        // first page uses loading, subsequent pages use loadingMore
+        if (cursor) {
+            setLoadingMore(true);
+        } else {
+            setLoading(true);
+        }
         setErrorMessage(null);
 
         try {
-            const response = await fetch('/api/feed', { signal });
-            let data: PostProps[] | { error?: string } = [];
+            const url = cursor ? `/api/feed?cursor=${cursor}` : '/api/feed';
+            const response = await fetch(url, { signal });
+            let data: { posts?: PostProps[]; hasMore?: boolean; error?: string } = {};
 
             try {
                 data = await response.json();
@@ -33,9 +44,10 @@ export default function Feed() {
                 return;
             }
 
-            // validate that data is an array of posts before
-            if (Array.isArray(data)) {
-                setPosts(data);
+            if (data.posts && Array.isArray(data.posts)) {
+                // append to existing posts if paginating, replace if first page
+                setPosts(prev => cursor ? [...prev, ...data.posts!] : data.posts!);
+                setHasMore(data.hasMore ?? false);
                 return;
             }
 
@@ -49,6 +61,7 @@ export default function Feed() {
             setErrorMessage('Network error while loading feed.');
         } finally {
             setLoading(false);
+            setLoadingMore(false);
         }
     }, []);
 
@@ -57,6 +70,27 @@ export default function Feed() {
         fetchFeed(controller.signal);
         return () => controller.abort();
     }, [fetchFeed]);
+
+    // infinite scroll — observe the sentinel element at the bottom
+    useEffect(() => {
+        if (!hasMore || loadingMore) return;
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                // when sentinel becomes visible, load the next page
+                if (entries[0].isIntersecting && posts.length > 0) {
+                    const lastPostDate = posts[posts.length - 1].createdAt;
+                    fetchFeed(undefined, lastPostDate);
+                }
+            },
+            { threshold: 0.1 }
+        );
+
+        const sentinel = sentinelRef.current;
+        if (sentinel) observer.observe(sentinel);
+
+        return () => { if (sentinel) observer.unobserve(sentinel); };
+    }, [hasMore, loadingMore, posts, fetchFeed]);
 
     return (
         <div className="flex-1 bg-neutral-800 rounded-lg p-6 flex flex-col min-h-0">
@@ -108,6 +142,16 @@ export default function Feed() {
                     {posts.map((post) => (
                         <PostCard key={post.id} {...post} />
                     ))}
+
+                    {/* loading spinner for next page */}
+                    {loadingMore && (
+                        <div className="flex justify-center py-4">
+                            <div className="h-6 w-6 rounded-full border-2 border-neutral-600 border-t-white animate-spin" />
+                        </div>
+                    )}
+
+                    {/* invisible sentinel — triggers next page fetch when scrolled into view */}
+                    {hasMore && !loadingMore && <div ref={sentinelRef} className="h-1" />}
                 </div>
             )}
         </div>
