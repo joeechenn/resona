@@ -2,7 +2,7 @@ import { auth } from "@/auth";
 import { NextResponse } from 'next/server';
 import { prisma } from "@/lib/prisma";
 
-// return user's rated items for the prompt picker (own profile only)
+// return user's rated items for the prompt picker 
 export async function GET(request: Request, { params }: { params: Promise<{ userId: string }> }) {
     const { userId } = await params;
 

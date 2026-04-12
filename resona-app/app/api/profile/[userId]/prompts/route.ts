@@ -197,16 +197,16 @@ export async function POST(request: Request, { params }: { params: Promise<{ use
             },
             update: {
                 position,
-                trackId:  entityType === "track"  ? entityId : null,
-                albumId:  entityType === "album"  ? entityId : null,
+                trackId: entityType === "track" ? entityId : null,
+                albumId: entityType === "album" ? entityId : null,
                 artistId: entityType === "artist" ? entityId : null,
             },
             create: {
                 userId,
                 prompt,
                 position,
-                trackId:  entityType === "track"  ? entityId : null,
-                albumId:  entityType === "album"  ? entityId : null,
+                trackId: entityType === "track" ? entityId : null,
+                albumId: entityType === "album" ? entityId : null,
                 artistId: entityType === "artist" ? entityId : null,
             }
         });

@@ -103,14 +103,81 @@ export async function GET(request: Request, { params }: { params: Promise<{ user
             return NextResponse.json({ error: "User not found" }, { status: 404 });
         }
 
-        const existingFollow = await prisma.userFollow.findUnique({
-            where: {
-                followerId_followingId: {
-                    followerId: session.user.id,
-                    followingId: userId,
+        // fetch follow status and profile prompts in parallel
+        const [existingFollow, profilePrompts] = await Promise.all([
+            prisma.userFollow.findUnique({
+                where: {
+                    followerId_followingId: {
+                        followerId: session.user.id,
+                        followingId: userId,
+                    }
                 }
-            }
-        });
+            }),
+            prisma.userProfilePrompt.findMany({
+                where: { userId },
+                orderBy: { position: 'asc' },
+                include: {
+                    track: {
+                        select: {
+                            id: true,
+                            spotifyId: true,
+                            name: true,
+                            album: { select: { imageUrl: true } },
+                            artists: {
+                                include: {
+                                    artist: { select: { name: true } }
+                                }
+                            }
+                        }
+                    },
+                    album: {
+                        select: {
+                            id: true,
+                            spotifyId: true,
+                            name: true,
+                            imageUrl: true,
+                            artists: {
+                                include: {
+                                    artist: { select: { name: true } }
+                                }
+                            }
+                        }
+                    },
+                    artist: {
+                        select: { id: true, spotifyId: true, name: true, imageUrl: true }
+                    }
+                }
+            })
+        ]);
+
+        // enrich each prompt with the user's rating for that entity
+        const enrichedPrompts = await Promise.all(
+            profilePrompts.map(async (prompt) => {
+                let rating: number | null = null;
+
+                if (prompt.trackId) {
+                    const stat = await prisma.userTrackStat.findUnique({
+                        where: { userId_trackId: { userId, trackId: prompt.trackId } },
+                        select: { rating: true }
+                    });
+                    rating = stat?.rating ?? null;
+                } else if (prompt.albumId) {
+                    const stat = await prisma.userAlbumStat.findUnique({
+                        where: { userId_albumId: { userId, albumId: prompt.albumId } },
+                        select: { rating: true }
+                    });
+                    rating = stat?.rating ?? null;
+                } else if (prompt.artistId) {
+                    const stat = await prisma.userArtistStat.findUnique({
+                        where: { userId_artistId: { userId, artistId: prompt.artistId } },
+                        select: { rating: true }
+                    });
+                    rating = stat?.rating ?? null;
+                }
+
+                return { ...prompt, rating };
+            })
+        );
 
         return NextResponse.json({
             user: {
@@ -125,7 +192,8 @@ export async function GET(request: Request, { params }: { params: Promise<{ user
             followingCount: user._count.follows,
             isOwnProfile: session.user.id === userId,
             isFollowing: existingFollow !== null,
-            posts: user.posts
+            posts: user.posts,
+            profilePrompts: enrichedPrompts,
         });
 
 
