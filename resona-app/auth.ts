@@ -25,11 +25,15 @@ export const { auth, signIn, signOut, handlers: { GET, POST } } = NextAuth({
 
             // refresh Google profile image on every sign-in so URL stays current
             if (profile?.picture && user.email) {
-                await prisma.user.update({
-                    where: { email: user.email },
-                    data: { image: profile.picture }
-                });
+                try {
+                    await prisma.user.update({
+                        where: { email: user.email },
+                        data: { image: profile.picture }
+                    });
+                } catch {
+            // user doesn't exist yet on first sign-in, adapter creates them after this callback
             }
+        }
             return true;
         },
         async session({ session, user }) {
