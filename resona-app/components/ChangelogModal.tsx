@@ -36,18 +36,19 @@ export default function ChangelogModal() {
 
                         <div className="pr-8">
                             <h2 className="text-center text-xl font-bold text-white mb-5">
-                                v0.1.1 &mdash; Closed Beta
+                                v0.2.1 &mdash; Closed Beta
                             </h2>
                             <p className="mb-5 text-center text-sm text-neutral-400">
-                                April 12, 2026
+                                May 1, 2026
                             </p>
                             <h2 className="text-md font-semibold text-white mb-5">
-                                Discover yourself and show it off! Here&apos;s what&apos;s new:
+                                More ways to find and follow your taste! Here&apos;s what&apos;s new:
                             </h2>
                             <ul className="list-disc space-y-3 pl-5 text-sm text-neutral-300 marker:text-neutral-400">
-                                <li>Discover page: browse your top tracks, artists, and recently played from Spotify with unrated items surfaced for you to rate</li>
-                                <li>Profile customization: Hinge-style profile prompts where you showcase your music taste with 3 customizable slots. More to come!</li>
-                                <li>Feed: posts now load seamlessly as you scroll instead of all at once</li>
+                                <li>Onboarding: new users now go through a quick three-section intro that gets them rating their first songs before landing on the feed</li>
+                                <li>Feed filters: switch between Global and Following (you + people you follow) with new pill tabs in the feed header</li>
+                                <li>Search artwork: search results now show artwork</li>
+                                <li>Analytics: a placeholder page is up with a link to the recommendation engine repo for the curious. Real analytics coming soon!</li>
                                 <li>Lots of under-the-hood improvements to make the app faster and more reliable</li>
                             </ul>
                         </div>
