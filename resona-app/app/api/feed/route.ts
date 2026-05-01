@@ -10,19 +10,39 @@ export async function GET(request: Request) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // optional cursor for pagination — createdAt of the last post from previous page
+    // optional cursor for pagination, createdAt of the last post from previous page
     const { searchParams } = new URL(request.url);
     const cursor = searchParams.get('cursor');
 
+    // optional filter — global (default) or following (you + people you follow)
+    const filter = searchParams.get('filter') ?? 'global';
+    if (filter !== 'global' && filter !== 'following') {
+        return NextResponse.json({ error: 'Invalid filter parameter' }, { status: 400 });
+    }
+
     try {
+        // build where clauses, combine cursor + filter when both apply
+        const whereClauses: Prisma.PostWhereInput[] = [];
+        if (cursor) {
+            whereClauses.push({ createdAt: { lt: new Date(cursor) } });
+        }
+        if (filter === 'following') {
+            // posts from users the current user follows, plus the user's own posts
+            whereClauses.push({
+                OR: [
+                    { user: { followers: { some: { followerId: session.user.id } } } },
+                    { userId: session.user.id }
+                ]
+            });
+        }
+
         // fetch 11 posts (one extra to determine if more pages exist)
-        // if cursor is provided, only fetch posts older than that timestamp
         const allPosts = await prisma.post.findMany({
             orderBy: {
                 createdAt: 'desc',
             },
             take: 11,
-            ...(cursor ? { where: { createdAt: { lt: new Date(cursor) } } } : {}),
+            ...(whereClauses.length > 0 ? { where: { AND: whereClauses } } : {}),
             include: {
                 user: {
                     select: {
@@ -91,7 +111,15 @@ export async function GET(request: Request) {
         const hasMore = allPosts.length === 11;
         const posts = hasMore ? allPosts.slice(0, -1) : allPosts;
 
-        return NextResponse.json({ posts, hasMore });
+        // count follows on the first following-page only, used by empty state copy
+        let followCount: number | undefined;
+        if (filter === 'following' && !cursor) {
+            followCount = await prisma.userFollow.count({
+                where: { followerId: session.user.id }
+            });
+        }
+
+        return NextResponse.json({ posts, hasMore, ...(followCount !== undefined ? { followCount } : {}) });
     } catch (error) {
         console.error('Error fetching feed:', error);
 
