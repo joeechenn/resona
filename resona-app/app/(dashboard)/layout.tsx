@@ -1,3 +1,4 @@
+import { redirect } from 'next/navigation';
 import { auth } from '@/auth';
 import Navbar from '@/components/Navbar';
 import AnalyticsSidebar from '@/components/dashboard/analytics/AnalyticsSidebar';
@@ -5,6 +6,11 @@ import StatsSidebar from '@/components/dashboard/stats/StatsSidebar';
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode; }) {
     const session = await auth();
+
+    // signed-in users who haven't completed onboarding get sent through it first
+    if (session?.user?.id && !session.user.hasCompletedOnboarding) {
+        redirect('/onboarding');
+    }
 
   return (
     <div className="flex flex-col h-screen">

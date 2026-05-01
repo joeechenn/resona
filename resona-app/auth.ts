@@ -38,6 +38,9 @@ export const { auth, signIn, signOut, handlers: { GET, POST } } = NextAuth({
         },
         async session({ session, user }) {
             session.user.id = user.id;
+            // user is the full Prisma User row when using database session strategy + PrismaAdapter
+            // so hasCompletedOnboarding is already loaded
+            session.user.hasCompletedOnboarding = (user as { hasCompletedOnboarding?: boolean }).hasCompletedOnboarding ?? false;
             return session;
         },
     },

@@ -8,15 +8,15 @@ datasource db {
 }
 
 model User {
-  id                      String           @id @default(cuid())
+  id                      String              @id @default(cuid())
   name                    String?
-  email                   String?          @unique
+  email                   String?             @unique
   image                   String?
   bio                     String?
-  createdAt               DateTime         @default(now())
-  updatedAt               DateTime         @updatedAt
+  createdAt               DateTime            @default(now())
+  updatedAt               DateTime            @updatedAt
   currentlyPlayingTrackId String?
-  isListening             Boolean          @default(false)
+  isListening             Boolean             @default(false)
   lastPlaybackUpdate      DateTime?
   emailVerified           DateTime?
   accounts                Account[]
@@ -25,13 +25,14 @@ model User {
   posts                   Post[]
   postLikes               PostLike[]
   sessions                Session[]
-  currentlyPlayingTrack   Track?           @relation("CurrentlyPlaying", fields: [currentlyPlayingTrackId], references: [id])
+  currentlyPlayingTrack   Track?              @relation("CurrentlyPlaying", fields: [currentlyPlayingTrackId], references: [id])
   albumStats              UserAlbumStat[]
   artistStats             UserArtistStat[]
-  follows                 UserFollow[]     @relation("follower")
-  followers               UserFollow[]     @relation("following")
+  follows                 UserFollow[]        @relation("follower")
+  followers               UserFollow[]        @relation("following")
   trackStats              UserTrackStat[]
   profilePrompts          UserProfilePrompt[]
+  hasCompletedOnboarding  Boolean             @default(false)
 
   spotifyId           String?   @unique
   spotifyAccessToken  String?
@@ -80,54 +81,54 @@ model VerificationToken {
 }
 
 model Artist {
-  id              String           @id @default(cuid())
-  spotifyId       String           @unique
+  id              String              @id @default(cuid())
+  spotifyId       String              @unique
   name            String
   imageUrl        String?
   popularity      Int?
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
   albumArtists    AlbumArtist[]
   genres          ArtistGenre[]
-  posts           Post[]           @relation("PostArtist")
+  posts           Post[]              @relation("PostArtist")
   tracks          TrackArtist[]
-  userArtistStats UserArtistStat[] @relation("UserArtistStats")
+  userArtistStats UserArtistStat[]    @relation("UserArtistStats")
   profilePrompts  UserProfilePrompt[] @relation("PromptArtist")
 }
 
 model Album {
-  id             String          @id @default(cuid())
-  spotifyId      String          @unique
+  id             String              @id @default(cuid())
+  spotifyId      String              @unique
   name           String
   imageUrl       String?
   releaseDate    DateTime?
   popularity     Int?
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
   totalTracks    Int?
   artists        AlbumArtist[]
-  posts          Post[]          @relation("PostAlbum")
+  posts          Post[]              @relation("PostAlbum")
   tracks         Track[]
-  userAlbumStats UserAlbumStat[] @relation("UserAlbumStats")
+  userAlbumStats UserAlbumStat[]     @relation("UserAlbumStats")
   profilePrompts UserProfilePrompt[] @relation("PromptAlbum")
 }
 
 model Track {
-  id               String          @id @default(cuid())
-  spotifyId        String          @unique
-  isrc             String?         @unique
+  id               String              @id @default(cuid())
+  spotifyId        String              @unique
+  isrc             String?             @unique
   name             String
   albumId          String?
   durationMs       Int
-  explicit         Boolean         @default(false)
+  explicit         Boolean             @default(false)
   popularity       Int?
-  createdAt        DateTime        @default(now())
-  updatedAt        DateTime        @updatedAt
-  posts            Post[]          @relation("PostTrack")
-  album            Album?          @relation(fields: [albumId], references: [id])
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+  posts            Post[]              @relation("PostTrack")
+  album            Album?              @relation(fields: [albumId], references: [id])
   artists          TrackArtist[]
-  currentListeners User[]          @relation("CurrentlyPlaying")
-  userTrackStats   UserTrackStat[] @relation("UserTrackStats")
+  currentListeners User[]              @relation("CurrentlyPlaying")
+  userTrackStats   UserTrackStat[]     @relation("UserTrackStats")
   profilePrompts   UserProfilePrompt[] @relation("PromptTrack")
 
   @@index([albumId])

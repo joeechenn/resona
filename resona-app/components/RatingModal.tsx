@@ -10,10 +10,35 @@ interface RatingModalProps {
     name: string;
     artist: string;
     imageUrl: string;
+    // controlled-mode props: when isOpen is provided, the parent owns open/close state
+    // and the component skips rendering its built-in "Rate" trigger button.
+    // onSuccess fires after a successful rating in either mode.
+    isOpen?: boolean;
+    onClose?: () => void;
+    onSuccess?: () => void;
 }
 
-export default function RatingModal({ type, spotifyId, name, artist, imageUrl }: RatingModalProps) {
-    const [isOpen, setIsOpen] = useState(false);
+export default function RatingModal({
+    type,
+    spotifyId,
+    name,
+    artist,
+    imageUrl,
+    isOpen: controlledOpen,
+    onClose,
+    onSuccess,
+}: RatingModalProps) {
+    const [internalOpen, setInternalOpen] = useState(false);
+    const isControlled = controlledOpen !== undefined;
+    const isOpen = isControlled ? controlledOpen : internalOpen;
+    const closeModal = () => {
+        if (isControlled) {
+            onClose?.();
+        } else {
+            setInternalOpen(false);
+        }
+    };
+
     const [ratingInput, setRatingInput] = useState('5');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -73,7 +98,8 @@ export default function RatingModal({ type, spotifyId, name, artist, imageUrl }:
                 return;
             }
 
-            setIsOpen(false);
+            onSuccess?.();
+            closeModal();
         } catch {
             // request failed before api response
             setErrorMessage('Network error. Please try again.');
@@ -89,17 +115,19 @@ export default function RatingModal({ type, spotifyId, name, artist, imageUrl }:
 
     return (
         <>
-            <button
-                onClick={() => { setErrorMessage(null); setIsOpen(true); }}
-                className="bg-white text-black px-6 py-2 rounded-full font-semibold hover:bg-gray-200"
-            >
-                Rate
-            </button>
+            {!isControlled && (
+                <button
+                    onClick={() => { setErrorMessage(null); setInternalOpen(true); }}
+                    className="bg-white text-black px-6 py-2 rounded-full font-semibold hover:bg-gray-200"
+                >
+                    Rate
+                </button>
+            )}
 
             {isOpen && (
                 <div
                     className="fixed inset-0 bg-black/75 backdrop-blur-md flex items-center justify-center z-50"
-                    onClick={() => setIsOpen(false)}
+                    onClick={closeModal}
                 >
                     <div
                         className="bg-neutral-800 rounded-2xl px-8 py-10 max-w-[36rem] w-full mx-4 relative"
@@ -107,7 +135,7 @@ export default function RatingModal({ type, spotifyId, name, artist, imageUrl }:
                     >
                         {/* close button */}
                         <button
-                            onClick={() => setIsOpen(false)}
+                            onClick={closeModal}
                             className="absolute top-4 right-4 text-neutral-400 hover:text-white transition-colors"
                         >
                             <X size={20} />
