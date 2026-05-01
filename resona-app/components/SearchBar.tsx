@@ -10,13 +10,14 @@ type SearchResults = {
       id: string;
       name: string;
       artists: Array<{ name: string }>;
-      album: { name: string };
+      album: { name: string; images: Array<{ url: string }> };
     }>;
   };
   artists?: {
     items: Array<{
       id: string;
       name: string;
+      images: Array<{ url: string }>;
     }>;
   };
   albums?: {
@@ -25,6 +26,7 @@ type SearchResults = {
       name: string;
       artists: Array<{ name: string }>;
       release_date?: string;
+      images: Array<{ url: string }>;
     }>;
   };
 };
@@ -104,17 +106,28 @@ export default function SearchBar() {
                 Tracks
               </div>
               {results.tracks.items.slice(0, 3).map((track) => (
-                <Link 
+                <Link
                 key={track.id}
                 href={`/track/${track.id}`}
                 onClick={handleResultClick}
-                className="block p-3 hover:bg-neutral-700 cursor-pointer border-b border-gray-700"
+                className="flex items-center gap-3 p-3 hover:bg-neutral-700 cursor-pointer border-b border-gray-700"
                 >
-                  <div className="font-semibold text-white">
-                    {track.name}
-                  </div>
-                  <div className="text-sm text-gray-400">
-                    {track.artists.map((a: { name: string }) => a.name).join(', ')} • {track.album.name}
+                  {track.album.images?.[0]?.url ? (
+                    <img
+                      src={track.album.images[0].url}
+                      alt=""
+                      className="w-10 h-10 rounded object-cover flex-shrink-0"
+                    />
+                  ) : (
+                    <div className="w-10 h-10 rounded bg-neutral-700 flex-shrink-0" />
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <div className="font-semibold text-white truncate">
+                      {track.name}
+                    </div>
+                    <div className="text-sm text-gray-400 truncate">
+                      {track.artists.map((a: { name: string }) => a.name).join(', ')} • {track.album.name}
+                    </div>
                   </div>
                 </Link>
               ))}
@@ -127,17 +140,28 @@ export default function SearchBar() {
                 Artists
               </div>
               {results.artists.items.slice(0, 1).map((artist) => (
-                <Link 
+                <Link
                 key={artist.id}
                 href={`/artist/${artist.id}`}
                 onClick={handleResultClick}
-                className="block p-3 hover:bg-neutral-700 cursor-pointer border-b border-gray-700"
+                className="flex items-center gap-3 p-3 hover:bg-neutral-700 cursor-pointer border-b border-gray-700"
                 >
-                  <div className="font-semibold text-white">
-                    {artist.name}
-                  </div>
-                  <div className="text-sm text-gray-400">
-                    Artist
+                  {artist.images?.[0]?.url ? (
+                    <img
+                      src={artist.images[0].url}
+                      alt=""
+                      className="w-10 h-10 rounded-full object-cover flex-shrink-0"
+                    />
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-neutral-700 flex-shrink-0" />
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <div className="font-semibold text-white truncate">
+                      {artist.name}
+                    </div>
+                    <div className="text-sm text-gray-400 truncate">
+                      Artist
+                    </div>
                   </div>
                 </Link>
               ))}
@@ -154,14 +178,25 @@ export default function SearchBar() {
                 key={album.id}
                 href={`/album/${album.id}`}
                 onClick={handleResultClick}
-                className="block p-3 hover:bg-neutral-700 cursor-pointer border-b border-gray-700"
+                className="flex items-center gap-3 p-3 hover:bg-neutral-700 cursor-pointer border-b border-gray-700"
                 >
-                  <div className="font-semibold text-white">
-                    {album.name}
-                  </div>
-                  <div className="text-sm text-gray-400">
-                    {album.artists.map((a: { name: string }) => a.name).join(', ')}
-                    {album.release_date && ` • ${album.release_date.split('-')[0]}`}
+                  {album.images?.[0]?.url ? (
+                    <img
+                      src={album.images[0].url}
+                      alt=""
+                      className="w-10 h-10 rounded object-cover flex-shrink-0"
+                    />
+                  ) : (
+                    <div className="w-10 h-10 rounded bg-neutral-700 flex-shrink-0" />
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <div className="font-semibold text-white truncate">
+                      {album.name}
+                    </div>
+                    <div className="text-sm text-gray-400 truncate">
+                      {album.artists.map((a: { name: string }) => a.name).join(', ')}
+                      {album.release_date && ` • ${album.release_date.split('-')[0]}`}
+                    </div>
                   </div>
                 </Link>
               ))}
