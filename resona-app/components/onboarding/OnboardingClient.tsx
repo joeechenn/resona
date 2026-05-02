@@ -289,7 +289,7 @@ export default function OnboardingClient() {
                     {/* popular */}
                     <div>
                         <p className="text-center text-neutral-500 text-xs uppercase tracking-widest mb-6">
-                            Popular right now
+                            Can't think of any? Here's some to get you started!
                         </p>
                         {popularLoading ? (
                             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
