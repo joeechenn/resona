@@ -284,7 +284,7 @@ export async function getGlobalTop(limit: number = 50): Promise<SpotifyTrack[]> 
 
   // search returns up to 50 results, ordered by Spotify's relevance ranking, re-sort by popularity
   const response = await fetch(
-    `https://api.spotify.com/v1/search?q=${encodeURIComponent(`year:${currentYear}`)}&type=track&limit=50`,
+    `https://api.spotify.com/v1/search?q=${encodeURIComponent(`genre:pop year:${currentYear}`)}&type=track&limit=50`,
     {
       headers: {
         'Authorization': `Bearer ${token}`
