@@ -275,32 +275,25 @@ export async function getArtist(artistId: string): Promise<SpotifyArtist> {
   return response.json();
 }
 
-// batch-fetches tracks by id in a single request, up to 50 per call (Spotify's hard limit)
-// returns surviving tracks only, Spotify returns null entries for unknown ids, those get filtered out
-// just a version of "plural" version of getTrack
+// fetches multiple tracks by id in parallel, sharing one access token across calls
+// fan out to the per-track endpoint which still works
+// just a "plural" version of getTrack
 export async function getTracks(trackIds: string[]): Promise<SpotifyTrack[]> {
   if (trackIds.length === 0) return [];
-  if (trackIds.length > 50) {
-    throw new Error('getTracks supports up to 50 ids per call');
-  }
 
   const token = await getSpotifyAccessToken();
 
-  const response = await fetch(
-    `https://api.spotify.com/v1/tracks?ids=${trackIds.join(',')}`,
-    {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    }
-  );
+  const fetchOne = async (id: string): Promise<SpotifyTrack | null> => {
+    const response = await fetch(
+      `https://api.spotify.com/v1/tracks/${id}`,
+      { headers: { 'Authorization': `Bearer ${token}` } }
+    );
+    if (!response.ok) return null;
+    return response.json();
+  };
 
-  if (!response.ok) {
-    throw new Error(`Failed to fetch tracks (${response.status})`);
-  }
-
-  const data = await response.json();
-  return (data.tracks ?? []).filter((t: SpotifyTrack | null): t is SpotifyTrack => t !== null);
+  const results = await Promise.all(trackIds.map(fetchOne));
+  return results.filter((t): t is SpotifyTrack => t !== null);
 }
 
 export async function getAlbum(albumId: string): Promise<SpotifyAlbum> {
