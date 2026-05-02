@@ -171,7 +171,7 @@ export async function getRecentlyPlayed(userId: string, limit: number = 20): Pro
   // items are PlayHistoryObjects, unwrap .track from each
   const data = await response.json();
   return data.items.map((item: { track: SpotifyTrack }) => item.track);
-} 
+}
 
 export function getSpotifyRedirectUri() {
   return `${process.env.AUTH_URL}/api/spotify/callback`;
@@ -202,7 +202,6 @@ interface SpotifyTrack {
     total_tracks: number;
   };
   duration_ms: number;
-  popularity?: number;
   external_urls: {
     spotify: string;
   };
@@ -240,7 +239,7 @@ interface SpotifyAlbum {
 
 export async function getTrack(trackId: string): Promise<SpotifyTrack> {
   const token = await getSpotifyAccessToken();
-  
+
   const response = await fetch(
     `https://api.spotify.com/v1/tracks/${trackId}`,
     {
@@ -259,7 +258,7 @@ export async function getTrack(trackId: string): Promise<SpotifyTrack> {
 
 export async function getArtist(artistId: string): Promise<SpotifyArtist> {
   const token = await getSpotifyAccessToken();
-  
+
   const response = await fetch(
     `https://api.spotify.com/v1/artists/${artistId}`,
     {
@@ -276,15 +275,19 @@ export async function getArtist(artistId: string): Promise<SpotifyArtist> {
   return response.json();
 }
 
-// approximates a "global top tracks of the current year" list using client credentials
-// spotify deprecated direct access so use the search endpoint with a year filter and re-sort the results by popularity
-export async function getGlobalTop(limit: number = 50): Promise<SpotifyTrack[]> {
-  const token = await getSpotifyAccessToken();
-  const currentYear = new Date().getFullYear();
+// batch-fetches tracks by id in a single request, up to 50 per call (Spotify's hard limit)
+// returns surviving tracks only, Spotify returns null entries for unknown ids, those get filtered out
+// just a version of "plural" version of getTrack
+export async function getTracks(trackIds: string[]): Promise<SpotifyTrack[]> {
+  if (trackIds.length === 0) return [];
+  if (trackIds.length > 50) {
+    throw new Error('getTracks supports up to 50 ids per call');
+  }
 
-  // search returns up to 50 results, ordered by Spotify's relevance ranking, re-sort by popularity
+  const token = await getSpotifyAccessToken();
+
   const response = await fetch(
-    `https://api.spotify.com/v1/search?q=${encodeURIComponent(`genre:pop year:${currentYear}`)}&type=track&limit=50`,
+    `https://api.spotify.com/v1/tracks?ids=${trackIds.join(',')}`,
     {
       headers: {
         'Authorization': `Bearer ${token}`
@@ -293,22 +296,16 @@ export async function getGlobalTop(limit: number = 50): Promise<SpotifyTrack[]> 
   );
 
   if (!response.ok) {
-    throw new Error(`Failed to fetch global top tracks (${response.status})`);
+    throw new Error(`Failed to fetch tracks (${response.status})`);
   }
 
   const data = await response.json();
-  const tracks: SpotifyTrack[] = data?.tracks?.items ?? [];
-
-  // sort by popularity descending and slice to the requested limit
-  return tracks
-    .slice()
-    .sort((a, b) => (b.popularity ?? 0) - (a.popularity ?? 0))
-    .slice(0, limit);
+  return (data.tracks ?? []).filter((t: SpotifyTrack | null): t is SpotifyTrack => t !== null);
 }
 
 export async function getAlbum(albumId: string): Promise<SpotifyAlbum> {
   const token = await getSpotifyAccessToken();
-  
+
   const response = await fetch(
     `https://api.spotify.com/v1/albums/${albumId}`,
     {

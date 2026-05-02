@@ -39,7 +39,7 @@ export default function SearchBar() {
 
   const handleSearch = async (searchQuery: string) => {
     console.log('Search called with:', searchQuery);
-    
+
     if (!searchQuery.trim()) {
       setResults(null);
       setSearchError(null);
@@ -64,7 +64,7 @@ export default function SearchBar() {
       setResults(null);
       setSearchError('Network error while searching.');
     }
-};
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -73,17 +73,17 @@ export default function SearchBar() {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
-    
+
     timeoutRef.current = setTimeout(() => {
       handleSearch(value);
     }, 300);
   };
-  
+
   const handleResultClick = () => {
     setResults(null);
     setQuery('');
   };
-  
+
   return (
     <div className="relative flex-1 max-w-xl">
       <div className="flex items-center bg-neutral-800 rounded-lg px-4 py-2">
@@ -107,10 +107,10 @@ export default function SearchBar() {
               </div>
               {results.tracks.items.slice(0, 3).map((track) => (
                 <Link
-                key={track.id}
-                href={`/track/${track.id}`}
-                onClick={handleResultClick}
-                className="flex items-center gap-3 p-3 hover:bg-neutral-700 cursor-pointer border-b border-gray-700"
+                  key={track.id}
+                  href={`/track/${track.id}`}
+                  onClick={handleResultClick}
+                  className="flex items-center gap-3 p-3 hover:bg-neutral-700 cursor-pointer border-b border-gray-700"
                 >
                   {track.album.images?.[0]?.url ? (
                     <img
@@ -133,7 +133,7 @@ export default function SearchBar() {
               ))}
             </div>
           )}
-          
+
           {results.artists?.items && results.artists.items.length > 0 && (
             <div>
               <div className="px-3 py-2 text-xs font-semibold text-gray-400 uppercase border-b border-gray-700">
@@ -141,10 +141,10 @@ export default function SearchBar() {
               </div>
               {results.artists.items.slice(0, 1).map((artist) => (
                 <Link
-                key={artist.id}
-                href={`/artist/${artist.id}`}
-                onClick={handleResultClick}
-                className="flex items-center gap-3 p-3 hover:bg-neutral-700 cursor-pointer border-b border-gray-700"
+                  key={artist.id}
+                  href={`/artist/${artist.id}`}
+                  onClick={handleResultClick}
+                  className="flex items-center gap-3 p-3 hover:bg-neutral-700 cursor-pointer border-b border-gray-700"
                 >
                   {artist.images?.[0]?.url ? (
                     <img
@@ -167,7 +167,7 @@ export default function SearchBar() {
               ))}
             </div>
           )}
-          
+
           {results.albums?.items && results.albums.items.length > 0 && (
             <div>
               <div className="px-3 py-2 text-xs font-semibold text-gray-400 uppercase border-b border-gray-700">
@@ -175,10 +175,10 @@ export default function SearchBar() {
               </div>
               {results.albums.items.slice(0, 1).map((album) => (
                 <Link
-                key={album.id}
-                href={`/album/${album.id}`}
-                onClick={handleResultClick}
-                className="flex items-center gap-3 p-3 hover:bg-neutral-700 cursor-pointer border-b border-gray-700"
+                  key={album.id}
+                  href={`/album/${album.id}`}
+                  onClick={handleResultClick}
+                  className="flex items-center gap-3 p-3 hover:bg-neutral-700 cursor-pointer border-b border-gray-700"
                 >
                   {album.images?.[0]?.url ? (
                     <img
@@ -202,7 +202,7 @@ export default function SearchBar() {
               ))}
             </div>
           )}
-          
+
         </div>
       )}
 

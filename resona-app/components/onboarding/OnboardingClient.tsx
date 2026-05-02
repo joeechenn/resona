@@ -55,10 +55,14 @@ export default function OnboardingClient() {
         return () => observer.disconnect();
     }, []);
 
-    // popular tracks fallback list
+    // popular tracks shown in grid (first slice of pool, replaced on rate from queue)
     const [popular, setPopular] = useState<PopularTrack[]>([]);
+    // queue, remaining pool entries that slide into the grid as user rates
+    const [queue, setQueue] = useState<PopularTrack[]>([]);
     const [popularLoading, setPopularLoading] = useState(true);
     const [popularError, setPopularError] = useState<string | null>(null);
+    // tracks whether the pool was successfully loaded, just to distinguish "rated all" from "never loaded"
+    const [poolLoaded, setPoolLoaded] = useState(false);
 
     useEffect(() => {
         const controller = new AbortController();
@@ -70,7 +74,11 @@ export default function OnboardingClient() {
                     return;
                 }
                 const data = await response.json();
-                setPopular(data.tracks || []);
+                const pool: PopularTrack[] = data.tracks || [];
+                // show first 5, queue the rest for swap-on-rate
+                setPopular(pool.slice(0, 5));
+                setQueue(pool.slice(5));
+                if (pool.length > 0) setPoolLoaded(true);
             } catch (error) {
                 if (error instanceof DOMException && error.name === 'AbortError') return;
                 setPopularError("We couldn't load suggestions. Try searching above.");
@@ -140,6 +148,20 @@ export default function OnboardingClient() {
             next.add(selectedTrack.id);
             return next;
         });
+
+        // if the rated track was in the popular grid, swap it for the next queued track
+        // when the queue runs dry, the slot is removed and the grid shrinks
+        setPopular((prev) => {
+            const idx = prev.findIndex((t) => t.id === selectedTrack.id);
+            if (idx === -1) return prev;
+            if (queue.length > 0) {
+                const next = [...prev];
+                next[idx] = queue[0];
+                return next;
+            }
+            return prev.filter((_, i) => i !== idx);
+        });
+        setQueue((prev) => prev.slice(1));
     };
 
     // server action transition for the completion buttons
@@ -163,9 +185,8 @@ export default function OnboardingClient() {
                     {Array.from({ length: REQUIRED_RATINGS }).map((_, i) => (
                         <div
                             key={i}
-                            className={`w-2.5 h-2.5 rounded-full transition-colors duration-300 ${
-                                i < ratedCount ? 'bg-green-500' : 'bg-neutral-700'
-                            }`}
+                            className={`w-2.5 h-2.5 rounded-full transition-colors duration-300 ${i < ratedCount ? 'bg-green-500' : 'bg-neutral-700'
+                                }`}
                         />
                     ))}
                 </div>
@@ -177,9 +198,8 @@ export default function OnboardingClient() {
                 className="relative min-h-screen flex flex-col items-center justify-center px-6 text-center"
             >
                 <div
-                    className={`max-w-2xl space-y-7 transition-all duration-1000 ease-out ${
-                        revealed1 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
-                    }`}
+                    className={`max-w-2xl space-y-7 transition-all duration-1000 ease-out ${revealed1 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+                        }`}
                 >
                     <p className="text-xl md:text-2xl font-light text-neutral-200 leading-relaxed">
                         Music is personal. Your taste is yours.
@@ -212,9 +232,8 @@ export default function OnboardingClient() {
                 className="min-h-screen flex flex-col items-center justify-center px-6 py-20"
             >
                 <div
-                    className={`w-full max-w-3xl transition-all duration-1000 ease-out ${
-                        revealed2 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
-                    }`}
+                    className={`w-full max-w-3xl transition-all duration-1000 ease-out ${revealed2 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+                        }`}
                 >
                     <div className="text-center mb-10">
                         <h2 className="text-3xl md:text-4xl font-bold mb-3">Start with a song.</h2>
@@ -283,44 +302,41 @@ export default function OnboardingClient() {
                             </div>
                         ) : popularError ? (
                             <p className="text-center text-neutral-500 text-sm">{popularError}</p>
+                        ) : popular.length === 0 && poolLoaded ? (
+                            // easter egg, user rated every track in the pool
+                            <p className="text-center text-white font-semibold">
+                                Wow, number one supporter over here.
+                            </p>
                         ) : popular.length === 0 ? (
+                            // pool was empty (e.g. all fetches failed)
                             <p className="text-center text-neutral-500 text-sm">
                                 No suggestions right now. Try searching above.
                             </p>
                         ) : (
                             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-                                {popular.map((t) => {
-                                    const alreadyRated = ratedIds.has(t.id);
-                                    return (
-                                        <button
-                                            key={t.id}
-                                            onClick={() => pickTrack(t)}
-                                            className="group text-left"
-                                        >
-                                            <div className="relative">
-                                                {t.album.images?.[0]?.url ? (
-                                                    <img
-                                                        src={t.album.images[0].url}
-                                                        alt={t.name}
-                                                        className={`w-full aspect-square object-cover rounded-lg mb-2 transition-all ${
-                                                            alreadyRated
-                                                                ? 'ring-2 ring-green-500'
-                                                                : 'group-hover:ring-2 group-hover:ring-white/40'
-                                                        }`}
-                                                    />
-                                                ) : (
-                                                    <div className="w-full aspect-square bg-neutral-800 rounded-lg mb-2" />
-                                                )}
-                                            </div>
-                                            <div className="text-sm font-medium text-white truncate">
-                                                {t.name}
-                                            </div>
-                                            <div className="text-xs text-neutral-400 truncate">
-                                                {t.artists.map((a) => a.name).join(', ')}
-                                            </div>
-                                        </button>
-                                    );
-                                })}
+                                {popular.map((t) => (
+                                    <button
+                                        key={t.id}
+                                        onClick={() => pickTrack(t)}
+                                        className="group text-left"
+                                    >
+                                        {t.album.images?.[0]?.url ? (
+                                            <img
+                                                src={t.album.images[0].url}
+                                                alt={t.name}
+                                                className="w-full aspect-square object-cover rounded-lg mb-2 transition-all group-hover:ring-2 group-hover:ring-white/40"
+                                            />
+                                        ) : (
+                                            <div className="w-full aspect-square bg-neutral-800 rounded-lg mb-2" />
+                                        )}
+                                        <div className="text-sm font-medium text-white truncate">
+                                            {t.name}
+                                        </div>
+                                        <div className="text-xs text-neutral-400 truncate">
+                                            {t.artists.map((a) => a.name).join(', ')}
+                                        </div>
+                                    </button>
+                                ))}
                             </div>
                         )}
                     </div>
@@ -333,9 +349,8 @@ export default function OnboardingClient() {
                 className="min-h-screen flex flex-col items-center justify-center px-6 py-20 text-center"
             >
                 <div
-                    className={`w-full max-w-md transition-all duration-1000 ease-out ${
-                        revealed3 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
-                    }`}
+                    className={`w-full max-w-md transition-all duration-1000 ease-out ${revealed3 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+                        }`}
                 >
                     <h2 className="text-3xl md:text-4xl font-bold mb-3">
                         {canContinue ? 'You’re ready.' : 'Almost there.'}
@@ -350,11 +365,10 @@ export default function OnboardingClient() {
                         {Array.from({ length: REQUIRED_RATINGS }).map((_, i) => (
                             <div
                                 key={i}
-                                className={`w-3 h-3 rounded-full transition-colors duration-300 ${
-                                    i < ratedCount
+                                className={`w-3 h-3 rounded-full transition-colors duration-300 ${i < ratedCount
                                         ? 'bg-green-500'
                                         : 'bg-neutral-900 border border-neutral-700'
-                                }`}
+                                    }`}
                             />
                         ))}
                     </div>
