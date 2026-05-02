@@ -289,7 +289,7 @@ export default function OnboardingClient() {
                     {/* popular */}
                     <div>
                         <p className="text-center text-neutral-500 text-xs uppercase tracking-widest mb-6">
-                            Can't think of any? Here's some to get you started!
+                            Can&apos;t think of any? Here&apos;s some to get you started!
                         </p>
                         {popularLoading ? (
                             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
@@ -366,8 +366,8 @@ export default function OnboardingClient() {
                             <div
                                 key={i}
                                 className={`w-3 h-3 rounded-full transition-colors duration-300 ${i < ratedCount
-                                        ? 'bg-green-500'
-                                        : 'bg-neutral-900 border border-neutral-700'
+                                    ? 'bg-green-500'
+                                    : 'bg-neutral-900 border border-neutral-700'
                                     }`}
                             />
                         ))}
