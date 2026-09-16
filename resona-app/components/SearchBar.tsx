@@ -38,8 +38,6 @@ export default function SearchBar() {
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleSearch = async (searchQuery: string) => {
-    console.log('Search called with:', searchQuery);
-
     if (!searchQuery.trim()) {
       setResults(null);
       setSearchError(null);
@@ -56,7 +54,6 @@ export default function SearchBar() {
         return;
       }
 
-      console.log('Search results:', data);
       setResults(data);
       setSearchError(null);
     } catch (error) {
@@ -86,23 +83,24 @@ export default function SearchBar() {
 
   return (
     <div className="relative flex-1 max-w-xl">
-      <div className="flex items-center bg-neutral-800 rounded-lg px-4 py-2">
-        <Search className="w-5 h-5 text-gray-400 mr-3" />
+      <div className="flex items-center border border-border bg-card rounded-lg px-4 py-2 transition-colors focus-within:border-ring">
+        <Search className="w-5 h-5 text-muted-foreground mr-3" />
         <input
           type="text"
-          placeholder="Search songs, artists, or users..."
+          placeholder="Search music…"
+          aria-label="Search tracks, artists, and albums"
           value={query}
           onChange={handleInputChange}
-          className="bg-transparent border-none outline-none text-white placeholder-gray-400 w-full"
+          className="min-w-0 bg-transparent border-none outline-none text-foreground placeholder-muted-foreground w-full"
         />
       </div>
 
       {results && (
-        <div className="absolute top-full mt-2 w-full bg-neutral-800 rounded-lg shadow-lg max-h-96 overflow-y-auto z-50">
+        <div className="absolute top-full mt-2 w-full bg-card rounded-lg shadow-lg max-h-96 overflow-y-auto z-50">
 
           {results.tracks?.items && results.tracks.items.length > 0 && (
             <div>
-              <div className="px-3 py-2 text-xs font-semibold text-gray-400 uppercase border-b border-gray-700">
+              <div className="px-3 py-2 text-xs font-semibold text-muted-foreground uppercase border-b border-border">
                 Tracks
               </div>
               {results.tracks.items.slice(0, 3).map((track) => (
@@ -110,7 +108,7 @@ export default function SearchBar() {
                   key={track.id}
                   href={`/track/${track.id}`}
                   onClick={handleResultClick}
-                  className="flex items-center gap-3 p-3 hover:bg-neutral-700 cursor-pointer border-b border-gray-700"
+                  className="flex items-center gap-3 p-3 hover:bg-muted cursor-pointer border-b border-border"
                 >
                   {track.album.images?.[0]?.url ? (
                     <img
@@ -119,13 +117,13 @@ export default function SearchBar() {
                       className="w-10 h-10 rounded object-cover flex-shrink-0"
                     />
                   ) : (
-                    <div className="w-10 h-10 rounded bg-neutral-700 flex-shrink-0" />
+                    <div className="w-10 h-10 rounded bg-muted flex-shrink-0" />
                   )}
                   <div className="min-w-0 flex-1">
                     <div className="font-semibold text-white truncate">
                       {track.name}
                     </div>
-                    <div className="text-sm text-gray-400 truncate">
+                    <div className="text-sm text-muted-foreground truncate">
                       {track.artists.map((a: { name: string }) => a.name).join(', ')} • {track.album.name}
                     </div>
                   </div>
@@ -136,7 +134,7 @@ export default function SearchBar() {
 
           {results.artists?.items && results.artists.items.length > 0 && (
             <div>
-              <div className="px-3 py-2 text-xs font-semibold text-gray-400 uppercase border-b border-gray-700">
+              <div className="px-3 py-2 text-xs font-semibold text-muted-foreground uppercase border-b border-border">
                 Artists
               </div>
               {results.artists.items.slice(0, 1).map((artist) => (
@@ -144,7 +142,7 @@ export default function SearchBar() {
                   key={artist.id}
                   href={`/artist/${artist.id}`}
                   onClick={handleResultClick}
-                  className="flex items-center gap-3 p-3 hover:bg-neutral-700 cursor-pointer border-b border-gray-700"
+                  className="flex items-center gap-3 p-3 hover:bg-muted cursor-pointer border-b border-border"
                 >
                   {artist.images?.[0]?.url ? (
                     <img
@@ -153,13 +151,13 @@ export default function SearchBar() {
                       className="w-10 h-10 rounded-full object-cover flex-shrink-0"
                     />
                   ) : (
-                    <div className="w-10 h-10 rounded-full bg-neutral-700 flex-shrink-0" />
+                    <div className="w-10 h-10 rounded-full bg-muted flex-shrink-0" />
                   )}
                   <div className="min-w-0 flex-1">
                     <div className="font-semibold text-white truncate">
                       {artist.name}
                     </div>
-                    <div className="text-sm text-gray-400 truncate">
+                    <div className="text-sm text-muted-foreground truncate">
                       Artist
                     </div>
                   </div>
@@ -170,7 +168,7 @@ export default function SearchBar() {
 
           {results.albums?.items && results.albums.items.length > 0 && (
             <div>
-              <div className="px-3 py-2 text-xs font-semibold text-gray-400 uppercase border-b border-gray-700">
+              <div className="px-3 py-2 text-xs font-semibold text-muted-foreground uppercase border-b border-border">
                 Albums
               </div>
               {results.albums.items.slice(0, 1).map((album) => (
@@ -178,7 +176,7 @@ export default function SearchBar() {
                   key={album.id}
                   href={`/album/${album.id}`}
                   onClick={handleResultClick}
-                  className="flex items-center gap-3 p-3 hover:bg-neutral-700 cursor-pointer border-b border-gray-700"
+                  className="flex items-center gap-3 p-3 hover:bg-muted cursor-pointer border-b border-border"
                 >
                   {album.images?.[0]?.url ? (
                     <img
@@ -187,13 +185,13 @@ export default function SearchBar() {
                       className="w-10 h-10 rounded object-cover flex-shrink-0"
                     />
                   ) : (
-                    <div className="w-10 h-10 rounded bg-neutral-700 flex-shrink-0" />
+                    <div className="w-10 h-10 rounded bg-muted flex-shrink-0" />
                   )}
                   <div className="min-w-0 flex-1">
                     <div className="font-semibold text-white truncate">
                       {album.name}
                     </div>
-                    <div className="text-sm text-gray-400 truncate">
+                    <div className="text-sm text-muted-foreground truncate">
                       {album.artists.map((a: { name: string }) => a.name).join(', ')}
                       {album.release_date && ` • ${album.release_date.split('-')[0]}`}
                     </div>

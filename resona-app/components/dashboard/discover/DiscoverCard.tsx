@@ -16,7 +16,7 @@ export default function DiscoverCard({ name, imageUrl, subtitle, href, rounded =
     return (
         <Link
             href={href}
-            className="group w-[calc((100%-9*1rem)/10)] rounded-xl bg-neutral-900/40 border border-neutral-700/40 p-3 hover:bg-neutral-700/50 hover:border-neutral-600 transition-all"
+            className="group min-w-0 rounded-xl border border-border bg-background p-3 transition-all hover:border-border hover:bg-muted"
         >
             {/* artwork */}
             {imageUrl ? (
@@ -26,7 +26,7 @@ export default function DiscoverCard({ name, imageUrl, subtitle, href, rounded =
                     className={`w-full aspect-square object-cover ${rounded ? 'rounded-full' : 'rounded-lg'}`}
                 />
             ) : (
-                <div className={`w-full aspect-square bg-neutral-700 ${rounded ? 'rounded-full' : 'rounded-lg'}`} />
+                <div className={`w-full aspect-square bg-muted ${rounded ? 'rounded-full' : 'rounded-lg'}`} />
             )}
 
             {/* text */}
@@ -34,7 +34,7 @@ export default function DiscoverCard({ name, imageUrl, subtitle, href, rounded =
                 {name}
             </p>
             {subtitle && (
-                <p className="text-xs text-neutral-400 truncate">
+                <p className="text-xs text-muted-foreground truncate">
                     {subtitle}
                 </p>
             )}

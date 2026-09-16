@@ -185,7 +185,7 @@ export default function OnboardingClient() {
                     {Array.from({ length: REQUIRED_RATINGS }).map((_, i) => (
                         <div
                             key={i}
-                            className={`w-2.5 h-2.5 rounded-full transition-colors duration-300 ${i < ratedCount ? 'bg-green-500' : 'bg-neutral-700'
+                            className={`w-2.5 h-2.5 rounded-full transition-colors duration-300 ${i < ratedCount ? 'bg-green-500' : 'bg-muted'
                                 }`}
                         />
                     ))}
@@ -221,7 +221,7 @@ export default function OnboardingClient() {
                     </p>
                 </div>
 
-                <div className="absolute bottom-10 left-1/2 -translate-x-1/2 text-neutral-500 animate-bounce">
+                <div className="absolute bottom-10 left-1/2 -translate-x-1/2 text-muted-foreground animate-bounce">
                     <ArrowDown size={20} />
                 </div>
             </section>
@@ -237,30 +237,30 @@ export default function OnboardingClient() {
                 >
                     <div className="text-center mb-10">
                         <h2 className="text-3xl md:text-4xl font-bold mb-3">Start with a song.</h2>
-                        <p className="text-neutral-400 text-base">
+                        <p className="text-muted-foreground text-base">
                             Search one you have an opinion on or rate something popular below.
                         </p>
                     </div>
 
                     {/* search */}
                     <div className="relative max-w-xl mx-auto mb-12">
-                        <div className="flex items-center bg-neutral-900 border border-neutral-800 rounded-lg px-4 py-3 focus-within:border-neutral-600 transition-colors">
-                            <Search className="w-5 h-5 text-neutral-500 mr-3" />
+                        <div className="flex items-center bg-background border border-border rounded-lg px-4 py-3 focus-within:border-ring transition-colors">
+                            <Search className="w-5 h-5 text-muted-foreground mr-3" />
                             <input
                                 type="text"
                                 placeholder="Search for a song..."
                                 value={query}
                                 onChange={(e) => handleSearchChange(e.target.value)}
-                                className="bg-transparent border-none outline-none text-white placeholder-neutral-500 w-full"
+                                className="bg-transparent border-none outline-none text-white placeholder-muted-foreground w-full"
                             />
                         </div>
                         {searchResults.length > 0 && (
-                            <div className="absolute top-full mt-2 w-full bg-neutral-900 border border-neutral-800 rounded-lg shadow-xl max-h-80 overflow-y-auto z-30">
+                            <div className="absolute top-full mt-2 w-full bg-background border border-border rounded-lg shadow-xl max-h-80 overflow-y-auto z-30">
                                 {searchResults.slice(0, 6).map((t) => (
                                     <button
                                         key={t.id}
                                         onClick={() => pickTrack(t)}
-                                        className="w-full flex items-center gap-3 p-3 hover:bg-neutral-800 text-left border-b border-neutral-800 last:border-b-0"
+                                        className="w-full flex items-center gap-3 p-3 hover:bg-card text-left border-b border-border last:border-b-0"
                                     >
                                         {t.album.images?.[0]?.url ? (
                                             <img
@@ -269,11 +269,11 @@ export default function OnboardingClient() {
                                                 className="w-10 h-10 rounded object-cover"
                                             />
                                         ) : (
-                                            <div className="w-10 h-10 rounded bg-neutral-800" />
+                                            <div className="w-10 h-10 rounded bg-card" />
                                         )}
                                         <div className="min-w-0 flex-1">
                                             <div className="font-medium text-white truncate">{t.name}</div>
-                                            <div className="text-sm text-neutral-400 truncate">
+                                            <div className="text-sm text-muted-foreground truncate">
                                                 {t.artists.map((a) => a.name).join(', ')}
                                             </div>
                                         </div>
@@ -288,7 +288,7 @@ export default function OnboardingClient() {
 
                     {/* popular */}
                     <div>
-                        <p className="text-center text-neutral-500 text-xs uppercase tracking-widest mb-6">
+                        <p className="text-center text-muted-foreground text-xs uppercase tracking-widest mb-6">
                             Can&apos;t think of any? Here&apos;s some to get you started!
                         </p>
                         {popularLoading ? (
@@ -296,12 +296,12 @@ export default function OnboardingClient() {
                                 {Array.from({ length: 5 }).map((_, i) => (
                                     <div
                                         key={i}
-                                        className="aspect-square bg-neutral-900 rounded-lg animate-pulse"
+                                        className="aspect-square bg-background rounded-lg animate-pulse"
                                     />
                                 ))}
                             </div>
                         ) : popularError ? (
-                            <p className="text-center text-neutral-500 text-sm">{popularError}</p>
+                            <p className="text-center text-muted-foreground text-sm">{popularError}</p>
                         ) : popular.length === 0 && poolLoaded ? (
                             // easter egg, user rated every track in the pool
                             <p className="text-center text-white font-semibold">
@@ -309,7 +309,7 @@ export default function OnboardingClient() {
                             </p>
                         ) : popular.length === 0 ? (
                             // pool was empty (e.g. all fetches failed)
-                            <p className="text-center text-neutral-500 text-sm">
+                            <p className="text-center text-muted-foreground text-sm">
                                 No suggestions right now. Try searching above.
                             </p>
                         ) : (
@@ -327,12 +327,12 @@ export default function OnboardingClient() {
                                                 className="w-full aspect-square object-cover rounded-lg mb-2 transition-all group-hover:ring-2 group-hover:ring-white/40"
                                             />
                                         ) : (
-                                            <div className="w-full aspect-square bg-neutral-800 rounded-lg mb-2" />
+                                            <div className="w-full aspect-square bg-card rounded-lg mb-2" />
                                         )}
                                         <div className="text-sm font-medium text-white truncate">
                                             {t.name}
                                         </div>
-                                        <div className="text-xs text-neutral-400 truncate">
+                                        <div className="text-xs text-muted-foreground truncate">
                                             {t.artists.map((a) => a.name).join(', ')}
                                         </div>
                                     </button>
@@ -355,7 +355,7 @@ export default function OnboardingClient() {
                     <h2 className="text-3xl md:text-4xl font-bold mb-3">
                         {canContinue ? 'You’re ready.' : 'Almost there.'}
                     </h2>
-                    <p className="text-neutral-400 mb-10">
+                    <p className="text-muted-foreground mb-10">
                         {canContinue
                             ? 'Your opinions are live. Now go see what everyone else thinks.'
                             : `${remaining} more ${remaining === 1 ? 'rating' : 'ratings'} to go.`}
@@ -367,7 +367,7 @@ export default function OnboardingClient() {
                                 key={i}
                                 className={`w-3 h-3 rounded-full transition-colors duration-300 ${i < ratedCount
                                     ? 'bg-green-500'
-                                    : 'bg-neutral-900 border border-neutral-700'
+                                    : 'bg-background border border-border'
                                     }`}
                             />
                         ))}
@@ -386,7 +386,7 @@ export default function OnboardingClient() {
                             <button
                                 onClick={handleComplete}
                                 disabled={isPending}
-                                className="text-neutral-500 text-sm hover:text-neutral-300 transition-colors disabled:opacity-50"
+                                className="text-muted-foreground text-sm hover:text-neutral-300 transition-colors disabled:opacity-50"
                             >
                                 Skip for now
                             </button>

@@ -9,15 +9,15 @@ interface DiscoverSectionProps {
 
 export default function DiscoverSection({ title, children, isEmpty = false, emptyMessage }: DiscoverSectionProps) {
     return (
-        <div className="mb-4 rounded-2xl border border-neutral-700/60 bg-neutral-800/35 px-6 py-4">
+        <section className="mb-2 rounded-2xl border border-border bg-surface px-4 py-4 2xl:px-6">
             <h3 className="text-lg font-bold text-white mb-3">{title}</h3>
             {isEmpty ? (
-                <p className="text-neutral-500 text-sm py-4 text-center">{emptyMessage}</p>
+                <p className="text-muted-foreground text-sm py-4 text-center">{emptyMessage}</p>
             ) : (
-                <div className="flex flex-wrap gap-4">
+                <div className="discover-grid">
                     {children}
                 </div>
             )}
-        </div>
+        </section>
     );
 }

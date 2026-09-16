@@ -17,36 +17,36 @@ export default async function TrackPage({ params }: { params: Promise<{ id: stri
     const artistNames = track.artists.map(artist => artist.name).join(', ');
 
     return (
-        <div className="flex-1 bg-neutral-800 rounded-lg p-8 flex flex-col overflow-y-auto">
-            <div className="flex gap-8">
-                <div className="flex-shrink-0">
+        <div className="flex flex-1 flex-col overflow-y-auto rounded-lg bg-card p-4 xl:p-6 2xl:p-8">
+            <div className="detail-hero">
+                <div className="flex shrink-0 justify-center self-start">
                     {trackArt && (
                         <Image
                             src={trackArt}
                             alt={`${track.name} album art`}
                             width={272}
                             height={272}
-                            className="rounded-lg shadow-lg"
+                            className="detail-artwork rounded-lg object-cover shadow-lg"
                         />
                     )}
                 </div>
-                <div className="flex flex-col gap-4">
+                <div className="flex min-w-0 flex-col gap-4">
                     <div>
-                        <span className="inline-block px-3 py-1 bg-neutral-700 text-white text-xs font-semibold uppercase tracking-wider rounded">
+                        <span className="inline-block px-3 py-1 bg-muted text-white text-xs font-semibold uppercase tracking-wider rounded">
                             TRACK
                         </span>
-                        <h1 className="text-4xl font-extrabold text-white mt-2">
+                        <h1 className="detail-title mt-2 font-extrabold text-white">
                             {track.name}
                         </h1>
-                        <p className="text-xl text-gray-400 mt-2">
+                        <p className="text-xl text-muted-foreground mt-2">
                             <span className="text-white font-bold"> {artistNames} </span> • {formatDuration(track.duration_ms)}
                         </p>
                     </div>
                     <div>
-                        <p className="text-md text-gray-400">
+                        <p className="text-md text-muted-foreground">
                             Track on <span className="text-white font-bold"> {track.album.name} </span>
                         </p>
-                        <p className="text-md text-gray-400">
+                        <p className="text-md text-muted-foreground">
                             Released {new Date(track.album.release_date).toLocaleDateString('en-US', {
                                 year: 'numeric',
                                 month: 'long',
@@ -54,7 +54,7 @@ export default async function TrackPage({ params }: { params: Promise<{ id: stri
                             })}
                         </p>
                     </div>
-                    <div className="flex gap-4 mt-2">
+                    <div className="mt-2 flex flex-wrap gap-3 2xl:gap-4">
                         <RatingModal
                             type="track"
                             spotifyId={id}
@@ -65,7 +65,7 @@ export default async function TrackPage({ params }: { params: Promise<{ id: stri
                         <Link
                             href={track.external_urls.spotify}
                             target="_blank"
-                            className="bg-green-600 text-white px-6 py-2 rounded-full font-semibold hover:bg-green-700 flex items-center gap-2"
+                            className="flex items-center gap-2 whitespace-nowrap rounded-full bg-green-600 px-5 py-2 font-semibold text-white hover:bg-green-700 2xl:px-6"
                         >
                             Open in Spotify
                         </Link>

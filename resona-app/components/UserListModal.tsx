@@ -81,13 +81,13 @@ export default function UserListModal({ listType, userId, isOpen, onClose }: Use
             onClick={onClose}
         >
             <div
-                className="relative w-full max-w-md mx-4 rounded-2xl bg-neutral-800 px-6 py-7 shadow-2xl"
+                className="relative w-full max-w-md mx-4 rounded-2xl bg-card px-6 py-7 shadow-2xl"
                 onClick={(e) => e.stopPropagation()}
             >
                 <button
                     type="button"
                     onClick={onClose}
-                    className="absolute top-4 right-4 text-neutral-400 hover:text-white transition-colors"
+                    className="absolute top-4 right-4 text-muted-foreground hover:text-white transition-colors"
                     aria-label={`Close ${title.toLowerCase()} list`}
                 >
                     <X size={20} />
@@ -102,10 +102,10 @@ export default function UserListModal({ listType, userId, isOpen, onClose }: Use
                         {[1, 2, 3].map((row) => (
                             <div
                                 key={row}
-                                className="flex items-center gap-3 rounded-xl bg-neutral-900/70 px-4 py-3 animate-pulse"
+                                className="flex items-center gap-3 rounded-xl bg-background px-4 py-3 animate-pulse"
                             >
-                                <div className="h-10 w-10 rounded-full bg-neutral-700" />
-                                <div className="h-4 w-32 rounded bg-neutral-700" />
+                                <div className="h-10 w-10 rounded-full bg-muted" />
+                                <div className="h-4 w-32 rounded bg-muted" />
                             </div>
                         ))}
                     </div>
@@ -117,7 +117,7 @@ export default function UserListModal({ listType, userId, isOpen, onClose }: Use
 
                 {/* empty state */}
                 {!isLoading && !errorMessage && users.length === 0 && (
-                    <p className="text-sm text-neutral-400">
+                    <p className="text-sm text-muted-foreground">
                         No {listType} yet.
                     </p>
                 )}
@@ -130,7 +130,7 @@ export default function UserListModal({ listType, userId, isOpen, onClose }: Use
                                 key={listedUser.id}
                                 href={`/profile/${listedUser.id}`}
                                 onClick={onClose}
-                                className="flex items-center gap-3 rounded-xl bg-neutral-900/70 px-4 py-3 hover:bg-neutral-700/80 transition-colors"
+                                className="flex items-center gap-3 rounded-xl bg-background px-4 py-3 hover:bg-muted transition-colors"
                             >
                                 {listedUser.image ? (
                                     <img
@@ -139,7 +139,7 @@ export default function UserListModal({ listType, userId, isOpen, onClose }: Use
                                         className="h-10 w-10 rounded-full object-cover"
                                     />
                                 ) : (
-                                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-700 text-sm font-semibold text-white">
+                                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-sm font-semibold text-white">
                                         {getInitial(listedUser.name)}
                                     </div>
                                 )}

@@ -1,11 +1,11 @@
 import YourStatsPanel from "./YourStatsPanel";
-import FriendAcitivty from "./FriendActivity";  
+import FriendActivity from "./FriendActivity";
 
 export default function StatsSidebar() {
   return (
-  <div className="flex flex-col gap-5">
-    <YourStatsPanel />
-    <FriendAcitivty />
+    <div className="flex h-full min-h-0 flex-col gap-2">
+      <YourStatsPanel />
+      <FriendActivity />
     </div>
   );
 }

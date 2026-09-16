@@ -68,7 +68,7 @@ export default function LoginPage() {
             threshold={0.1}
             delay={2.5}>
             <button
-            className="flex items-center justify-center bg-transparent hover:bg-neutral-800 text-white w-80 px-6 py-2 rounded-sm cursor-pointer border border-gray-700"
+            className="flex items-center justify-center bg-transparent hover:bg-card text-white w-80 px-6 py-2 rounded-sm cursor-pointer border border-border"
             onClick={loginWithGoogle}
             >
                 <Image 
@@ -99,7 +99,7 @@ export default function LoginPage() {
                     </a>
             </AnimatedContent>
         </div>
-        <div className="absolute bottom-5 left-5 sm:bottom-6 sm:left-6 flex flex-col items-start gap-1 text-sm text-neutral-400">
+        <div className="absolute bottom-5 left-5 sm:bottom-6 sm:left-6 flex flex-col items-start gap-1 text-sm text-muted-foreground">
             <p className="font-semibold text-neutral-300">v0.1.1 &mdash; Closed Beta</p>
             <ChangelogModal />
         </div>

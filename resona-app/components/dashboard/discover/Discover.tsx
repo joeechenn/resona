@@ -28,7 +28,7 @@ interface DiscoverData {
     recentlyPlayed: SpotifyTrack[];
 }
 
-export default function Discover() {
+export default function Discover({ recommendations }: { recommendations: React.ReactNode }) {
     const [data, setData] = useState<DiscoverData | null>(null);
     const [loading, setLoading] = useState(true);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -70,26 +70,29 @@ export default function Discover() {
     }, [fetchDiscover]);
 
     return (
-        <div className="flex-1 bg-neutral-800 rounded-lg p-6 flex flex-col min-h-0">
-            <div className="mb-6">
-                <h1 className="text-3xl font-extrabold text-white tracking-tight">Discover</h1>
-                <p className="text-neutral-400 text-sm mt-1">
-                    Tracks and artists you&apos;ve been listening to but haven&apos;t rated yet. Show the world what you truly think!
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col rounded-lg bg-card p-4 xl:p-5 2xl:p-6">
+            <div className="mb-5 2xl:mb-6">
+                <h1 className="text-3xl font-extrabold tracking-tight text-white 2xl:text-4xl">Discover</h1>
+                <p className="mt-1 max-w-5xl text-sm leading-relaxed text-muted-foreground 2xl:text-base">
+                    Discover music through your Resona ratings and your listening history.
                 </p>
             </div>
 
+            <div className="min-h-0 flex-1 overflow-y-auto pr-1">
+            {recommendations}
+
             {/* loading skeleton */}
             {loading && (
-                <div className="overflow-y-auto flex-1 pr-1">
+                <div className="space-y-0">
                     {[1, 2, 3].map((i) => (
-                        <div key={i} className="mb-4 rounded-2xl border border-neutral-700/60 bg-neutral-800/35 px-6 py-4">
-                            <div className="h-5 w-32 bg-neutral-700 rounded animate-pulse mb-3" />
-                            <div className="flex flex-wrap gap-4">
-                                {Array.from({ length: i === 2 ? 10 : 5 }).map((_, j) => (
-                                    <div key={j} className="w-[164px]">
-                                        <div className="w-full aspect-square bg-neutral-700/50 rounded-lg animate-pulse" />
-                                        <div className="h-4 w-3/4 bg-neutral-700/50 rounded animate-pulse mt-2" />
-                                        <div className="h-3 w-1/2 bg-neutral-700/50 rounded animate-pulse mt-1" />
+                        <div key={i} className="mb-2 rounded-2xl border border-border bg-surface px-4 py-4 2xl:px-6">
+                            <div className="h-5 w-32 bg-muted rounded animate-pulse mb-3" />
+                            <div className="discover-grid">
+                                {Array.from({ length: i === 2 ? 10 : 6 }).map((_, j) => (
+                                    <div key={j} className="min-w-0">
+                                        <div className="w-full aspect-square bg-muted rounded-lg animate-pulse" />
+                                        <div className="h-4 w-3/4 bg-muted rounded animate-pulse mt-2" />
+                                        <div className="h-3 w-1/2 bg-muted rounded animate-pulse mt-1" />
                                     </div>
                                 ))}
                             </div>
@@ -100,13 +103,13 @@ export default function Discover() {
 
             {/* Spotify not connected prompt */}
             {!loading && errorMessage === 'spotify_not_connected' && (
-                <div className="flex-1 flex flex-col items-center justify-center text-center px-6">
+                <div className="flex flex-col items-center justify-center px-6 py-8 text-center">
                     <h2 className="text-2xl font-bold text-white">
-                        Connect your Spotify account to get more features like this one!
+                        Connect Spotify to see your top tracks, artists, and recent listening.
                     </h2>
                     <a
                         href="/api/spotify/connect"
-                        className="mt-6 inline-flex items-center gap-3 rounded-md border border-neutral-700 bg-neutral-900 px-5 py-3 text-sm font-medium text-white hover:bg-neutral-800 transition-colors"
+                        className="mt-6 inline-flex items-center gap-3 rounded-md border border-border bg-background px-5 py-3 text-sm font-medium text-white hover:bg-card transition-colors"
                     >
                         <Image
                             src="/spotify.svg"
@@ -121,11 +124,11 @@ export default function Discover() {
 
             {/* generic error */}
             {!loading && errorMessage && errorMessage !== 'spotify_not_connected' && (
-                <div className="flex-1 flex flex-col items-center justify-center gap-4 text-center">
+                <div className="flex flex-col items-center justify-center gap-4 py-8 text-center">
                     <p className="text-red-400 font-semibold">{errorMessage}</p>
                     <button
                         onClick={() => fetchDiscover()}
-                        className="px-5 py-2 rounded-md border border-neutral-600 bg-neutral-900 text-white hover:bg-neutral-700 transition-colors"
+                        className="px-5 py-2 rounded-md border border-border bg-background text-white hover:bg-muted transition-colors"
                     >
                         Retry
                     </button>
@@ -134,7 +137,7 @@ export default function Discover() {
 
             {/* discover sections */}
             {!loading && !errorMessage && data && (
-                <div className="overflow-y-auto flex-1 pr-1 space-y-0">
+                <div className="space-y-0">
                     <DiscoverSection
                         title="Top Tracks"
                         isEmpty={data.topTracks.length === 0}
@@ -187,6 +190,7 @@ export default function Discover() {
                     </DiscoverSection>
                 </div>
             )}
+            </div>
         </div>
     );
 }

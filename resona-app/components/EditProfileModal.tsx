@@ -135,13 +135,13 @@ export default function EditProfileModal({
             onClick={onClose}
         >
             <div
-                className="relative w-full max-w-xl mx-4 rounded-2xl bg-neutral-800 px-8 py-8 shadow-2xl"
+                className="relative w-full max-w-xl mx-4 rounded-2xl bg-card px-8 py-8 shadow-2xl"
                 onClick={(e) => e.stopPropagation()}
             >
                 <button
                     type="button"
                     onClick={onClose}
-                    className="absolute top-4 right-4 text-neutral-400 hover:text-white transition-colors"
+                    className="absolute top-4 right-4 text-muted-foreground hover:text-white transition-colors"
                     aria-label="Close edit profile modal"
                 >
                     <X size={20} />
@@ -156,14 +156,14 @@ export default function EditProfileModal({
                             className="h-14 w-14 rounded-full object-cover"
                         />
                     ) : (
-                        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-neutral-700 text-lg font-semibold text-white">
+                        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-muted text-lg font-semibold text-white">
                             {getInitial(currentName)}
                         </div>
                     )}
 
                     <div>
                         <h2 className="text-xl font-semibold text-white">Edit Profile</h2>
-                        <p className="text-sm text-neutral-400">Update your name, bio, and profile image.</p>
+                        <p className="text-sm text-muted-foreground">Update your name, bio, and profile image.</p>
                     </div>
                 </div>
 
@@ -178,10 +178,10 @@ export default function EditProfileModal({
                             value={nameInput}
                             onChange={(e) => setNameInput(e.target.value)}
                             maxLength={50}
-                            className="w-full rounded-md border border-neutral-700 bg-neutral-900 px-3 py-2 text-sm text-white placeholder:text-neutral-500 focus:outline-none focus:ring-1 focus:ring-neutral-500"
+                            className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-white placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
                             placeholder="Your name"
                         />
-                        <p className="mt-2 text-xs text-neutral-400">
+                        <p className="mt-2 text-xs text-muted-foreground">
                             {nameInput.length}/50
                         </p>
                     </div>
@@ -196,10 +196,10 @@ export default function EditProfileModal({
                             onChange={(e) => setBioInput(e.target.value)}
                             rows={4}
                             maxLength={160}
-                            className="w-full rounded-md border border-neutral-700 bg-neutral-900 px-3 py-2 text-sm text-white placeholder:text-neutral-500 focus:outline-none focus:ring-1 focus:ring-neutral-500 resize-none"
+                            className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-white placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring resize-none"
                             placeholder="Tell people a little about your taste"
                         />
-                        <p className="mt-2 text-xs text-neutral-400">
+                        <p className="mt-2 text-xs text-muted-foreground">
                             {bioInput.length}/160
                         </p>
                     </div>
@@ -213,10 +213,10 @@ export default function EditProfileModal({
                             type="file"
                             accept=".jpg,.jpeg,.png,.webp"
                             onChange={(e) => setSelectedImageFile(e.target.files?.[0] ?? null)}
-                            className="block w-full text-sm text-neutral-300 file:mr-4 file:rounded-md file:border-0 file:bg-neutral-700 file:px-4 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-neutral-600"
+                            className="block w-full text-sm text-neutral-300 file:mr-4 file:rounded-md file:border-0 file:bg-muted file:px-4 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-muted"
                         />
                         {selectedImageFile && (
-                            <p className="mt-2 text-xs text-neutral-400">
+                            <p className="mt-2 text-xs text-muted-foreground">
                                 Selected: {selectedImageFile.name}
                             </p>
                         )}
@@ -233,7 +233,7 @@ export default function EditProfileModal({
                     <button
                         type="button"
                         onClick={onClose}
-                        className="rounded-full border border-neutral-600 bg-neutral-900 px-5 py-2 text-sm font-semibold text-white hover:bg-neutral-700 transition-colors"
+                        className="rounded-full border border-border bg-background px-5 py-2 text-sm font-semibold text-white hover:bg-muted transition-colors"
                     >
                         Cancel
                     </button>
@@ -249,7 +249,7 @@ export default function EditProfileModal({
 
                 <div className="mt-6 flex flex-col items-center text-center">
                     {isSpotifyConnected ? (
-                        <div className="inline-flex items-center gap-3 rounded-md border border-neutral-700 bg-neutral-900 px-4 py-3 text-sm font-medium text-white">
+                        <div className="inline-flex items-center gap-3 rounded-md border border-border bg-background px-4 py-3 text-sm font-medium text-white">
                             <Image
                                 src="/spotify.svg"
                                 alt="Spotify"
@@ -262,7 +262,7 @@ export default function EditProfileModal({
                         <>
                             <a
                                 href="/api/spotify/connect"
-                                className="inline-flex items-center gap-3 rounded-md border border-neutral-700 bg-neutral-900 px-4 py-3 text-sm font-medium text-white hover:bg-neutral-800 transition-colors"
+                                className="inline-flex items-center gap-3 rounded-md border border-border bg-background px-4 py-3 text-sm font-medium text-white hover:bg-card transition-colors"
                             >
                                 <Image
                                     src="/spotify.svg"
@@ -272,7 +272,7 @@ export default function EditProfileModal({
                                 />
                                 Connect with Spotify
                             </a>
-                            <p className="mt-3 max-w-lg text-xs leading-5 text-neutral-400">
+                            <p className="mt-3 max-w-lg text-xs leading-5 text-muted-foreground">
                                 Enhance your experience with more features by connecting your Resona
                                 <br />
                                 account with your Spotify account. Your niche taste stays niche. Probably.

@@ -108,16 +108,16 @@ export default function Feed() {
     }, [hasMore, loadingMore, posts, fetchFeed]);
 
     return (
-        <div className="flex-1 bg-neutral-800 rounded-lg p-6 flex flex-col min-h-0">
-            <div className="flex items-center justify-between mb-6">
+        <div className="min-w-0 flex-1 bg-card rounded-lg p-4 sm:p-6 flex flex-col min-h-0">
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
                 <h2 className="text-xl font-bold text-white">Your Feed</h2>
                 {/* pill tabs — switching resets pagination via fetchFeed re-firing on filter change */}
-                <div className="flex gap-1 bg-neutral-900 border border-neutral-600 rounded-full p-1">
+                <div className="flex gap-1 bg-background border border-border rounded-full p-1">
                     <button
                         onClick={() => setFilter('global')}
                         className={`px-4 py-1 rounded-full text-sm font-semibold transition-colors ${filter === 'global'
                                 ? 'bg-white text-black'
-                                : 'text-neutral-400 hover:text-white'
+                                : 'text-muted-foreground hover:text-white'
                             }`}
                     >
                         Global
@@ -126,7 +126,7 @@ export default function Feed() {
                         onClick={() => setFilter('following')}
                         className={`px-4 py-1 rounded-full text-sm font-semibold transition-colors ${filter === 'following'
                                 ? 'bg-white text-black'
-                                : 'text-neutral-400 hover:text-white'
+                                : 'text-muted-foreground hover:text-white'
                             }`}
                     >
                         Following
@@ -135,11 +135,11 @@ export default function Feed() {
             </div>
 
             {loading && (
-                <div className="space-y-3">
+                <div className="space-y-2">
                     {[1, 2, 3].map((index) => (
                         <div
                             key={index}
-                            className="h-44 rounded-2xl border border-neutral-700/70 bg-neutral-900/60 animate-pulse"
+                            className="h-44 rounded-2xl border border-border bg-background animate-pulse"
                         />
                     ))}
                 </div>
@@ -150,7 +150,7 @@ export default function Feed() {
                     <p className="text-red-400 font-semibold">{errorMessage}</p>
                     <button
                         onClick={() => fetchFeed()}
-                        className="px-5 py-2 rounded-md border border-neutral-600 bg-neutral-900 text-white hover:bg-neutral-700 transition-colors"
+                        className="px-5 py-2 rounded-md border border-border bg-background text-white hover:bg-muted transition-colors"
                     >
                         Retry
                     </button>
@@ -173,7 +173,7 @@ export default function Feed() {
                         // global feed empty (cold start)
                         <>
                             <p className="text-white font-semibold text-lg">No posts yet</p>
-                            <p className="text-neutral-400 mt-2 max-w-md">
+                            <p className="text-muted-foreground mt-2 max-w-md">
                                 Rate a track, album, or artist to create your first post and start your feed.
                             </p>
                         </>
@@ -182,7 +182,7 @@ export default function Feed() {
             )}
 
             {!loading && !errorMessage && posts.length > 0 && (
-                <div className="space-y-3 overflow-y-auto pr-1 flex-1">
+                <div className="space-y-2 overflow-y-auto pr-1 flex-1">
                     {posts.map((post) => (
                         <PostCard key={post.id} {...post} />
                     ))}
@@ -190,7 +190,7 @@ export default function Feed() {
                     {/* loading spinner for next page */}
                     {loadingMore && (
                         <div className="flex justify-center py-4">
-                            <div className="h-6 w-6 rounded-full border-2 border-neutral-600 border-t-white animate-spin" />
+                            <div className="h-6 w-6 rounded-full border-2 border-border border-t-white animate-spin" />
                         </div>
                     )}
 

@@ -156,7 +156,7 @@ export default function PromptPickerModal({
             onClick={onClose}
         >
             <div
-                className="relative w-full max-w-xl mx-4 rounded-2xl bg-neutral-800 px-8 py-8 shadow-2xl max-h-[80vh] flex flex-col"
+                className="relative w-full max-w-xl mx-4 rounded-2xl bg-card px-8 py-8 shadow-2xl max-h-[80vh] flex flex-col"
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* header */}
@@ -165,7 +165,7 @@ export default function PromptPickerModal({
                         {step === 2 && (
                             <button
                                 onClick={() => { setStep(1); setSelectedPrompt(null); setErrorMessage(null); }}
-                                className="text-neutral-400 hover:text-white transition-colors"
+                                className="text-muted-foreground hover:text-white transition-colors"
                             >
                                 <ArrowLeft size={20} />
                             </button>
@@ -176,7 +176,7 @@ export default function PromptPickerModal({
                     </div>
                     <button
                         onClick={onClose}
-                        className="text-neutral-400 hover:text-white transition-colors"
+                        className="text-muted-foreground hover:text-white transition-colors"
                     >
                         <X size={20} />
                     </button>
@@ -184,8 +184,8 @@ export default function PromptPickerModal({
 
                 {/* selected prompt preview in step 2 */}
                 {step === 2 && selectedPrompt && (
-                    <div className="mb-4 rounded-xl bg-neutral-900/70 px-4 py-3">
-                        <p className="text-sm text-neutral-400 italic">{selectedPrompt.text}</p>
+                    <div className="mb-4 rounded-xl bg-background px-4 py-3">
+                        <p className="text-sm text-muted-foreground italic">{selectedPrompt.text}</p>
                     </div>
                 )}
 
@@ -206,15 +206,15 @@ export default function PromptPickerModal({
                                         onClick={() => !isUsed && handlePromptSelect(prompt)}
                                         disabled={isUsed}
                                         className={`w-full text-left rounded-xl px-4 py-3 transition-colors ${isUsed
-                                            ? 'bg-neutral-900/30 text-neutral-600 cursor-not-allowed'
-                                            : 'bg-neutral-900/70 text-white hover:bg-neutral-700/80 cursor-pointer'
+                                            ? 'bg-background text-neutral-600 cursor-not-allowed'
+                                            : 'bg-background text-white hover:bg-muted cursor-pointer'
                                             }`}
                                     >
                                         <span className="text-sm font-medium">{prompt.text}</span>
                                         {isUsed && (
                                             <span className="ml-2 text-xs text-neutral-600">(already used)</span>
                                         )}
-                                        <span className={`ml-2 text-xs ${isUsed ? 'text-neutral-700' : 'text-neutral-500'}`}>
+                                        <span className={`ml-2 text-xs ${isUsed ? 'text-neutral-700' : 'text-muted-foreground'}`}>
                                             {prompt.type === 'any' ? 'any' : prompt.type}
                                         </span>
                                     </button>
@@ -235,7 +235,7 @@ export default function PromptPickerModal({
                                             onClick={() => setActiveTab(tab)}
                                             className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${activeTab === tab
                                                 ? 'bg-white text-black'
-                                                : 'bg-neutral-700 text-neutral-300 hover:bg-neutral-600'
+                                                : 'bg-muted text-neutral-300 hover:bg-muted'
                                                 }`}
                                         >
                                             {tab.charAt(0).toUpperCase() + tab.slice(1)}s
@@ -247,11 +247,11 @@ export default function PromptPickerModal({
                             {isLoadingItems && (
                                 <div className="space-y-2">
                                     {[1, 2, 3, 4, 5].map((i) => (
-                                        <div key={i} className="flex items-center gap-3 rounded-xl bg-neutral-900/70 px-4 py-3 animate-pulse">
-                                            <div className="h-10 w-10 rounded bg-neutral-700" />
+                                        <div key={i} className="flex items-center gap-3 rounded-xl bg-background px-4 py-3 animate-pulse">
+                                            <div className="h-10 w-10 rounded bg-muted" />
                                             <div className="flex-1 space-y-1">
-                                                <div className="h-4 w-32 rounded bg-neutral-700" />
-                                                <div className="h-3 w-24 rounded bg-neutral-700" />
+                                                <div className="h-4 w-32 rounded bg-muted" />
+                                                <div className="h-3 w-24 rounded bg-muted" />
                                             </div>
                                         </div>
                                     ))}
@@ -262,23 +262,23 @@ export default function PromptPickerModal({
                             {!isLoadingItems && (activeTab === 'track' || selectedPrompt?.type === 'track') && (
                                 <div className="space-y-2">
                                     {tracks.length === 0 ? (
-                                        <p className="text-neutral-500 text-sm text-center py-6">No rated tracks yet.</p>
+                                        <p className="text-muted-foreground text-sm text-center py-6">No rated tracks yet.</p>
                                     ) : (
                                         tracks.map((item) => (
                                             <button
                                                 key={item.track.id}
                                                 onClick={() => handleEntitySelect('track', item.track.id)}
                                                 disabled={isSaving}
-                                                className="w-full flex items-center gap-3 rounded-xl bg-neutral-900/70 px-4 py-3 hover:bg-neutral-700/80 transition-colors text-left disabled:opacity-50"
+                                                className="w-full flex items-center gap-3 rounded-xl bg-background px-4 py-3 hover:bg-muted transition-colors text-left disabled:opacity-50"
                                             >
                                                 {item.track.album?.imageUrl ? (
                                                     <img src={item.track.album.imageUrl} alt="" className="h-10 w-10 rounded object-cover" />
                                                 ) : (
-                                                    <div className="h-10 w-10 rounded bg-neutral-700" />
+                                                    <div className="h-10 w-10 rounded bg-muted" />
                                                 )}
                                                 <div className="flex-1 min-w-0">
                                                     <p className="text-sm font-medium text-white truncate">{item.track.name}</p>
-                                                    <p className="text-xs text-neutral-400 truncate">
+                                                    <p className="text-xs text-muted-foreground truncate">
                                                         {item.track.artists.map(a => a.artist.name).join(', ')}
                                                     </p>
                                                 </div>
@@ -293,23 +293,23 @@ export default function PromptPickerModal({
                             {!isLoadingItems && (activeTab === 'album' || selectedPrompt?.type === 'album') && selectedPrompt?.type !== 'track' && (
                                 <div className="space-y-2">
                                     {albums.length === 0 ? (
-                                        <p className="text-neutral-500 text-sm text-center py-6">No rated albums yet.</p>
+                                        <p className="text-muted-foreground text-sm text-center py-6">No rated albums yet.</p>
                                     ) : (
                                         albums.map((item) => (
                                             <button
                                                 key={item.album.id}
                                                 onClick={() => handleEntitySelect('album', item.album.id)}
                                                 disabled={isSaving}
-                                                className="w-full flex items-center gap-3 rounded-xl bg-neutral-900/70 px-4 py-3 hover:bg-neutral-700/80 transition-colors text-left disabled:opacity-50"
+                                                className="w-full flex items-center gap-3 rounded-xl bg-background px-4 py-3 hover:bg-muted transition-colors text-left disabled:opacity-50"
                                             >
                                                 {item.album.imageUrl ? (
                                                     <img src={item.album.imageUrl} alt="" className="h-10 w-10 rounded object-cover" />
                                                 ) : (
-                                                    <div className="h-10 w-10 rounded bg-neutral-700" />
+                                                    <div className="h-10 w-10 rounded bg-muted" />
                                                 )}
                                                 <div className="flex-1 min-w-0">
                                                     <p className="text-sm font-medium text-white truncate">{item.album.name}</p>
-                                                    <p className="text-xs text-neutral-400 truncate">
+                                                    <p className="text-xs text-muted-foreground truncate">
                                                         {item.album.artists.map(a => a.artist.name).join(', ')}
                                                     </p>
                                                 </div>
@@ -324,19 +324,19 @@ export default function PromptPickerModal({
                             {!isLoadingItems && (activeTab === 'artist' || selectedPrompt?.type === 'artist') && selectedPrompt?.type !== 'track' && selectedPrompt?.type !== 'album' && (
                                 <div className="space-y-2">
                                     {artists.length === 0 ? (
-                                        <p className="text-neutral-500 text-sm text-center py-6">No rated artists yet.</p>
+                                        <p className="text-muted-foreground text-sm text-center py-6">No rated artists yet.</p>
                                     ) : (
                                         artists.map((item) => (
                                             <button
                                                 key={item.artist.id}
                                                 onClick={() => handleEntitySelect('artist', item.artist.id)}
                                                 disabled={isSaving}
-                                                className="w-full flex items-center gap-3 rounded-xl bg-neutral-900/70 px-4 py-3 hover:bg-neutral-700/80 transition-colors text-left disabled:opacity-50"
+                                                className="w-full flex items-center gap-3 rounded-xl bg-background px-4 py-3 hover:bg-muted transition-colors text-left disabled:opacity-50"
                                             >
                                                 {item.artist.imageUrl ? (
                                                     <img src={item.artist.imageUrl} alt="" className="h-10 w-10 rounded-full object-cover" />
                                                 ) : (
-                                                    <div className="h-10 w-10 rounded-full bg-neutral-700" />
+                                                    <div className="h-10 w-10 rounded-full bg-muted" />
                                                 )}
                                                 <div className="flex-1 min-w-0">
                                                     <p className="text-sm font-medium text-white truncate">{item.artist.name}</p>

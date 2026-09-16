@@ -13,13 +13,19 @@ export default async function DashboardLayout({ children }: { children: React.Re
     }
 
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex h-dvh flex-col overflow-hidden">
       <Navbar session={session} />
-      <div className="flex-1 overflow-hidden">
-        <div className="grid grid-cols-[300px_1fr_300px] gap-4 p-4 h-full">
-          <AnalyticsSidebar />
-          {children}
-          <StatsSidebar />
+      <div className="min-h-0 flex-1 overflow-hidden">
+        <div className="dashboard-grid">
+          <aside className="dashboard-analytics min-h-0">
+            <AnalyticsSidebar />
+          </aside>
+          <main className="dashboard-main flex min-h-0 min-w-0 overflow-hidden">
+            {children}
+          </main>
+          <aside className="dashboard-stats min-h-0 overflow-y-auto">
+            <StatsSidebar />
+          </aside>
         </div>
       </div>
     </div>

@@ -2,12 +2,14 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Session } from "next-auth";
 import { signOut } from "next-auth/react";
 import SearchBar from './SearchBar';
-import { Bell, Settings } from 'lucide-react';
+import { Settings } from 'lucide-react';
 
 export default function Navbar({ session }: { session: Session | null }) {
+  const pathname = usePathname();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const settingsRef = useRef<HTMLDivElement | null>(null);
 
@@ -22,7 +24,7 @@ export default function Navbar({ session }: { session: Session | null }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  if (!session) return null;
+  if (!session?.user) return null;
   
   const getInitials = (name: string | null | undefined) => {
     if (!name) return '?';
@@ -33,62 +35,62 @@ export default function Navbar({ session }: { session: Session | null }) {
     return name[0];
   };
 
-    if (!session?.user) {
-    return null;
-  }
-
   return (
-    <nav className="bg-background shadow-md py-4 border-b border-gray-850">
-      <div className="flex items-center px-6 lg:px-8">
-        <Link href="/" className="flex items-center space-x-3">
+    <nav className="flex-none border-b border-border bg-background py-3 2xl:py-4" aria-label="Main navigation">
+      <div className="flex min-w-0 flex-wrap items-center gap-3 px-4 lg:gap-4 lg:px-6 2xl:px-8">
+        <Link href="/" className="flex shrink-0 items-center space-x-3">
           <span className="text-xl font-extrabold">Resona</span>  
         </Link>
         
-        <div className="flex-1 flex justify-center px-8">
-            <SearchBar />
-            </div>
+        <div className="order-last flex min-w-0 basis-full justify-center sm:order-none sm:flex-1 sm:basis-0 sm:px-2 lg:px-4 2xl:px-8">
+          <SearchBar />
+        </div>
 
-        <div className="flex items-center space-x-4">
-          <Link href="/analytics" className="text-slate-900 hover:text-sky-500">
-            <button className="flex items-center justify-center bg-white hover:bg-gray-300 text-black font-bold py-1 px-4 rounded-lg cursor-pointer">
-                Analytics
-                </button>
+        <div className="ml-auto flex shrink-0 items-center gap-4 2xl:gap-5">
+          <Link
+            href="/analytics"
+            aria-current={pathname === '/analytics' ? 'page' : undefined}
+            className="py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground aria-[current=page]:text-foreground aria-[current=page]:underline aria-[current=page]:underline-offset-8"
+          >
+            Analytics
           </Link>
-          <Link href="/discover" className="text-slate-900 hover:text-sky-500">
-            <button className="flex items-center justify-center bg-transparent hover:bg-neutral-800 text-white border border-gray-700 py-1 px-4 rounded-lg cursor-pointer">
-                Discover
-                </button>
+          <Link
+            href="/discover"
+            aria-current={pathname === '/discover' ? 'page' : undefined}
+            className="py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground aria-[current=page]:text-foreground aria-[current=page]:underline aria-[current=page]:underline-offset-8"
+          >
+            Discover
           </Link>
-          <Bell className="w-5 h-5 text-gray-400 hover:text-white cursor-pointer" />
           <div ref={settingsRef} className="relative">
             <button
               type="button"
               onClick={() => setIsSettingsOpen((prev) => !prev)}
-              className="text-gray-400 hover:text-white cursor-pointer transition-colors"
+              className="text-muted-foreground hover:text-white cursor-pointer transition-colors"
               aria-label="Open settings menu"
+              aria-expanded={isSettingsOpen}
             >
               <Settings className="w-5 h-5" />
             </button>
 
             {isSettingsOpen && (
-              <div className="absolute right-0 top-full mt-3 w-52 overflow-hidden rounded-2xl border border-neutral-700/80 bg-neutral-900/95 py-2 shadow-2xl backdrop-blur-md z-50">
+              <div className="absolute right-0 top-full mt-3 w-52 overflow-hidden rounded-2xl border border-border bg-background py-2 shadow-2xl backdrop-blur-md z-50">
                 <Link
                   href="https://joeechenn.github.io/resona/"
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() => setIsSettingsOpen(false)}
-                  className="block px-4 py-2.5 text-sm font-medium text-white hover:bg-neutral-800 transition-colors"
+                  className="block px-4 py-2.5 text-sm font-medium text-white hover:bg-card transition-colors"
                 >
                   What&apos;s Resona
                 </Link>
-                <div className="mx-3 my-1 h-px bg-neutral-700/70" />
+                <div className="mx-3 my-1 h-px bg-muted" />
                 <button
                   type="button"
                   onClick={() => {
                     setIsSettingsOpen(false);
                     signOut({ callbackUrl: "/login" });
                   }}
-                  className="block w-full px-4 py-2.5 text-left text-sm font-medium text-white hover:bg-neutral-800 transition-colors"
+                  className="block w-full px-4 py-2.5 text-left text-sm font-medium text-white hover:bg-card transition-colors"
                 >
                   Sign Out
                 </button>
@@ -101,10 +103,10 @@ export default function Navbar({ session }: { session: Session | null }) {
             <img 
               src={session.user.image} 
               alt="Profile"
-              className="w-8 h-8 rounded-full object-cover cursor-pointer hover:ring-2 hover:ring-sky-500"
+              className="w-8 h-8 rounded-full object-cover cursor-pointer hover:ring-2 hover:ring-ring"
             />
           ) : (
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-semibold cursor-pointer hover:ring-2 hover:ring-sky-500">
+            <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-foreground text-sm font-semibold cursor-pointer hover:ring-2 hover:ring-ring">
               {getInitials(session.user.name)}
             </div>
           )}

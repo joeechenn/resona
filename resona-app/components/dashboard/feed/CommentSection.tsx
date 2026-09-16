@@ -178,16 +178,16 @@ export default function CommentSection({ postId, onCommentAdded }: { postId: str
     };
 
     return (
-        <div className="mt-3 ml-10 rounded-xl bg-neutral-900/60 p-3">
+        <div className="mt-3 sm:ml-10 rounded-xl bg-background p-3">
             <div className="space-y-3 max-h-52 overflow-y-auto pr-1">
-                {isCommentLoading && <p className="text-sm text-neutral-400">Loading comments...</p>}
+                {isCommentLoading && <p className="text-sm text-muted-foreground">Loading comments...</p>}
 
                 {!isCommentLoading && comments.length === 0 && (
-                    <p className="text-sm text-neutral-400">No comments yet.</p>
+                    <p className="text-sm text-muted-foreground">No comments yet.</p>
                 )}
 
                 {!isCommentLoading && comments.map((comment) => (
-                    <div key={comment.id} className="rounded-md bg-neutral-800/80 px-3 py-2">
+                    <div key={comment.id} className="rounded-md bg-card px-3 py-2">
                         <div className="flex items-start gap-3">
                             {comment.user.image ? (
                                 <img
@@ -196,7 +196,7 @@ export default function CommentSection({ postId, onCommentAdded }: { postId: str
                                     className="h-8 w-8 rounded-full object-cover"
                                 />
                             ) : (
-                                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-neutral-700 text-xs font-semibold text-white">
+                                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted text-xs font-semibold text-white">
                                     {getInitial(comment.user.name)}
                                 </div>
                             )}
@@ -206,7 +206,7 @@ export default function CommentSection({ postId, onCommentAdded }: { postId: str
                                     <p className="text-sm font-semibold text-white truncate">
                                         {comment.user.name || 'Anonymous'}
                                     </p>
-                                    <p className="text-xs text-neutral-500">
+                                    <p className="text-xs text-muted-foreground">
                                         {formatRelativeTime(comment.createdAt)}
                                     </p>
                                 </div>
@@ -214,7 +214,7 @@ export default function CommentSection({ postId, onCommentAdded }: { postId: str
                                 <div className="mt-2">
                                     <button
                                         onClick={() => handleLikeToggle(comment.id)}
-                                        className={`flex items-center gap-1 text-xs ${(comment.likes?.length ?? 0) > 0 ? 'text-pink-400' : 'text-neutral-400 hover:text-pink-400'}`}
+                                        className={`flex items-center gap-1 text-xs ${(comment.likes?.length ?? 0) > 0 ? 'text-pink-400' : 'text-muted-foreground hover:text-pink-400'}`}
                                     >
                                         <Heart size={14} fill={(comment.likes?.length ?? 0) > 0 ? 'currentColor' : 'none'} />
                                         <span>{comment._count?.likes ?? 0}</span>
@@ -232,12 +232,12 @@ export default function CommentSection({ postId, onCommentAdded }: { postId: str
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     placeholder="Write a comment..."
-                    className="flex-1 rounded-md border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-white placeholder:text-neutral-500 focus:outline-none focus:ring-1 focus:ring-neutral-500"
+                    className="flex-1 rounded-md border border-border bg-card px-3 py-2 text-sm text-white placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
                 />
                 <button
                     onClick={handleSubmit}
                     disabled={isSubmitting || input.trim().length === 0}
-                    className="rounded-md border border-neutral-700 bg-neutral-700 px-3 py-2 text-sm font-semibold text-white hover:bg-neutral-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="rounded-md border border-border bg-muted px-3 py-2 text-sm font-semibold text-white hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     {isSubmitting ? 'Posting...' : 'Post'}
                 </button>

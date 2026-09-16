@@ -86,11 +86,11 @@ function EmptySlot({ position, onAdd, isFeatured = false }: { position: number; 
     return (
         <button
             onClick={() => onAdd(position)}
-            className={`flex flex-col items-center justify-center rounded-2xl border border-dashed border-neutral-600 bg-neutral-900/30 hover:border-neutral-500 hover:bg-neutral-800/40 transition-colors cursor-pointer w-full ${isFeatured ? 'h-full min-h-[420px]' : 'flex-1 min-h-[200px]'
+            className={`flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-background hover:border-neutral-500 hover:bg-card transition-colors cursor-pointer w-full ${isFeatured ? 'h-full min-h-[420px]' : 'flex-1 min-h-[200px]'
                 }`}
         >
-            <Plus size={28} className="text-neutral-500 mb-2" />
-            <p className="text-neutral-500">Add a prompt</p>
+            <Plus size={28} className="text-muted-foreground mb-2" />
+            <p className="text-muted-foreground">Add a prompt</p>
         </button>
     );
 }
@@ -111,13 +111,13 @@ function PromptCard({
     if (!entity) return null;
 
     return (
-        <div className={`relative rounded-2xl border border-neutral-700/60 bg-neutral-800/35 p-5 ${isFeatured ? 'h-full w-full min-h-[420px] flex flex-col justify-center gap-4' : 'flex-1 flex flex-col justify-center gap-4 min-h-[200px]'
+        <div className={`relative rounded-2xl border border-border bg-surface p-5 ${isFeatured ? 'h-full w-full min-h-[420px] flex flex-col justify-center gap-4' : 'flex-1 flex flex-col justify-center gap-4 min-h-[200px]'
             }`}>
             {/* delete button for own profile */}
             {isOwnProfile && (
                 <button
                     onClick={() => onDelete(prompt.id)}
-                    className="absolute top-4 right-4 text-neutral-500 hover:text-red-400 transition-colors"
+                    className="absolute top-4 right-4 text-muted-foreground hover:text-red-400 transition-colors"
                 >
                     <Trash2 size={14} />
                 </button>
@@ -129,7 +129,7 @@ function PromptCard({
             </p>
 
             {/* entity answer */}
-            <Link href={entity.href} className="flex items-center justify-between rounded-xl bg-neutral-700/65 px-4 py-3 group">
+            <Link href={entity.href} className="flex items-center justify-between rounded-xl bg-muted px-4 py-3 group">
                 <div className="min-w-0 flex items-center gap-3">
                     {entity.imageUrl ? (
                         <img
@@ -138,13 +138,13 @@ function PromptCard({
                             className={`${isFeatured ? 'h-16 w-16' : 'h-14 w-14'} object-cover ${entity.rounded ? 'rounded-full' : 'rounded-md'}`}
                         />
                     ) : (
-                        <div className={`${isFeatured ? 'h-16 w-16' : 'h-14 w-14'} bg-neutral-700 ${entity.rounded ? 'rounded-full' : 'rounded-md'}`} />
+                        <div className={`${isFeatured ? 'h-16 w-16' : 'h-14 w-14'} bg-muted ${entity.rounded ? 'rounded-full' : 'rounded-md'}`} />
                     )}
                     <div className="min-w-0">
                         <p className={`${isFeatured ? 'text-lg' : 'text-base'} font-extrabold text-white truncate leading-tight group-hover:underline`}>
                             {entity.name}
                         </p>
-                        <p className={`${isFeatured ? 'text-sm' : 'text-xs'} text-neutral-400 truncate`}>{entity.subtitle}</p>
+                        <p className={`${isFeatured ? 'text-sm' : 'text-xs'} text-muted-foreground truncate`}>{entity.subtitle}</p>
                     </div>
                 </div>
 
@@ -170,12 +170,12 @@ export default function ProfilePrompts({ prompts, isOwnProfile, onAddPrompt, onD
     if (!isOwnProfile && !hasAnyPrompts) return null;
 
     return (
-        <section className="mt-4">
-            <div className="rounded-2xl border border-neutral-700/60 bg-neutral-900/60 p-6">
+        <section className="mt-2">
+            <div className="rounded-2xl border border-border bg-background p-6">
                 {/* layout: positions 0 & 1 on left, position 2 on right (featured) */}
-                <div className="grid grid-cols-[1fr_1fr] gap-4 min-h-[420px]">
+                <div className="profile-prompts-grid min-h-[420px]">
                     {/* left column: positions 0 and 1 stacked */}
-                    <div className="flex flex-col gap-4">
+                    <div className="flex flex-col gap-2">
                         {[0, 1].map((pos) => {
                             const prompt = promptsByPosition[pos];
                             if (prompt) {

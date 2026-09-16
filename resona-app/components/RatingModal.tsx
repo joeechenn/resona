@@ -130,13 +130,14 @@ export default function RatingModal({
                     onClick={closeModal}
                 >
                     <div
-                        className="bg-neutral-800 rounded-2xl px-8 py-10 max-w-[36rem] w-full mx-4 relative"
+                        className="bg-card rounded-2xl px-6 py-8 sm:px-8 sm:py-10 max-w-[36rem] max-h-[calc(100dvh-2rem)] overflow-y-auto min-w-0 w-full mx-4 relative"
                         onClick={(e) => e.stopPropagation()}
                     >
                         {/* close button */}
                         <button
                             onClick={closeModal}
-                            className="absolute top-4 right-4 text-neutral-400 hover:text-white transition-colors"
+                            aria-label="Close rating dialog"
+                            className="absolute top-4 right-4 text-muted-foreground hover:text-white transition-colors"
                         >
                             <X size={20} />
                         </button>
@@ -150,29 +151,30 @@ export default function RatingModal({
                             />
                             <div>
                                 <h3 className="text-white font-semibold text-base">{name}</h3>
-                                <p className="text-neutral-400 text-sm">{artist}</p>
+                                <p className="text-muted-foreground text-sm">{artist}</p>
                             </div>
                         </div>
 
-                        <div className="flex gap-8">
+                        <div className="flex flex-col gap-6 sm:flex-row sm:gap-8">
                             {/* left: your rating */}
-                            <div className="basis-[65%] flex flex-col items-center text-center">
-                                <p className="text-neutral-400 text-sm mb-3">Your Rating</p>
+                            <div className="sm:basis-[65%] flex flex-col items-center text-center">
+                                <p className="text-muted-foreground text-sm mb-3">Your Rating</p>
                                 <div className="relative inline-flex items-end mb-8 pr-8">
                                     <input
                                         type="number"
                                         min={0}
                                         max={10}
                                         step={1}
+                                        aria-label="Your rating out of ten"
                                         value={ratingInput}
                                         onChange={(e) => setRatingInput(e.target.value)}
                                         className="w-20 text-center text-5xl font-semibold text-white bg-transparent border-0 p-0 leading-none focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                     />
-                                    <span className="absolute right-0 bottom-0 text-neutral-400 text-sm">/10</span>
+                                    <span className="absolute right-0 bottom-0 text-muted-foreground text-sm">/10</span>
                                 </div>
 
                                 {/* visual-only slider */}
-                                <div className="relative w-full h-2 bg-neutral-600/70 border border-neutral-500/70 rounded-full mb-8 pointer-events-none">
+                                <div className="relative w-full h-2 bg-muted border border-neutral-500/70 rounded-full mb-8 pointer-events-none">
                                     <div
                                         className="absolute top-0 left-0 h-2 bg-green-500 rounded-full transition-all duration-200"
                                         style={{ width: `${fillPercent}%` }}
@@ -182,7 +184,7 @@ export default function RatingModal({
                                 <button
                                     onClick={handleSubmit}
                                     disabled={isSubmitting}
-                                    className="w-48 bg-neutral-900 border border-neutral-700 text-neutral-100 font-semibold py-2.5 rounded-full hover:bg-neutral-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="w-48 bg-background border border-border text-neutral-100 font-semibold py-2.5 rounded-full hover:bg-card transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     {isSubmitting ? 'Submitting...' : 'Submit Rating'}
                                 </button>
@@ -195,37 +197,26 @@ export default function RatingModal({
                             </div>
 
                             {/* vertical divider */}
-                            <div className="w-px bg-neutral-700/60 self-stretch" />
+                            <div className="hidden w-px bg-muted self-stretch sm:block" />
 
                             {/* right: global + friend ratings */}
-                            <div className="basis-[35%] flex flex-col items-center">
+                            <div className="grid grid-cols-2 gap-4 border-t border-border pt-5 sm:basis-[35%] sm:flex sm:flex-col sm:items-center sm:gap-0 sm:border-0 sm:pt-0">
                                 <div className="mb-6 text-center">
-                                    <p className="text-neutral-400 text-sm mb-1">Global Rating</p>
+                                    <p className="text-muted-foreground text-sm mb-1">Global Rating</p>
                                     <div className="flex items-baseline justify-center gap-1">
                                         <span className="text-green-400 text-3xl font-bold">--</span>
-                                        <span className="text-neutral-400 text-sm">/10</span>
+                                        <span className="text-muted-foreground text-sm">/10</span>
                                     </div>
                                 </div>
 
                                 <div className="mb-6 text-center">
-                                    <p className="text-neutral-400 text-sm mb-1">Friend Rating</p>
+                                    <p className="text-muted-foreground text-sm mb-1">Friend Rating</p>
                                     <div className="flex items-baseline justify-center gap-1">
                                         <span className="text-yellow-400 text-3xl font-bold">--</span>
-                                        <span className="text-neutral-400 text-sm">/10</span>
+                                        <span className="text-muted-foreground text-sm">/10</span>
                                     </div>
                                 </div>
 
-                                {/* horizontal divider */}
-                                <div className="h-px w-full bg-neutral-700/60 my-6" />
-
-                                <div className="text-center mt-0">
-                                    <p className="text-neutral-500 text-xs mb-3">
-                                        Can&apos;t make up your mind?<br />Try out this new feature!
-                                    </p>
-                                    <button className="bg-neutral-700 border border-neutral-500 text-neutral-100 text-xs px-4 py-2 rounded-md hover:bg-neutral-600 transition-colors">
-                                        Try New Rating Feature
-                                    </button>
-                                </div>
                             </div>
                         </div>
 
