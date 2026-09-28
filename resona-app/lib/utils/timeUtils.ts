@@ -24,16 +24,23 @@ export function getYear(dateString: string | null): string | null {
     return new Date(dateString).getFullYear().toString();
 }
 
-export function formatRelativeTime(dateString: string): string {
-    const now = Date.now();
-    const created = new Date(dateString).getTime();
-    const diffMinutes = Math.floor((now - created) / (1000 * 60));
+export function formatTimestamp(dateString: string): string {
+    const now = new Date();
+    const created = new Date(dateString);
+    const diffMinutes = Math.floor((now.getTime() - created.getTime()) / (1000 * 60));
 
     if (diffMinutes < 60) return `${Math.max(1, diffMinutes)}m ago`;
 
     const diffHours = Math.floor(diffMinutes / 60);
-    if (diffHours < 24) return `${diffHours} hours ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
 
     const diffDays = Math.floor(diffHours / 24);
-    return `${diffDays}d ago`;
+    if (diffDays < 7) return `${diffDays}d ago`;
+
+    // older than a week shows the date, with the year only when it isn't this year
+    return created.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        ...(created.getFullYear() !== now.getFullYear() && { year: 'numeric' }),
+    });
 }

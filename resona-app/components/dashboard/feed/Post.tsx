@@ -3,7 +3,7 @@
 import { Heart, MessageCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
-import { formatRelativeTime, formatDuration, getYear } from '@/lib/utils/timeUtils';
+import { formatTimestamp, formatDuration, getYear } from '@/lib/utils/timeUtils';
 import CommentSection from './CommentSection';
 import ScoreBadge from '@/components/ScoreBadge';
 
@@ -77,7 +77,7 @@ export interface PostProps {
 export default function PostCard({ id, user, track, album, artist, _count, likes, rating, createdAt }: PostProps) {
     const userDisplayName = user.name || 'Anonymous';
     const userInitial = userDisplayName.charAt(0).toUpperCase();
-    const relativeTime = formatRelativeTime(createdAt);
+    const timestamp = formatTimestamp(createdAt);
     const albumYear = album ? getYear(album.releaseDate) : null;
 
     const [isLiked, setIsLiked] = useState(likes.length > 0);
@@ -157,7 +157,7 @@ export default function PostCard({ id, user, track, album, artist, _count, likes
                         </Link>
                     )}
                     <span className="mx-2 text-muted-foreground">•</span>
-                    <span className="text-muted-foreground">{relativeTime}</span>
+                    <span className="text-muted-foreground">{timestamp}</span>
                 </div>
             </div>
 

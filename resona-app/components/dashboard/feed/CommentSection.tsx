@@ -1,6 +1,6 @@
 'use client';
 import { useCallback, useEffect, useState } from 'react';
-import { formatRelativeTime } from '@/lib/utils/timeUtils';
+import { formatTimestamp } from '@/lib/utils/timeUtils';
 import { getInitial } from '@/lib/utils/utils';
 import { Heart } from 'lucide-react';
 
@@ -207,7 +207,7 @@ export default function CommentSection({ postId, onCommentAdded }: { postId: str
                                         {comment.user.name || 'Anonymous'}
                                     </p>
                                     <p className="text-xs text-muted-foreground">
-                                        {formatRelativeTime(comment.createdAt)}
+                                        {formatTimestamp(comment.createdAt)}
                                     </p>
                                 </div>
                                 <p className="text-sm text-neutral-200 mt-1 break-words">{comment.content}</p>
