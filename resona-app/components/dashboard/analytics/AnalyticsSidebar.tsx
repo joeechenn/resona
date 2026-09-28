@@ -4,6 +4,9 @@ import { auth } from '@/auth';
 import ScoreBadge from '@/components/ScoreBadge';
 import { getTasteSummary, type TasteSummary } from '@/lib/tasteSummary';
 
+// delay between neighboring histogram bars in the entrance animation
+const BAR_STAGGER_MS = 45;
+
 // label from the share of ratings that are 8 or higher
 function getRaterLabel(highShare: number): string {
   if (highShare >= 0.6) return 'Rating only favorites?';
@@ -25,11 +28,11 @@ function TastePanel({ summary }: { summary: TasteSummary }) {
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <div className="flex items-baseline gap-2">
+      <div className="taste-rise flex items-baseline gap-2">
         <span className="text-4xl font-extrabold tracking-tight tabular-nums">{average?.toFixed(1)}</span>
         <span className="text-sm text-muted-foreground">avg score</span>
       </div>
-      <p className="mt-0.5 text-sm font-semibold">
+      <p className="taste-fade-late mt-0.5 text-sm font-semibold">
         {getRaterLabel(highShare)}{' '}
         <span className="font-normal whitespace-nowrap text-muted-foreground">{Math.round(highShare * 100)}% are 8+</span>
       </p>
@@ -39,8 +42,8 @@ function TastePanel({ summary }: { summary: TasteSummary }) {
         {distribution.map((count, score) => (
           <div key={score} className="group relative flex h-full flex-1 items-end">
             <div
-            className={`w-full rounded-t-sm transition-colors ${count === peak ? 'bg-foreground' : 'bg-foreground/25 group-hover:bg-foreground/50'}`}
-            style={{ height: `${Math.max(2, (count / peak) * 100)}%` }}
+            className={`taste-bar w-full rounded-t-sm transition-colors ${count === peak ? 'bg-foreground' : 'bg-foreground/25 group-hover:bg-foreground/50'}`}
+            style={{ height: `${Math.max(2, (count / peak) * 100)}%`, animationDelay: `${score * BAR_STAGGER_MS}ms` }}
             />
             <span className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-1.5 -translate-x-1/2 rounded-md bg-foreground px-2 py-1 text-[11px] font-semibold whitespace-nowrap text-background opacity-0 transition-opacity group-hover:opacity-100">
               {score} &middot; {count} {count === 1 ? 'rating' : 'ratings'}
