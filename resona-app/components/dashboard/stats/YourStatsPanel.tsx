@@ -11,7 +11,7 @@ export default async function YourStatsPanel() {
   
     const { weekStart, weekEnd } = getCurrentWeekBounds();
 
-    const [tracksRanked, albumsRanked, artistsRanked] = await Promise.all([
+    const [tracksRated, albumsRated, artistsRated] = await Promise.all([
     prisma.userTrackStat.count({
       where: {
         userId: session.user.id,
@@ -48,20 +48,18 @@ export default async function YourStatsPanel() {
         <div className="mb-4 flex min-h-7 shrink-0 items-center justify-between gap-2">
             <h2 className="text-lg font-semibold leading-7">Your Stats This Week</h2>
         </div>
-        <div className="space-y-3">
-            <div className="flex justify-between items-center">
-                <p className="text-muted-foreground">Tracks</p>
-                <p className="text-lg font-semibold">{tracksRanked}</p>
-            </div>
-            <div className="flex justify-between items-center">
-                <p className="text-muted-foreground">Albums</p>
-                <p className="text-lg font-semibold">{albumsRanked}</p>
-            </div>
-            <div className="flex justify-between items-center">
-                <p className="text-muted-foreground">Artists</p>
-                <p className="text-lg font-semibold">{artistsRanked}</p>
-            </div>
-        </div>
+        <dl className="grid grid-cols-3 gap-1.5">
+            {[
+                { label: 'Tracks', count: tracksRated },
+                { label: 'Albums', count: albumsRated },
+                { label: 'Artists', count: artistsRated },
+            ].map(({ label, count }) => (
+                <div key={label} className="flex flex-col-reverse rounded-lg bg-surface p-2.5">
+                    <dt className="text-xs text-muted-foreground">{label}</dt>
+                    <dd className="text-2xl font-extrabold tabular-nums">{count}</dd>
+                </div>
+            ))}
+        </dl>
     </div>
   );
 }
@@ -72,19 +70,10 @@ function YourStatsSkeleton() {
             <div className="mb-4 flex min-h-7 shrink-0 items-center justify-between gap-2">
                 <h2 className="text-lg font-semibold leading-7">Your Stats This Week</h2>
             </div>
-            <div className="space-y-2">
-                <div className="animate-pulse space-y-2">
-                    <div className="h-4 bg-muted rounded w-32" />
-                    <div className="h-8 bg-muted rounded w-16" />
-                </div>
-                <div className="animate-pulse space-y-2">
-                    <div className="h-4 bg-muted rounded w-28" />
-                    <div className="h-8 bg-muted rounded w-20" />
-                </div>
-                <div className="animate-pulse space-y-2">
-                    <div className="h-4 bg-muted rounded w-36" />
-                    <div className="h-8 bg-muted rounded w-24" />
-                </div>
+            <div className="grid grid-cols-3 gap-1.5">
+                {[1, 2, 3].map((i) => (
+                    <div key={i} className="h-[4.5rem] animate-pulse rounded-lg bg-surface" />
+                ))}
             </div>
         </div>
     );
