@@ -1,10 +1,23 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
+import { APP_STAGE, APP_VERSION } from '@/lib/constants/version';
 
 export default function ChangelogModal() {
     const [isOpen, setIsOpen] = useState(false);
+
+    // close on Escape while the modal is open
+    useEffect(() => {
+        if (!isOpen) return;
+
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === 'Escape') setIsOpen(false);
+        };
+
+        document.addEventListener('keydown', handleKeyDown);
+        return () => document.removeEventListener('keydown', handleKeyDown);
+    }, [isOpen]);
 
     return (
         <>
@@ -36,7 +49,7 @@ export default function ChangelogModal() {
 
                         <div className="pr-8">
                             <h2 className="text-center text-xl font-bold text-white mb-5">
-                                v0.2.1 &mdash; Closed Beta
+                                {APP_VERSION} &mdash; {APP_STAGE}
                             </h2>
                             <p className="mb-5 text-center text-sm text-muted-foreground">
                                 May 1, 2026

@@ -2,6 +2,7 @@ import AnimatedContent from './AnimatedContent'
 import ChangelogModal from './ChangelogModal'
 import { loginWithGoogle } from "@/lib/auth-actions";
 import Image from 'next/image';
+import { APP_STAGE, APP_VERSION } from '@/lib/constants/version';
 
 export default function LoginPage() {
   return (
@@ -100,7 +101,7 @@ export default function LoginPage() {
             </AnimatedContent>
         </div>
         <div className="absolute bottom-5 left-5 sm:bottom-6 sm:left-6 flex flex-col items-start gap-1 text-sm text-muted-foreground">
-            <p className="font-semibold text-neutral-300">v0.1.1 &mdash; Closed Beta</p>
+            <p className="font-semibold text-neutral-300">{APP_VERSION} &mdash; {APP_STAGE}</p>
             <ChangelogModal />
         </div>
     </div>
