@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import type { LoginCover } from '@/lib/loginCovers';
-import { ratingColorClass } from '@/lib/utils/rating';
+import ScoreBadge from './ScoreBadge';
 
 // 12 columns x 8 tiles fills screens up to ~2150px wide and ~1430px tall
 const COLUMN_COUNT = 12;
@@ -33,9 +33,10 @@ export default function CoverColumns({ covers }: { covers: LoginCover[] }) {
                                     loading="eager"
                                     className="object-cover"
                                 />
-                                <span className={`absolute right-2 bottom-2 flex h-8 w-8 items-center justify-center rounded-full border-2 border-neutral-400 bg-background/70 text-sm font-bold ${ratingColorClass(cover.rating)}`}>
-                                    {cover.rating}
-                                </span>
+                                <ScoreBadge
+                                rating={cover.rating}
+                                className="absolute right-2 bottom-2 h-8 w-8 bg-background/70 text-sm"
+                                />
                             </div>
                         ))}
                     </div>

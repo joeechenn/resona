@@ -4,8 +4,8 @@ import { Heart, MessageCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 import { formatRelativeTime, formatDuration, getYear } from '@/lib/utils/timeUtils';
-import { ratingColorClass } from '@/lib/utils/rating';
 import CommentSection from './CommentSection';
+import ScoreBadge from '@/components/ScoreBadge';
 
 export interface PostProps {
     id: string;
@@ -78,7 +78,6 @@ export default function PostCard({ id, user, track, album, artist, _count, likes
     const userDisplayName = user.name || 'Anonymous';
     const userInitial = userDisplayName.charAt(0).toUpperCase();
     const relativeTime = formatRelativeTime(createdAt);
-    const ratingDisplay = rating === null ? '-' : `${rating}`;
     const albumYear = album ? getYear(album.releaseDate) : null;
 
     const [isLiked, setIsLiked] = useState(likes.length > 0);
@@ -257,9 +256,7 @@ export default function PostCard({ id, user, track, album, artist, _count, likes
                 </div>
 
                 {/* rating circle */}
-                <div className="ml-4 flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-2 border-neutral-400">
-                    <span className={`text-2xl font-bold ${ratingColorClass(rating)}`}>{ratingDisplay}</span>
-                </div>
+                <ScoreBadge rating={rating} className="ml-4 h-12 w-12 text-2xl" />
             </div>
 
             {/* bottom section */}

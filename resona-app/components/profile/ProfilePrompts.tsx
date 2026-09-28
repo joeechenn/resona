@@ -2,7 +2,7 @@
 
 import { Plus, Trash2 } from 'lucide-react';
 import Link from 'next/link';
-import { ratingColorClass } from '@/lib/utils/rating';
+import ScoreBadge from '@/components/ScoreBadge';
 
 interface PromptEntity {
     track: {
@@ -145,9 +145,10 @@ function PromptCard({
 
                 {/* rating circle */}
                 {entity.rating !== null && entity.rating !== undefined && (
-                    <div className={`ml-4 flex shrink-0 items-center justify-center rounded-full border-2 border-neutral-400 ${isFeatured ? 'h-12 w-12' : 'h-11 w-11'}`}>
-                        <span className={`${isFeatured ? 'text-xl' : 'text-lg'} font-bold ${ratingColorClass(entity.rating)}`}>{entity.rating}</span>
-                    </div>
+                    <ScoreBadge
+                    rating={entity.rating}
+                    className={`ml-4 ${isFeatured ? 'h-12 w-12 text-xl' : 'h-11 w-11 text-lg'}`}
+                    />
                 )}
             </Link>
         </div>
