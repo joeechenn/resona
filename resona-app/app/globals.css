@@ -208,3 +208,79 @@
     grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
   }
 }
+
+/*
+ * Login cover columns
+ *
+ * Recently rated artwork drifts behind the sign-in. Each column holds its tiles
+ * twice and moves up by half its height, so the loop has no visible seam.
+ */
+.cover-columns {
+  --cover-size: 165px;
+  --cover-gap: 0.875rem;
+
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  gap: var(--cover-gap);
+  overflow: hidden;
+  opacity: 0.6;
+}
+
+.cover-column {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  gap: var(--cover-gap);
+  /* trailing gap keeps both halves the same height */
+  padding-bottom: var(--cover-gap);
+  animation: cover-drift 70s linear infinite;
+}
+
+.cover-column:nth-child(even) {
+  margin-top: calc(var(--cover-size) * -0.55);
+  animation-direction: reverse;
+  animation-duration: 90s;
+}
+
+.cover-tile {
+  position: relative;
+  width: var(--cover-size);
+  height: var(--cover-size);
+  flex: none;
+  overflow: hidden;
+  border-radius: var(--radius-xl);
+  background: var(--muted);
+}
+
+.cover-columns-veil {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      ellipse 50% 55% at 50% 50%,
+      color-mix(in srgb, var(--background) 96%, transparent) 30%,
+      color-mix(in srgb, var(--background) 60%, transparent) 70%,
+      color-mix(in srgb, var(--background) 25%, transparent) 100%
+    ),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--background) 85%, transparent),
+      transparent 20%,
+      transparent 80%,
+      color-mix(in srgb, var(--background) 90%, transparent)
+    );
+}
+
+@keyframes cover-drift {
+  to {
+    transform: translateY(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cover-column {
+    animation: none;
+  }
+}

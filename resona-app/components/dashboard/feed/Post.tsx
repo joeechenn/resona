@@ -4,6 +4,7 @@ import { Heart, MessageCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 import { formatRelativeTime, formatDuration, getYear } from '@/lib/utils/timeUtils';
+import { ratingColorClass } from '@/lib/utils/rating';
 import CommentSection from './CommentSection';
 
 export interface PostProps {
@@ -71,13 +72,6 @@ export interface PostProps {
 
     rating: number | null;
     createdAt: string;
-}
-
-function ratingColorClass(rating: number | null): string {
-    if (rating === null) return 'text-neutral-300';
-    if (rating <= 4) return 'text-red-400';
-    if (rating <= 7) return 'text-yellow-300';
-    return 'text-green-400';
 }
 
 export default function PostCard({ id, user, track, album, artist, _count, likes, rating, createdAt }: PostProps) {

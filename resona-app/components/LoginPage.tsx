@@ -1,12 +1,15 @@
 import AnimatedContent from './AnimatedContent'
 import ChangelogModal from './ChangelogModal'
+import CoverColumns from './CoverColumns'
 import { loginWithGoogle } from "@/lib/auth-actions";
 import Image from 'next/image';
 import { APP_STAGE, APP_VERSION } from '@/lib/constants/version';
+import type { LoginCover } from '@/lib/loginCovers';
 
-export default function LoginPage() {
+export default function LoginPage({ covers }: { covers: LoginCover[] }) {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center relative">
+    <div className="min-h-screen flex flex-col items-center justify-center relative isolate overflow-hidden">
+        <CoverColumns covers={covers} />
         <AnimatedContent
         distance={80}
         direction="vertical"

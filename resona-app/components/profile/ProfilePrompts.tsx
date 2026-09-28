@@ -2,6 +2,7 @@
 
 import { Plus, Trash2 } from 'lucide-react';
 import Link from 'next/link';
+import { ratingColorClass } from '@/lib/utils/rating';
 
 interface PromptEntity {
     track: {
@@ -38,12 +39,6 @@ interface ProfilePromptsProps {
     isOwnProfile: boolean;
     onAddPrompt: (position: number) => void;
     onDeletePrompt: (promptId: string) => void;
-}
-
-function ratingColorClass(rating: number): string {
-    if (rating <= 4) return 'text-red-400';
-    if (rating <= 7) return 'text-yellow-300';
-    return 'text-green-400';
 }
 
 // extract display info from whichever entity is attached
