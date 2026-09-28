@@ -1,108 +1,65 @@
+import Link from "next/link";
 import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma";
+import ScoreBadge from "@/components/ScoreBadge";
+import { getFriendActivity, type FriendRating } from "@/lib/friendActivity";
+import { getInitial } from "@/lib/utils/utils";
+
+function FriendRatingRow({ user, type, spotifyId, title, subtitle, rating }: FriendRating) {
+    const displayName = user.name || "Anonymous";
+
+    return (
+        <li className="flex items-center gap-3 border-t border-border/60 py-2.5 first:border-t-0 first:pt-0">
+            <Link href={`/profile/${user.id}`} className="shrink-0">
+                {user.image ? (
+                    <img src={user.image} alt={displayName} className="h-9 w-9 rounded-full object-cover" />
+                ) : (
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-muted text-sm font-semibold">
+                        {getInitial(user.name)}
+                    </div>
+                )}
+            </Link>
+            <div className="min-w-0 flex-1">
+                <Link href={`/profile/${user.id}`} className="block truncate text-sm font-bold hover:underline">
+                    {displayName}
+                </Link>
+                <Link href={`/${type}/${spotifyId}`} className="block truncate text-xs text-muted-foreground transition-colors hover:text-foreground">
+                    {title} &middot; {subtitle}
+                </Link>
+            </div>
+            <ScoreBadge rating={rating} className="h-8 w-8 text-sm" />
+        </li>
+    );
+}
 
 export default async function FriendActivity() {
     const session = await auth();
-    
-    if (!session?.user?.id) {
-        return <FriendActivitySkeleton />;
-    }
+    const activity = session?.user?.id ? await getFriendActivity(session.user.id) : null;
 
-    const friendsListening = await prisma.user.findUnique({
-        where: { id: session.user.id },
-        select: {
-            follows: {
-                select: {
-                    following: {
-                        select: {
-                            id: true,
-                            name: true,
-                            image: true,
-                            isListening: true,
-                            currentlyPlayingTrack: {
-                                select: {
-                                    name: true,
-                                    artists: {
-                                        select: {
-                                            artist: {
-                                                select: {
-                                                    name: true,
-                                                },
-                                            },
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                },
-                where: {
-                    following: {
-                        isListening: true,
-                    },
-                },
-            },
-        },
-    });
-    
-    const activeListeners = friendsListening?.follows || [];
-    
+    const emptyMessage = !activity
+        ? "Couldn't load friend activity right now."
+        : !activity.followsAnyone
+            ? "Follow people to see their latest ratings here."
+            : "The people you follow haven't rated anything yet.";
+
     return (
     <div className="flex min-h-0 flex-1 flex-col bg-card rounded-lg p-4">
-        <div className="mb-4 flex min-h-7 shrink-0 items-center justify-between gap-2">
+        <div className="mb-4 shrink-0">
             <h2 className="text-lg font-semibold leading-7">Friend Activity</h2>
+            <p className="text-xs text-muted-foreground">Each friend&apos;s latest rating</p>
         </div>
         <div className="min-h-0 flex-1 overflow-y-auto">
-            {activeListeners.length === 0 ? (
-                <p className="flex min-h-full items-center justify-center text-center text-sm text-muted-foreground">
-                    Add more friends who connected with Spotify to see what they&apos;re up to!
-                </p>
-                ) : (
-                <div className="space-y-3">
-                    {activeListeners.map(({ following }) => (
-                        <div key={following.id} className="flex items-start gap-3">
-                            <img
-                            src={following.image || "/default-avatar.png"}
-                            alt={following.name || "User"}
-                            className="w-10 h-10 rounded-full"/>
-                            <div className="flex-1 min-w-0">
-                                <p className="text-sm font-semibold truncate">
-                                    {following.name}
-                                </p>
-                                <p className="text-xs text-muted-foreground truncate">
-                                    {following.currentlyPlayingTrack?.name}
-                                </p>
-                                <p className="text-xs text-muted-foreground truncate">
-                                    {following.currentlyPlayingTrack?.artists.map((trackArtist) => trackArtist.artist.name).join(", ")}
-                                </p>
-                            </div>
-                        </div>
+            {activity && activity.ratings.length > 0 ? (
+                <ul>
+                    {activity.ratings.map((friendRating) => (
+                        <FriendRatingRow key={friendRating.postId} {...friendRating} />
                     ))}
-                </div>
+                </ul>
+            ) : (
+                <p className="flex min-h-full items-center justify-center text-center text-sm text-muted-foreground">
+                    {emptyMessage}
+                </p>
             )}
         </div>
     </div>
   );
-}
-
-function FriendActivitySkeleton() {
-    return (
-        <div className="flex min-h-0 flex-1 flex-col bg-card rounded-lg p-4">
-            <div className="mb-4 flex min-h-7 shrink-0 items-center justify-between gap-2">
-                <h2 className="text-lg font-semibold leading-7">Friend Activity</h2>
-            </div>
-            <div className="min-h-0 flex-1 space-y-3 overflow-y-auto">
-                {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-                    <div key={i} className="flex items-start gap-3 animate-pulse">
-                        <div className="w-10 h-10 rounded-full bg-muted" />
-                        <div className="flex-1 space-y-2">
-                            <div className="h-4 bg-muted rounded w-24" />
-                            <div className="h-3 bg-muted rounded w-32" />
-                            <div className="h-3 bg-muted rounded w-28" />
-                        </div>
-                    </div>
-                ))}
-            </div>
-        </div>
-    );
 }

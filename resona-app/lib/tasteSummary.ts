@@ -2,6 +2,7 @@ import 'server-only';
 
 import { prisma } from '@/lib/prisma';
 import type { EntityType } from '@/lib/constants/profilePrompts';
+import { joinArtistNames } from '@/lib/utils/artists';
 
 const RECENT_TENS_LIMIT = 5;
 const HIGH_SCORE = 8;
@@ -25,12 +26,6 @@ export interface TasteSummary {
     lowestScore: number | null;
     topArtist: { name: string; spotifyId: string } | null;
     recentTens: RecentTen[];
-}
-
-type ArtistNames = { artists: { artist: { name: string } }[] };
-
-function joinArtistNames({ artists }: ArtistNames): string {
-    return artists.map(({ artist }) => artist.name).join(', ') || 'Unknown artist';
 }
 
 async function getRatingCounts(userId: string) {
