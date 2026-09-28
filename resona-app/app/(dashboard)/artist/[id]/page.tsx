@@ -2,10 +2,11 @@ import { getArtist } from '@/lib/spotify';
 import Image from 'next/image';
 import Link from 'next/link';
 import RatingModal from '@/components/RatingModal';
+import { getViewerRating } from '@/lib/viewerRatings';
 
 export default async function ArtistPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
-    const artist = await getArtist(id);
+    const [artist, savedRating] = await Promise.all([getArtist(id), getViewerRating('artist', id)]);
     const artistImage = artist.images[0]?.url;
 
     return (
@@ -39,6 +40,7 @@ export default async function ArtistPage({ params }: { params: Promise<{ id: str
                             name={artist.name}
                             artist={artist.name}
                             imageUrl={artistImage}
+                            initialRating={savedRating}
                         />
                         <Link
                             href={artist.external_urls.spotify}

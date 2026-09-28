@@ -10,6 +10,8 @@ interface RatingModalProps {
     name: string;
     artist: string;
     imageUrl: string;
+    // viewer's saved rating, pre-fills the input when present
+    initialRating?: number | null;
     // controlled-mode props: when isOpen is provided, the parent owns open/close state
     // and the component skips rendering its built-in "Rate" trigger button.
     // onSuccess fires after a successful rating in either mode.
@@ -24,6 +26,7 @@ export default function RatingModal({
     name,
     artist,
     imageUrl,
+    initialRating,
     isOpen: controlledOpen,
     onClose,
     onSuccess,
@@ -39,7 +42,7 @@ export default function RatingModal({
         }
     };
 
-    const [ratingInput, setRatingInput] = useState('5');
+    const [ratingInput, setRatingInput] = useState(String(initialRating ?? 5));
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const router = useRouter();

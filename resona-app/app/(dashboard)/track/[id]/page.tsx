@@ -2,10 +2,11 @@ import { getTrack } from '@/lib/spotify';
 import Image from 'next/image';
 import Link from 'next/link';
 import RatingModal from '@/components/RatingModal';
+import { getViewerRating } from '@/lib/viewerRatings';
 
 export default async function TrackPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
-    const track = await getTrack(id);
+    const [track, savedRating] = await Promise.all([getTrack(id), getViewerRating('track', id)]);
 
     const formatDuration = (ms: number) => {
         const minutes = Math.floor(ms / 60000);
@@ -61,6 +62,7 @@ export default async function TrackPage({ params }: { params: Promise<{ id: stri
                             name={track.name}
                             artist={artistNames}
                             imageUrl={trackArt}
+                            initialRating={savedRating}
                         />
                         <Link
                             href={track.external_urls.spotify}
