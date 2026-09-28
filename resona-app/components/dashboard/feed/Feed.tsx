@@ -182,7 +182,7 @@ export default function Feed() {
             )}
 
             {!loading && !errorMessage && posts.length > 0 && (
-                <div className="space-y-2 overflow-y-auto pr-1 flex-1">
+                <div className="-mr-3 flex-1 space-y-2 overflow-y-auto pr-3">
                     {posts.map((post) => (
                         <PostCard key={post.id} {...post} />
                     ))}

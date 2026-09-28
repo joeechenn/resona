@@ -74,11 +74,62 @@ export interface PostProps {
     createdAt: string;
 }
 
+type ArtistCredit = NonNullable<PostProps['track']>['artists'][number];
+
+interface PostEntity {
+    href: string;
+    name: string;
+    imageUrl: string | null;
+    meta: string;
+    artists: ArtistCredit[] | null;
+    isArtist: boolean;
+}
+
+// normalize whichever entity the post rates into one display shape
+function getPostEntity({ track, album, artist }: Pick<PostProps, 'track' | 'album' | 'artist'>): PostEntity | null {
+    if (track) {
+        return {
+            href: `/track/${track.spotifyId}`,
+            name: track.name,
+            imageUrl: track.album?.imageUrl ?? null,
+            meta: `Track · ${formatDuration(track.durationMs)}`,
+            artists: track.artists,
+            isArtist: false,
+        };
+    }
+
+    if (album) {
+        const year = getYear(album.releaseDate);
+        const songs = album.totalTracks ? `${album.totalTracks} ${album.totalTracks === 1 ? 'song' : 'songs'}` : null;
+        return {
+            href: `/album/${album.spotifyId}`,
+            name: album.name,
+            imageUrl: album.imageUrl,
+            meta: ['Album', year, songs].filter(Boolean).join(' · '),
+            artists: album.artists,
+            isArtist: false,
+        };
+    }
+
+    if (artist) {
+        return {
+            href: `/artist/${artist.spotifyId}`,
+            name: artist.name,
+            imageUrl: artist.imageUrl,
+            meta: 'Artist',
+            artists: null,
+            isArtist: true,
+        };
+    }
+
+    return null;
+}
+
 export default function PostCard({ id, user, track, album, artist, _count, likes, rating, createdAt }: PostProps) {
     const userDisplayName = user.name || 'Anonymous';
     const userInitial = userDisplayName.charAt(0).toUpperCase();
     const timestamp = formatTimestamp(createdAt);
-    const albumYear = album ? getYear(album.releaseDate) : null;
+    const entity = getPostEntity({ track, album, artist });
 
     const [isLiked, setIsLiked] = useState(likes.length > 0);
     const [likeCount, setLikeCount] = useState(_count.likes);
@@ -117,168 +168,108 @@ export default function PostCard({ id, user, track, album, artist, _count, likes
         }
     };
 
+    if (!entity) return null;
+
+    const artworkShape = entity.isArtist ? 'rounded-full' : 'rounded-lg';
+
     return (
-        <article className="rounded-2xl border border-border bg-surface px-4 py-3">
-            {/* top section */}
-            <div className="mb-3 flex items-center gap-3">
-                <Link href={`/profile/${user.id}`} className="shrink-0">
-                    {/* user avatar */}
-                    {user.image ? (
-                        <img
-                            src={user.image}
-                            alt={userDisplayName}
-                            className="h-9 w-9 rounded-full object-cover"
-                        />
-                    ) : (
-                        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-muted text-sm font-semibold text-white">
-                            {userInitial}
-                        </div>
-                    )}
-                </Link>
+        <article className="relative overflow-hidden rounded-xl border border-border/70 bg-surface px-4 pt-3.5 pb-3">
+            {/* faint wash of the artwork across the whole card */}
+            {entity.imageUrl && (
+                <div
+                aria-hidden
+                className="pointer-events-none absolute -inset-24 bg-cover bg-center opacity-10 blur-[90px] saturate-[1.6]"
+                style={{ backgroundImage: `url(${entity.imageUrl})` }}
+                />
+            )}
 
-                <div className="text-sm text-neutral-300 min-w-0">
-                    <Link href={`/profile/${user.id}`} className="font-bold text-white hover:underline">
-                        {userDisplayName}
+            <div className="relative">
+                {/* top section */}
+                <div className="flex items-center gap-2.5 text-sm text-muted-foreground">
+                    <Link href={`/profile/${user.id}`} className="shrink-0">
+                        {user.image ? (
+                            <img
+                                src={user.image}
+                                alt={userDisplayName}
+                                className="h-7.5 w-7.5 rounded-full object-cover"
+                            />
+                        ) : (
+                            <div className="flex h-7.5 w-7.5 items-center justify-center rounded-full bg-muted text-xs font-semibold text-foreground">
+                                {userInitial}
+                            </div>
+                        )}
                     </Link>
-                    <span className="mx-1 text-muted-foreground">ranked</span>
-                    {track && (
-                        <Link href={`/track/${track.spotifyId}`} className="font-bold text-white hover:underline">
-                            {track.name}
+                    <p className="min-w-0 truncate">
+                        <Link href={`/profile/${user.id}`} className="font-bold text-foreground hover:underline">
+                            {userDisplayName}
                         </Link>
-                    )}
-                    {album && (
-                        <Link href={`/album/${album.spotifyId}`} className="font-bold text-white hover:underline">
-                            {album.name}
-                        </Link>
-                    )}
-                    {artist && (
-                        <Link href={`/artist/${artist.spotifyId}`} className="font-bold text-white hover:underline">
-                            {artist.name}
-                        </Link>
-                    )}
-                    <span className="mx-2 text-muted-foreground">•</span>
-                    <span className="text-muted-foreground">{timestamp}</span>
+                        {' '}rated &middot; {timestamp}
+                    </p>
                 </div>
-            </div>
 
-            {/* middle section (varies by entity type) */}
-            <div className="mb-3 flex items-center justify-between rounded-xl bg-muted px-3 py-3 sm:ml-10">
-                <div className="min-w-0 flex items-center gap-3">
-                    {/* artwork */}
-                    {(track?.album?.imageUrl || album?.imageUrl || artist?.imageUrl) ? (
-                        <img
-                            src={track?.album?.imageUrl || album?.imageUrl || artist?.imageUrl || ''}
-                            alt={track?.name || album?.name || artist?.name || 'Unknown'}
-                            className={`h-15 w-15 shrink-0 object-cover ${artist ? 'rounded-full' : 'rounded-md'}`}
-                        />
-                    ) : (
-                        <div className={`h-15 w-15 shrink-0 bg-muted ${artist ? 'rounded-full' : 'rounded-md'}`} />
-                    )}
-
-                    {/* details */}
-                    <div className="min-w-0">
-                        {track && (
-                            <>
-                                <p className="truncate text-base font-extrabold text-white leading-tight">
-                                    <Link href={`/track/${track.spotifyId}`} className="hover:underline">
-                                        {track.name}
-                                    </Link>
-                                </p>
-                                <p className="truncate text-sm text-muted-foreground">
-                                    {track.artists.length > 0 ? (
-                                        track.artists.map((ta, index) => (
-                                            <span key={ta.artist.id}>
-                                                {index > 0 && ', '}
-                                                <Link href={`/artist/${ta.artist.spotifyId}`} className="hover:text-white hover:underline">
-                                                    {ta.artist.name}
-                                                </Link>
-                                            </span>
-                                        ))
-                                    ) : (
-                                        'Unknown artist'
-                                    )}
-                                </p>
-                                {/* tags */}
-                                <div className="mt-2 flex flex-wrap gap-2">
-                                    <span className="rounded-md bg-black px-2 py-1 text-xs font-semibold text-white">
-                                        {formatDuration(track.durationMs)}
-                                    </span>
-                                </div>
-                            </>
+                {/* middle section */}
+                <div className="my-3 flex items-center gap-4">
+                    <Link href={entity.href} className="shrink-0">
+                        {entity.imageUrl ? (
+                            <img
+                                src={entity.imageUrl}
+                                alt={entity.name}
+                                className={`h-21 w-21 object-cover shadow-[0_10px_24px_-8px_rgba(0,0,0,0.7)] ${artworkShape}`}
+                            />
+                        ) : (
+                            <div className={`h-21 w-21 bg-muted ${artworkShape}`} />
                         )}
+                    </Link>
 
-                        {album && (
-                            <>
-                                <p className="truncate text-base font-extrabold text-white leading-tight">
-                                    <Link href={`/album/${album.spotifyId}`} className="hover:underline">
-                                        {album.name}
-                                    </Link>
-                                </p>
-                                <p className="truncate text-sm text-muted-foreground">
-                                    {album.artists.length > 0 ? (
-                                        album.artists.map((a, index) => (
-                                            <span key={a.artist.id}>
-                                                {index > 0 && ', '}
-                                                <Link href={`/artist/${a.artist.spotifyId}`} className="hover:text-white hover:underline">
-                                                    {a.artist.name}
-                                                </Link>
-                                            </span>
-                                        ))
-                                    ) : (
-                                        'Unknown artist'
-                                    )}
-                                </p>
-                                {/* tags */}
-                                <div className="mt-2 flex flex-wrap gap-2">
-                                    {albumYear && (
-                                        <span className="rounded-md bg-black px-2 py-1 text-xs font-semibold text-white">
-                                            {albumYear}
+                    <div className="min-w-0 flex-1">
+                        <p className="font-mono text-[11px] tracking-wider text-muted-foreground uppercase">{entity.meta}</p>
+                        <p className="mt-0.5 truncate text-lg leading-tight font-extrabold text-foreground">
+                            <Link href={entity.href} className="hover:underline">
+                                {entity.name}
+                            </Link>
+                        </p>
+                        {entity.artists && (
+                            <p className="mt-0.5 truncate text-sm text-muted-foreground">
+                                {entity.artists.length > 0 ? (
+                                    entity.artists.map((credit, index) => (
+                                        <span key={credit.artist.id}>
+                                            {index > 0 && ', '}
+                                            <Link href={`/artist/${credit.artist.spotifyId}`} className="hover:text-foreground hover:underline">
+                                                {credit.artist.name}
+                                            </Link>
                                         </span>
-                                    )}
-                                    <span className="rounded-md bg-black px-2 py-1 text-xs font-semibold text-white">
-                                        {album.totalTracks} songs
-                                    </span>
-                                </div>
-                            </>
-                        )}
-
-                        {artist && (
-                            <>
-                                <p className="truncate text-base font-extrabold text-white leading-tight">
-                                    <Link href={`/artist/${artist.spotifyId}`} className="hover:underline">
-                                        {artist.name}
-                                    </Link>
-                                </p>
-                                <p className="truncate text-sm text-muted-foreground">Artist</p>
-                            </>
+                                    ))
+                                ) : (
+                                    'Unknown artist'
+                                )}
+                            </p>
                         )}
                     </div>
+
+                    <ScoreBadge rating={rating} className="h-14 w-14 text-2xl" />
                 </div>
 
-                {/* rating circle */}
-                <ScoreBadge rating={rating} className="ml-4 h-12 w-12 text-2xl" />
-            </div>
+                {/* bottom section */}
+                <div className="flex items-center gap-6 text-sm">
+                    <button
+                        onClick={handleLikeToggle}
+                        disabled={isLikeLoading}
+                        className={`flex items-center gap-1.5 ${isLiked ? 'text-pink-400' : 'text-muted-foreground hover:text-pink-400'} disabled:opacity-60`}
+                    >
+                        <Heart size={18} fill={isLiked ? 'currentColor' : 'none'} />
+                        <span className="font-semibold">{likeCount}</span>
+                    </button>
+                    <button
+                        onClick={() => setIsCommentsOpen((prev) => !prev)}
+                        className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground"
+                    >
+                        <MessageCircle size={18} />
+                        <span className="font-semibold">{commentCount}</span>
+                    </button>
+                </div>
 
-            {/* bottom section */}
-            <div className="flex items-center gap-7 px-3 sm:pl-12 text-sm">
-                <button
-                    onClick={handleLikeToggle}
-                    disabled={isLikeLoading}
-                    className={`flex items-center gap-2 ${isLiked ? 'text-pink-400' : 'text-neutral-300 hover:text-pink-400'} disabled:opacity-60`}
-                >
-                    <Heart size={18} fill={isLiked ? 'currentColor' : 'none'} />
-                    <span className="font-semibold text-white">{likeCount}</span>
-                </button>
-                <button
-                    onClick={() => setIsCommentsOpen((prev) => !prev)}
-                    className="flex items-center gap-2 text-neutral-300 hover:text-white"
-                >
-                    <MessageCircle size={18} />
-                    <span className="font-semibold text-white">{commentCount}</span>
-                </button>
+                {isCommentsOpen && <CommentSection postId={id} onCommentAdded={() => setCommentCount(prev => prev + 1)} />}
             </div>
-
-            {isCommentsOpen && <CommentSection postId={id} onCommentAdded={() => setCommentCount(prev => prev + 1)} />}
         </article>
     );
 }
