@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { Prisma } from "@/app/generated/prisma";
 import { auth } from '@/auth';
+import { withViewerRatings } from '@/lib/viewerRatings';
 
 export async function GET(request: Request) {
     const session = await auth();
@@ -109,7 +110,7 @@ export async function GET(request: Request) {
 
         // if 11 results came back, more pages exist, slice to 10 before returning
         const hasMore = allPosts.length === 11;
-        const posts = hasMore ? allPosts.slice(0, -1) : allPosts;
+        const posts = await withViewerRatings(session.user.id, hasMore ? allPosts.slice(0, -1) : allPosts);
 
         // count follows on the first following-page only, used by empty state copy
         let followCount: number | undefined;

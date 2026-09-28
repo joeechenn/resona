@@ -9,15 +9,15 @@ interface RatingModalProps {
     spotifyId: string;
     name: string;
     artist: string;
-    imageUrl: string;
+    imageUrl: string | null;
     // viewer's saved rating, pre-fills the input when present
     initialRating?: number | null;
     // controlled-mode props: when isOpen is provided, the parent owns open/close state
     // and the component skips rendering its built-in "Rate" trigger button.
-    // onSuccess fires after a successful rating in either mode.
+    // onSuccess fires after a successful rating in either mode, with the saved rating.
     isOpen?: boolean;
     onClose?: () => void;
-    onSuccess?: () => void;
+    onSuccess?: (rating: number) => void;
 }
 
 export default function RatingModal({
@@ -101,7 +101,7 @@ export default function RatingModal({
                 return;
             }
 
-            onSuccess?.();
+            onSuccess?.(parsedRating);
             closeModal();
         } catch {
             // request failed before api response
@@ -147,11 +147,15 @@ export default function RatingModal({
 
                         {/* artwork + info */}
                         <div className="flex items-center gap-4 mb-10">
-                            <img
-                                src={imageUrl}
-                                alt={name}
-                                className="w-14 h-14 object-cover rounded-md"
-                            />
+                            {imageUrl ? (
+                                <img
+                                    src={imageUrl}
+                                    alt={name}
+                                    className="w-14 h-14 object-cover rounded-md"
+                                />
+                            ) : (
+                                <div className="w-14 h-14 shrink-0 rounded-md bg-muted" />
+                            )}
                             <div>
                                 <h3 className="text-white font-semibold text-base">{name}</h3>
                                 <p className="text-muted-foreground text-sm">{artist}</p>
